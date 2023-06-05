@@ -2,19 +2,30 @@ class MedicaidSDK {
     constructor(){
         this.baseUrl = 'https://data.medicaid.gov/api/1/metastore/schemas/dataset/items';
         this.items = [];
+        this.fetchPromise = null;
     }
 
-    async fetchItems(){
-        if(this.items.length>0){
-            return this.items // if cached no need to retrieve again
-        }else{
-            this.items = await (await fetch(this.baseUrl)).json();
-            const loadedAt = `Medicaid SDK loaded at \n${Date()}`;
-            console.log(loadedAt);
-            return this.items;
+    async fetchItems() {
+        if (this.items.length > 0) {
+            return this.items; // If cached, no need to retrieve again
         }
-    }
 
+        if (!this.fetchPromise) {
+            this.fetchPromise = new Promise(async (resolve) => {
+                try {
+                    const response = await fetch(this.baseUrl);
+                    this.items = await response.json();
+                    const loadedAt = `Medicaid SDK loaded at \n${Date()}`;
+                    console.log(loadedAt);
+                } catch (error) {
+                    console.error('Error fetching items:', error);
+                } finally {
+                    resolve(this.items);
+                }
+            });
+        }
+        return this.fetchPromise;
+    }
     async getItemByTitleName(databaseTitle) {
         const items = await this.fetchItems();
         return items.filter(item => item.title.toLocaleUpperCase() === databaseTitle.toLocaleUpperCase());
@@ -47,8 +58,3 @@ medicaidSDK.getItemByDescription(s).then(r => console.log(r[0].title));
 medicaidSDK.getItemByIdentifier('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r[0].title));
 medicaidSDK.getItemByTitleName('2017 Child and Adult Health Care Quality Measures').then(r => console.log(r[0].title));
 medicaidSDK.getItemByKeyword('performance rates').then(r => console.log(r[0].title));
-
-
-
-
-
