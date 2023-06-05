@@ -1,0 +1,13 @@
+{
+  "name": "medicaid",
+  "version": "1.0.0",
+  "description": "Medicaid SDK",
+  "dependencies": {
+
+  },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/KunaalAgarwal/medicaid.git"
+  },
+  "author": "Kunaal Agarwal"
+}
