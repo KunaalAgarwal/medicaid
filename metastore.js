@@ -14,10 +14,23 @@ async function getAllItems(){
     }
 }
 
-async function getItemByTitleName(databaseTitle) {
+async function getAllItemsUrls(){
+    let urlArray = [];
     try{
-        const items =  await fetchItems("metastore/schemas/dataset/items");
-        return items.filter(item => item.title.toLocaleUpperCase() === databaseTitle.toLocaleUpperCase());
+        const items = await getAllItems().then();
+        for (let dbItem of Object.values(items)){
+            urlArray.push(parseDownloadUrl(dbItem));
+        }
+        return urlArray;
+    }catch(Error){
+        console.log("The request could not be fulfilled");
+    }
+}
+
+async function getItemByTitleName(dbTitle) {
+    try{
+        const items =  await getAllItems();
+        return items.filter(item => item.title.toLocaleUpperCase() === dbTitle.toLocaleUpperCase());
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -26,7 +39,7 @@ async function getItemByTitleName(databaseTitle) {
 
 async function getItemByKeyword(dbKeyword){
     try{
-        const items =  await fetchItems("metastore/schemas/dataset/items");
+        const items =  await getAllItems();
         return items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === dbKeyword.toLocaleUpperCase()));
     }catch (Error){
         console.log("The request could not be fulfilled.");
@@ -35,7 +48,7 @@ async function getItemByKeyword(dbKeyword){
 
 async function getItemByDescription(dbDescription) {
     try{
-        const items =  await fetchItems("metastore/schemas/dataset/items");
+        const items =  await getAllItems();
         return items.filter(item => item.description.toLocaleUpperCase() === dbDescription.toLocaleUpperCase());
     }catch (Error){
         console.log("The request could not be fulfilled.");
@@ -44,13 +57,12 @@ async function getItemByDescription(dbDescription) {
 
 async function filterItemsByIdentifier(dbIdentifier) {
     try{
-        const items =  await fetchItems("metastore/schemas/dataset/items");
+        const items =  await getAllItems();
         return items.filter(item => item.identifier.toLocaleUpperCase() === dbIdentifier.toLocaleUpperCase());
     }catch (Error){
         console.log("The request could not be fulfilled.");
     }
 }
-
 
 //endpoint is directly at a single database
 async function getItemByIdentifier(dbIdentifier){
@@ -60,31 +72,27 @@ async function getItemByIdentifier(dbIdentifier){
         console.log("The request could not be fulfilled.");
     }
 }
-async function getItemTitle(identifier){
-    return (await getItemByIdentifier(identifier)).title;
+async function getItemTitle(dbIdentifier){
+    return (await getItemByIdentifier(dbIdentifier)).title;
 }
 
 async function getItemDownloadLink(identifier){
-    let distributionJson = (await getItemByIdentifier(identifier)).distribution
-    return distributionJson[0].downloadURL;
+    let dbItem = await getItemByIdentifier(identifier);
+    return parseDownloadUrl(dbItem);
+}
+
+function parseDownloadUrl(dbItem){
+    return (dbItem.distribution)[0].downloadURL;
 }
 
 export {
+    getAllItems,
+    getAllItemsUrls,
     getItemByTitleName,
     getItemByKeyword,
     getItemByDescription,
     getItemByIdentifier,
-    filterItemsByIdentifier
+    filterItemsByIdentifier,
+    getItemTitle,
+    getItemDownloadLink
 }
-
-getItemTitle('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r));
-getItemDownloadLink('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r));
-
-
-// getAllItems().then(r => console.log(r));
-
-// getItemByIdentifier('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r));
-// getItemByIdentifier('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r));
-//
-// filterItemsByIdentifier('c1028fdf-2e43-5d5e-990b-51ed03428625').then(r => console.log(r));
-// getItemByTitleName('2017 Child and Adult Health Care Quality Measures').then(r => console.log(r));

@@ -3,11 +3,15 @@ const baseUrl = "https://data.medicaid.gov/api/1/";
 let cache = {};
 
 import {
+    getAllItems,
+    getAllItemsUrls,
     getItemByTitleName,
     getItemByKeyword,
     getItemByDescription,
     getItemByIdentifier,
-    filterItemsByIdentifier
+    filterItemsByIdentifier,
+    getItemTitle,
+    getItemDownloadLink
 } from './metastore.js';
 
 async function fetchItems(endpoint) {
@@ -37,11 +41,15 @@ async function fetchItems(endpoint) {
 
 export {
     fetchItems,
+    getAllItems,
+    getAllItemsUrls,
     getItemByTitleName,
     getItemByKeyword,
     getItemByDescription,
     getItemByIdentifier,
-    filterItemsByIdentifier
+    filterItemsByIdentifier,
+    getItemTitle,
+    getItemDownloadLink
 }
 
 
