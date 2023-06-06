@@ -3,6 +3,8 @@
 // keyword 'performance rates'
 // identifier: 'c1028fdf-2e43-5d5e-990b-51ed03428625'
 import {fetchItems} from './sdk.js';
+
+//endpoint returns all databases and some metadata
 async function getItemByTitleName(databaseTitle) {
     try{
         const items =  await fetchItems("metastore/schemas/dataset/items");
@@ -31,14 +33,6 @@ async function getItemByDescription(dbDescription) {
     }
 }
 
-async function getItemByIdentifier(dbIdentifier){
-    try {
-        return await fetchItems("metastore/schemas/dataset/items/" + dbIdentifier);
-    } catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
-}
-
 async function filterItemsByIdentifier(dbIdentifier) {
     try{
         const items =  await fetchItems("metastore/schemas/dataset/items");
@@ -47,6 +41,18 @@ async function filterItemsByIdentifier(dbIdentifier) {
         console.log("The request could not be fulfilled.");
     }
 }
+
+
+//endpoint is directly at a single database
+async function getItemByIdentifier(dbIdentifier){
+    try {
+        return await fetchItems("metastore/schemas/dataset/items/" + dbIdentifier);
+    } catch (Error){
+        console.log("The request could not be fulfilled.");
+    }
+}
+
+
 
 
 export {

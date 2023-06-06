@@ -1,7 +1,14 @@
 const loadedAt = `Medicaid SDK loaded at \n${Date()}`;
 const baseUrl = "https://data.medicaid.gov/api/1/";
-let cache = {}
+let cache = {};
 
+import {
+    getItemByTitleName,
+    getItemByKeyword,
+    getItemByDescription,
+    getItemByIdentifier,
+    filterItemsByIdentifier
+} from './metastore.js';
 
 async function fetchItems(endpoint) {
     if (cache[endpoint] !== undefined) {
@@ -29,6 +36,11 @@ async function fetchItems(endpoint) {
 
 
 export {
-    fetchItems
+    fetchItems,
+    getItemByTitleName,
+    getItemByKeyword,
+    getItemByDescription,
+    getItemByIdentifier,
+    filterItemsByIdentifier
 }
 
