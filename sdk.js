@@ -1,12 +1,16 @@
 const loadedAt = `Medicaid SDK loaded at \n${Date()}`;
-const baseUrl = "https://data.medicaid.gov/api/1/";
+const baseUrl = `https://data.medicaid.gov/api/1/`;
 let cache = {};
 
 import {
+    getSchemas,
+    getSpecificSchema,
+    getSchemaItems,
     getAllDatasetUrls,
     getDatasetByTitleName,
     getDatasetByKeyword,
     getDatasetByDescription,
+    getSchemaItemById,
     getDatasetById
 } from './sdk/metastore.js';
 
@@ -19,10 +23,11 @@ async function fetchItems(endpoint) {
     if (cache[endpoint] !== undefined) {
         return cache[endpoint];
     } else {
+        console.log(loadedAt);
         cache[endpoint] = fetch(baseUrl + endpoint)
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('API response was invalid');
+                    throw new Error(`API response was invalid`);
                 }
                 return response.json();
             })
@@ -70,13 +75,16 @@ async function postItem(endpoint, payload, headerContent){
 
 
 export {
-    fetchItems,
-    postItem,
+    getSchemas,
+    getSpecificSchema,
+    getSchemaItems,
     getAllDatasetUrls,
     getDatasetByTitleName,
     getDatasetByKeyword,
     getDatasetByDescription,
+    getSchemaItemById,
     getDatasetById,
+    //datastore
     getDatastoreImport
 }
 
