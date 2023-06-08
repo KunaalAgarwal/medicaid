@@ -50,10 +50,10 @@ function parseDownloadLink(dataset){
     return (dataset.distribution[0]).downloadURL;
 }
 
-async function getDatasetByTitleName(dbTitle) {
+async function getDatasetByTitleName(datasetTitle) {
     try{
         const items =  await getSchemaItems("dataset");
-        let filteredItems = items.filter(item => item.title.toLocaleUpperCase() === dbTitle.toLocaleUpperCase());
+        let filteredItems = items.filter(item => item.title.toLocaleUpperCase() === datasetTitle.toLocaleUpperCase());
         if (filteredItems.length > 1){
             return filteredItems;
         }
@@ -66,10 +66,10 @@ async function getDatasetByTitleName(dbTitle) {
     }
 }
 
-async function getDatasetByKeyword(dbKeyword){
+async function getDatasetByKeyword(datasetKeyword){
     try{
         const items =  await getSchemaItems("dataset");
-        let filteredItems = items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === dbKeyword.toLocaleUpperCase()));
+        let filteredItems = items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === datasetKeyword.toLocaleUpperCase()));
         if (filteredItems.length > 1){
             return filteredItems;
         }
@@ -82,10 +82,10 @@ async function getDatasetByKeyword(dbKeyword){
     }
 }
 
-async function getDatasetByDescription(dbDescription) {
+async function getDatasetByDescription(datasetDescription) {
     try{
         const items =  await getSchemaItems("dataset");
-        let filteredItems = items.filter(item => item.description.toLocaleUpperCase() === dbDescription.toLocaleUpperCase());
+        let filteredItems = items.filter(item => item.description.toLocaleUpperCase() === datasetDescription.toLocaleUpperCase());
         if (filteredItems.length > 1){
             return filteredItems;
         }

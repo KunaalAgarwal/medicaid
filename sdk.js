@@ -14,7 +14,16 @@ import {
     getSpecificSchema
 } from './sdk/metastore.js';
 
-import {datastoreQuery, getDatastoreImport} from './sdk/datastore.js';
+import {
+    postDatastoreQuery,
+    getDatastoreImport,
+    postDatastoreQueryDownload,
+    postDatastoreQueryDistributionId,
+    postDatastoreQueryDatasetId,
+    getDatastoreQueryDistributionId,
+    getDatastoreQueryDatasetId,
+    getAllDataFromDataset
+} from './sdk/datastore.js';
 
 
 async function fetchItems(endpoint) {
@@ -48,11 +57,34 @@ async function postItem(endpoint, payload, headerContent) {
     };
     try {
         const response = await fetch(baseUrl + endpoint, options);
-
         if (response.ok) {
             return await response.json();
-        } else {
-            console.log("Bad request: JSON Schema failed.")
+        }else if(response.status === 503){
+            console.log("API Service temporarily unavailable");
+        }
+        else {
+            console.log("Invalid json or identifier");
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+async function postDownloadableItem(endpoint, payload, headerContent) {
+    const options = {
+        method: 'POST',
+        headers: headerContent,
+        body: JSON.stringify(payload)
+    };
+    try {
+        const response = await fetch(baseUrl + endpoint, options);
+        if (response.ok) {
+            return await response.blob();
+        }else if(response.status === 503){
+            console.log("API Service temporarily unavailable");
+        }
+        else {
+            console.log("Invalid json or identifier");
         }
     } catch (error) {
         console.error('Error:', error.message);
@@ -77,6 +109,7 @@ async function postItem(endpoint, payload, headerContent) {
 export {
     fetchItems,
     postItem,
+    postDownloadableItem,
     getSchemas,
     getSpecificSchema,
     getSchemaItems,
@@ -88,7 +121,13 @@ export {
     getDatasetById,
     //datastore
     getDatastoreImport,
-    datastoreQuery
+    postDatastoreQuery,
+    postDatastoreQueryDownload,
+    postDatastoreQueryDistributionId,
+    postDatastoreQueryDatasetId,
+    getDatastoreQueryDistributionId,
+    getDatastoreQueryDatasetId,
+    getAllDataFromDataset
 }
 
 
