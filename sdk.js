@@ -1,5 +1,5 @@
 const loadedAt = `Medicaid SDK loaded at \n${Date()}`;
-const baseUrl = `https://data.medicaid.gov/api/1/`;
+const baseUrl = 'https://data.medicaid.gov/api/1/';
 let cache = {};
 
 import {
@@ -15,7 +15,8 @@ import {
 } from './sdk/metastore.js';
 
 import {
-    getDatastoreImport
+    getDatastoreImport,
+    datastoreQuery
 } from './sdk/datastore.js';
 
 
@@ -23,7 +24,6 @@ async function fetchItems(endpoint) {
     if (cache[endpoint] !== undefined) {
         return cache[endpoint];
     } else {
-        console.log(loadedAt);
         cache[endpoint] = fetch(baseUrl + endpoint)
             .then((response) => {
                 if (!response.ok) {
@@ -52,7 +52,6 @@ async function postItem(endpoint, payload, headerContent){
     return fetch(baseUrl+endpoint,options)
         .then(response => response.json())
         .then(data => {
-            console.log("Item created", data);
             return data
         })
         .catch(error => {
@@ -75,6 +74,8 @@ async function postItem(endpoint, payload, headerContent){
 
 
 export {
+    fetchItems,
+    postItem,
     getSchemas,
     getSpecificSchema,
     getSchemaItems,
@@ -85,7 +86,8 @@ export {
     getSchemaItemById,
     getDatasetById,
     //datastore
-    getDatastoreImport
+    getDatastoreImport,
+    datastoreQuery
 }
 
 
