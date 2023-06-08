@@ -4,7 +4,7 @@
 // identifier: 'c1028fdf-2e43-5d5e-990b-51ed03428625' and '53426d8c-82b5-5dec-b44b-0f935b4603e5'
 
 //schema types: dataset, distribution/datastore, keyword, publisher, theme, data-dictionary
-import {fetchItems} from 'sdk.js';
+import {fetchItems} from '../sdk.js';
 
 //endpoint: "metastore/schemas/";
 async function getSchemas(){
@@ -103,6 +103,7 @@ async function getDatasetById(datasetId){
         console.log("The request could not be fulfilled.");
     }
 }
+
 
 export {
     getAllDbUrls,
