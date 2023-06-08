@@ -9,16 +9,6 @@
 <header>
     <div class="header-container">
         <h1>Medicaid SDK</h1>
-<!--        <nav>-->
-<!--            <ul>-->
-<!--                <li><a href="#overview">Overview</a></li>-->
-<!--                <li><a href="#installation">Installation</a></li>-->
-<!--                <li><a href="#usage">Usage</a></li>-->
-<!--                <li><a href="#documentation">Documentation</a></li>-->
-<!--                <li><a href="#examples">Examples</a></li>-->
-<!--                <li><a href="#support">Support</a></li>-->
-<!--            </ul>-->
-<!--        </nav>-->
         <div class="button-container">
             <div class="code-button">
                 <a href="https://github.com/KunaalAgarwal/medicaid" class="button">Code</a>
@@ -60,12 +50,11 @@
         <p>
             To use the Medicaid SDK in your project, import it in your JavaScript code:
         </p>
-        <pre><code>import MedicaidSDK from 'medicaid-sdk';</code></pre>
+        <pre><code>sdk = await import "https://kunaalagarwal.github.io/medicaid/sdk.js";</code></pre>
         <p>
             Then, initialize the SDK and start making API calls:
         </p>
-        <pre><code>const medicaid = new MedicaidSDK();
-medicaid.authenticate(username, password);
+        <pre><code>data = sdk.getAllItems();
 // Make API calls...</code></pre>
     </section>
 
