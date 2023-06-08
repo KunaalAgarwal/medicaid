@@ -3,21 +3,18 @@ const baseUrl = 'https://data.medicaid.gov/api/1/';
 let cache = {};
 
 import {
-    getSchemas,
-    getSpecificSchema,
-    getSchemaItems,
     getAllDatasetUrls,
-    getDatasetByTitleName,
-    getDatasetByKeyword,
     getDatasetByDescription,
+    getDatasetById,
+    getDatasetByKeyword,
+    getDatasetByTitleName,
     getSchemaItemById,
-    getDatasetById
+    getSchemaItems,
+    getSchemas,
+    getSpecificSchema
 } from './sdk/metastore.js';
 
-import {
-    getDatastoreImport,
-    datastoreQuery
-} from './sdk/datastore.js';
+import {datastoreQuery, getDatastoreImport} from './sdk/datastore.js';
 
 
 async function fetchItems(endpoint) {
@@ -43,21 +40,25 @@ async function fetchItems(endpoint) {
     }
 }
 
-async function postItem(endpoint, payload, headerContent){
+async function postItem(endpoint, payload, headerContent) {
     const options = {
-        method: "POST",
+        method: 'POST',
         headers: headerContent,
         body: JSON.stringify(payload)
+    };
+    try {
+        const response = await fetch(baseUrl + endpoint, options);
+
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.log("Bad request: JSON Schema failed.")
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
     }
-    return fetch(baseUrl+endpoint,options)
-        .then(response => response.json())
-        .then(data => {
-            return data
-        })
-        .catch(error => {
-            console.log('An error occurred when creating the item.');
-        });
 }
+
 
 // async function deleteItem(endpoint){
 //     const options = {
