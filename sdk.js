@@ -3,10 +3,10 @@ const baseUrl = "https://data.medicaid.gov/api/1/";
 let cache = {};
 
 import {
-    getAllDbUrls,
-    getItemByTitleName,
-    getItemByKeyword,
-    getItemByDescription,
+    getAllDatasetUrls,
+    getDatasetByTitleName,
+    getDatasetByKeyword,
+    getDatasetByDescription,
     getDatasetById
 } from './sdk/metastore.js';
 
@@ -72,10 +72,10 @@ async function postItem(endpoint, payload, headerContent){
 export {
     fetchItems,
     postItem,
-    getAllDbUrls,
-    getItemByTitleName,
-    getItemByKeyword,
-    getItemByDescription,
+    getAllDatasetUrls,
+    getDatasetByTitleName,
+    getDatasetByKeyword,
+    getDatasetByDescription,
     getDatasetById,
     getDatastoreImport
 }

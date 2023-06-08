@@ -34,7 +34,7 @@ async function getSchemaItems(schemaName){
     }
 }
 
-async function getAllDbUrls(){
+async function getAllDatasetUrls(){
     let urlArray = [];
     try{
         for (let dbItem of Object.values(await getSchemaItems("dataset").then())){
@@ -50,15 +50,15 @@ function parseDownloadLink(dataset){
     return (dataset.distribution[0]).downloadURL;
 }
 
-async function getItemByTitleName(dbTitle) {
+async function getDatasetByTitleName(dbTitle) {
     try{
         const items =  await getSchemaItems("dataset");
         let filteredItems = items.filter(item => item.title.toLocaleUpperCase() === dbTitle.toLocaleUpperCase());
         if (filteredItems.length > 1){
-            return filteredItems
+            return filteredItems;
         }
         else if (filteredItems.length === 1){
-            return filteredItems[0]
+            return filteredItems[0];
         }
         return null;
     } catch (Error){
@@ -66,27 +66,39 @@ async function getItemByTitleName(dbTitle) {
     }
 }
 
-
-async function getItemByKeyword(dbKeyword){
+async function getDatasetByKeyword(dbKeyword){
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === dbKeyword.toLocaleUpperCase()));
+        let filteredItems = items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === dbKeyword.toLocaleUpperCase()));
+        if (filteredItems.length > 1){
+            return filteredItems;
+        }
+        else if (filteredItems.length === 1){
+            return filteredItems[0]
+        }
+        return null;
     }catch (Error){
         console.log("The request could not be fulfilled.");
     }
 }
 
-async function getItemByDescription(dbDescription) {
+async function getDatasetByDescription(dbDescription) {
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.description.toLocaleUpperCase() === dbDescription.toLocaleUpperCase());
-    }catch (Error){
+        let filteredItems = items.filter(item => item.description.toLocaleUpperCase() === dbDescription.toLocaleUpperCase());
+        if (filteredItems.length > 1){
+            return filteredItems;
+        }
+        else if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return null;
+    } catch (Error){
         console.log("The request could not be fulfilled.");
     }
 }
 
-
-//endpoint: metastore/schemas/dataset/items/{identifier}
+//endpoint: metastore/schemas/{schema}/items/{identifier}
 async function getSchemaItemById(schemaName, itemId){
     try {
         return await fetchItems(`metastore/schemas/${schemaName}/items/${itemId}`);
@@ -104,12 +116,15 @@ async function getDatasetById(datasetId){
     }
 }
 
-
 export {
-    getAllDbUrls,
-    getItemByTitleName,
-    getItemByKeyword,
-    getItemByDescription,
+    getSchemas,
+    getSpecificSchema,
+    getSchemaItems,
+    getAllDatasetUrls,
+    getDatasetByTitleName,
+    getDatasetByKeyword,
+    getDatasetByDescription,
+    getSchemaItemById,
     getDatasetById
 }
 
