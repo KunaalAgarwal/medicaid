@@ -32,9 +32,9 @@ function setRequestBody(datastoreId, columnName, columnValue, operator, limit){
         ]
     }
 }
-async function datastoreQuery(datastoreId, columnName, columnValue, operator) {
+async function datastoreQuery(datastoreId, columnName, columnValue, operator, limit) {
     let headers = {'Content-Type': 'application/json'}
-    let requestBody = setRequestBody(datastoreId, columnName, columnValue, operator)
+    let requestBody = setRequestBody(datastoreId, columnName, columnValue, operator, limit);
     try{
         let response = await postItem('datastore/query', requestBody, headers);
         return response.results;
@@ -44,7 +44,7 @@ async function datastoreQuery(datastoreId, columnName, columnValue, operator) {
 }
 
 // getDatastoreImport('11196f15-1a77-5b80-97f3-c46c0ce19894').then(r => console.log(r));
-datastoreQuery('11196f15-1a77-5b80-97f3-c46c0ce19894', 'domain', "Dental and Oral Health Services",'=', 2).then(r => console.log(r));
+datastoreQuery('11196f15-1a77-5b80-97f3-c46c0ce19894', 'domain', "Dental and Oral Health Services",'=', 1).then(r => console.log(r));
 
 export{
     getDatastoreImport,
