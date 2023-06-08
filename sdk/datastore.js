@@ -2,7 +2,7 @@
 //datastore = distribution
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
-import {fetchItems, postItem, postDownloadableItem} from '../sdk.js';
+import {fetchItems, postItem, postDownloadableItem, fetchDownloadableItem} from '../sdk.js';
 
 async function getDatastoreImport(datastoreId){
     try {
@@ -14,7 +14,7 @@ async function getDatastoreImport(datastoreId){
 
 //datastore: query
 
-async function postDatastoreQuery(datastoreId, columnName, columnValue, limit, operator) {
+async function postDatastoreQuery(datastoreId, columnName, columnValue,operator = "=", limit = 0) {
     let headers = {'Content-Type': 'application/json'}
     let requestBody = {
         "conditions": [
@@ -41,7 +41,7 @@ async function postDatastoreQuery(datastoreId, columnName, columnValue, limit, o
     }
 }
 
-async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, limit, operator = "="){
+async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'text/csv'}
     let requestBody = {
         "conditions": [
@@ -68,7 +68,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
     }
 }
 
-async function postDatastoreQueryDistributionId(distributionId, columnName, columnValue, operator, limit){
+async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
     let requestBody = {
         "conditions": [
@@ -98,7 +98,7 @@ async function getDatastoreQueryDistributionId(distributionId, limit = 0, offset
     }
 }
 
-async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, limit, operator = "="){
+async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
     let requestBody = {
         "conditions": [
@@ -111,12 +111,12 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, l
         ],
         "limit": limit
     }
-    try{
-        let response = await postItem(`datastore/query/${datasetId}/${0}`, requestBody, headers);
+    // try{
+        let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
         return response.results;
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
-    }
+    // }catch (Error){
+    //     console.log("The post could not be fulfilled.");
+    // }
 }
 
 async function getDatastoreQueryDatasetId(datasetId, limit=0, offset=0){
@@ -132,14 +132,21 @@ async function getAllDataFromDataset(datasetId){
     return getDatastoreQueryDatasetId(datasetId);
 }
 
+async function getDownloadByDistributionId(distributionId, format = "csv"){
+    try{
+        return await fetchDownloadableItem(`datastore/query/${distributionId}/download?format=${format}`);
+    }catch(Error){
+        console.log("The request could not be fulfilled");
+    }
+}
 
-// getDatastoreImport('11196f15-1a77-5b80-97f3-c46c0ce19894').then(r => console.log(r));
-// postDatastoreQuery("11196f15-1a77-5b80-97f3-c46c0ce19894","record_number", 1, 3, "=").then(r => console.log(r));
-// postDatastoreQueryDatasetId("c1028fdf-2e43-5d5e-990b-51ed03428625","record_number", 1, 3, "=").then(r => console.log(r));
-// getDatastoreQueryDistributionId('11196f15-1a77-5b80-97f3-c46c0ce19894', 1, 1).then(r => console.log(r));
-// getDatastoreQueryDatasetId("c1028fdf-2e43-5d5e-990b-51ed03428625",1,1).then(r => console.log(r));
-// datastoreQueryDownload("11196f15-1a77-5b80-97f3-c46c0ce19894","record_number", 1, 3, "=").then(r => console.log(r));
-
+async function getDownloadByDatasetI(datasetId, format = "csv"){
+    try{
+        return await fetchDownloadableItem(`datastore/query/${datasetId}/0/download?format=${format}`);
+    }catch(Error){
+        console.log("The request could not be fulfilled");
+    }
+}
 
 export{
     getDatastoreImport,

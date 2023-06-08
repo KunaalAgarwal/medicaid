@@ -49,6 +49,29 @@ async function fetchItems(endpoint) {
     }
 }
 
+async function fetchDownloadableItem(endpoint){
+    if (cache[endpoint] !== undefined) {
+        return cache[endpoint];
+    } else {
+        cache[endpoint] = fetch(baseUrl + endpoint)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`API response was invalid`);
+                }
+                return response.blob();
+            })
+            .then((data) => {
+                cache[endpoint] = data; // Cache the response
+                return data;
+            })
+            .catch((error) => {
+                delete cache[endpoint]; // Remove the entry from cache in case of error
+                throw error;
+            });
+        return cache[endpoint];
+    }
+}
+
 async function postItem(endpoint, payload, headerContent) {
     const options = {
         method: 'POST',
@@ -110,6 +133,8 @@ export {
     fetchItems,
     postItem,
     postDownloadableItem,
+    fetchDownloadableItem,
+    //metastore
     getSchemas,
     getSpecificSchema,
     getSchemaItems,
