@@ -130,16 +130,21 @@ async function getDatastoreQueryDatasetId(datasetId, limit=0, offset=0){
 }
 
 async function getAllDataFromDataset(datasetId) {
-    let allData = [];
-    for (let i = 0; i < Infinity; i++) {
-        console.log(i);
-        let offset = i * 10000;
-        const result = await getDatastoreQueryDatasetId(datasetId, 10000, offset);
-        allData.push(result);
-        if (result.length < 10000) {
-            break;
+    const allData = [];
+    const limit = 10000;
+    let offset = 0;
+    let results = [];
+
+    do {
+        const promises = [];
+        for (let i = 0; i < 10; i++) { //can adjust number of parallelized requests
+            promises.push(getDatastoreQueryDatasetId(datasetId, limit, offset));
+            offset += limit;
         }
-    }
+        results = await Promise.all(promises);
+        results.forEach(result => allData.push(...result));
+    } while (results.some(result => result.length === limit));
+
     return allData;
 }
 
