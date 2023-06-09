@@ -175,8 +175,7 @@ async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
     }
 }
 
-getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r));
-// getDatastoreQueryDatasetId('d5eaf378-dcef-5779-83de-acdd8347d68e',10000).then(r => console.log(r))
+// getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r));
 
 export{
     getDatastoreImport,
