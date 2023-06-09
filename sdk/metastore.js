@@ -4,12 +4,12 @@
 // identifier: 'c1028fdf-2e43-5d5e-990b-51ed03428625' and '53426d8c-82b5-5dec-b44b-0f935b4603e5'
 
 //schema types: dataset, distribution/datastore, keyword, publisher, theme, data-dictionary
-import {fetchItems} from '../sdk.js';
+import {getItems} from '../sdk.js';
 
 //endpoint: "metastore/schemas/";
 async function getSchemas(){
     try{
-        return await fetchItems("metastore/schemas");
+        return await getItems("metastore/schemas");
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -19,7 +19,7 @@ async function getSchemas(){
 
 async function getSpecificSchema(schemaName){
     try{
-        return fetchItems(`metastore/schemas/${schemaName}`);
+        return getItems(`metastore/schemas/${schemaName}`);
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -28,7 +28,7 @@ async function getSpecificSchema(schemaName){
 //ENDPOINT: "metastore/schemas/{schema}/items"
 async function getSchemaItems(schemaName){
     try{
-        return fetchItems(`metastore/schemas/${schemaName}/items`);
+        return getItems(`metastore/schemas/${schemaName}/items`);
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -101,7 +101,7 @@ async function getDatasetByDescription(datasetDescription) {
 //endpoint: metastore/schemas/{schema}/items/{identifier}
 async function getSchemaItemById(schemaName, itemId){
     try {
-        return await fetchItems(`metastore/schemas/${schemaName}/items/${itemId}`);
+        return await getItems(`metastore/schemas/${schemaName}/items/${itemId}`);
 
     } catch (Error){
         console.log("The request could not be fulfilled.");
@@ -110,7 +110,7 @@ async function getSchemaItemById(schemaName, itemId){
 
 async function getDatasetById(datasetId){
     try {
-        return await fetchItems(`metastore/schemas/dataset/items/${datasetId}`);
+        return await getItems(`metastore/schemas/dataset/items/${datasetId}`);
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }

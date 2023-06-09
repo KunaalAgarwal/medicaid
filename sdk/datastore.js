@@ -2,11 +2,11 @@
 //datastore = distribution
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
-import {fetchItems, postItem, postDownloadableItem, fetchDownloadableItem} from '../sdk.js';
+import {getItems, postItem, postDownloadableItem} from '../sdk.js';
 
 async function getDatastoreImport(datastoreId){
     try {
-        return await fetchItems(`datastore/imports/${datastoreId}`);
+        return await getItems(`datastore/imports/${datastoreId}`);
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -91,7 +91,7 @@ async function postDatastoreQueryDistributionId(datastoreId, columnName, columnV
 async function getDatastoreQueryDistributionId(distributionId, limit = 0, offset = 0){
     //offset is starting index, if limit is zero then having an offset will lead to a null array
     try{
-        let items = await fetchItems(`datastore/query/${distributionId}?limit=${limit}&offset=${offset}`);
+        let items = await getItems(`datastore/query/${distributionId}?limit=${limit}&offset=${offset}`);
         return items.results;
     } catch (Error){
         console.log("The request could not be fulfilled.");
@@ -121,7 +121,7 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
 
 async function getDatastoreQueryDatasetId(datasetId, limit=0, offset=0){
     try{
-        let items = await fetchItems(`datastore/query/${datasetId}/${0}?limit=${limit}&offset=${offset}`);
+        let items = await getItems(`datastore/query/${datasetId}/${0}?limit=${limit}&offset=${offset}`);
         return items.results;
     } catch (Error){
         console.log("The request could not be fulfilled.");
@@ -134,19 +134,43 @@ async function getAllDataFromDataset(datasetId){
 
 async function getDownloadByDistributionId(distributionId, format = "csv"){
     try{
-        return await fetchDownloadableItem(`datastore/query/${distributionId}/download?format=${format}`);
+        return await getItems(`datastore/query/${distributionId}/download?format=${format}`, true);
     }catch(Error){
         console.log("The request could not be fulfilled");
     }
 }
 
-async function getDownloadByDatasetI(datasetId, format = "csv"){
+async function getDownloadByDatasetId(datasetId, format = "csv"){
     try{
-        return await fetchDownloadableItem(`datastore/query/${datasetId}/0/download?format=${format}`);
+        return await getItems(`datastore/query/${datasetId}/0/download?format=${format}`, true);
     }catch(Error){
         console.log("The request could not be fulfilled");
     }
 }
+
+function setSqlQuery(datastoreId, columnName, columnValue, limit, offset){
+    // [SELECT * FROM id][WHERE columnName = "columnValue"][LIMIT x OFFSET y];
+    let baseQuery = `[SELECT * FROM ${datastoreId}]`;
+    if (columnValue != null && columnName != null){
+        baseQuery += `[WHERE ${columnName} = "${columnValue}"]`;
+    }
+    if (limit !== null && offset !== null){
+        baseQuery += `[LIMIT ${limit} OFFSET ${offset}]`;
+    }
+    else if (limit !== null){
+        baseQuery += `[LIMIT ${limit}]`
+    }
+    return baseQuery;
+}
+async function getDatastoreQuerySql(id, columnName= null, columnValue = null, limit= null, offset = null){
+    try{
+        let sqlQuery = setSqlQuery(id, columnName, columnValue, limit, offset);
+        return await getItems(`datastore/sql?query=${sqlQuery};&show_db_columns=true`);
+    }catch(Error){
+        console.log("The request could not be fulfilled");
+    }
+}
+// getDatastoreQuerySql('11196f15-1a77-5b80-97f3-c46c0ce19894', null, null, 3).then(r => console.log(r));
 
 export{
     getDatastoreImport,
@@ -156,6 +180,8 @@ export{
     postDatastoreQueryDatasetId,
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
-    getAllDataFromDataset
-
+    getAllDataFromDataset,
+    getDownloadByDistributionId,
+    getDownloadByDatasetId,
+    getDatastoreQuerySql
 }

@@ -22,11 +22,14 @@ import {
     postDatastoreQueryDatasetId,
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
-    getAllDataFromDataset
+    getAllDataFromDataset,
+    getDownloadByDistributionId,
+    getDownloadByDatasetId,
+    getDatastoreQuerySql
 } from './sdk/datastore.js';
 
 
-async function fetchItems(endpoint) {
+async function getItems(endpoint, downloadFlag = false) {
     if (cache[endpoint] !== undefined) {
         return cache[endpoint];
     } else {
@@ -34,31 +37,11 @@ async function fetchItems(endpoint) {
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`API response was invalid`);
+                }
+                if (downloadFlag){
+                    return response.blob();
                 }
                 return response.json();
-            })
-            .then((data) => {
-                cache[endpoint] = data; // Cache the response
-                return data;
-            })
-            .catch((error) => {
-                delete cache[endpoint]; // Remove the entry from cache in case of error
-                throw error;
-            });
-        return cache[endpoint];
-    }
-}
-
-async function fetchDownloadableItem(endpoint){
-    if (cache[endpoint] !== undefined) {
-        return cache[endpoint];
-    } else {
-        cache[endpoint] = fetch(baseUrl + endpoint)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`API response was invalid`);
-                }
-                return response.blob();
             })
             .then((data) => {
                 cache[endpoint] = data; // Cache the response
@@ -130,10 +113,9 @@ async function postDownloadableItem(endpoint, payload, headerContent) {
 
 
 export {
-    fetchItems,
+    getItems,
     postItem,
     postDownloadableItem,
-    fetchDownloadableItem,
     //metastore
     getSchemas,
     getSpecificSchema,
@@ -152,7 +134,10 @@ export {
     postDatastoreQueryDatasetId,
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
-    getAllDataFromDataset
+    getAllDataFromDataset,
+    getDownloadByDistributionId,
+    getDownloadByDatasetId,
+    getDatastoreQuerySql
 }
 
 
