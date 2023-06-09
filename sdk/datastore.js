@@ -129,8 +129,18 @@ async function getDatastoreQueryDatasetId(datasetId, limit=0, offset=0){
     }
 }
 
-async function getAllDataFromDataset(datasetId){
-    return getDatastoreQueryDatasetId(datasetId);
+async function getAllDataFromDataset(datasetId) {
+    let allData = [];
+    for (let i = 0; i < Infinity; i++) {
+        console.log(i);
+        let offset = i * 10000;
+        const result = await getDatastoreQueryDatasetId(datasetId, 10000, offset);
+        allData.push(result);
+        if (result.length < 10000) {
+            break;
+        }
+    }
+    return allData;
 }
 
 async function getDownloadByDistributionId(distributionId, format = "csv"){
@@ -160,8 +170,8 @@ async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
     }
 }
 
-// getDatastoreQuerySql('[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"][LIMIT 1]').then(r => console.log(r));
-// getDatastoreQuerySql('11196f15-1a77-5b80-97f3-c46c0ce19894', null, null, 3).then(r => console.log(r));
+getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r));
+// getDatastoreQueryDatasetId('d5eaf378-dcef-5779-83de-acdd8347d68e',10000).then(r => console.log(r))
 
 export{
     getDatastoreImport,
