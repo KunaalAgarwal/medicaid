@@ -98,6 +98,22 @@ async function getDatasetByDescription(datasetDescription) {
     }
 }
 
+async function getDatasetByDownloadUrl(url){
+    try{
+        const items =  await getSchemaItems("dataset");
+        let filteredItems = items.filter(item => item.description.toLocaleUpperCase() === datasetDescription.toLocaleUpperCase());
+        if (filteredItems.length > 1){
+            return filteredItems;
+        }
+        else if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return null;
+    } catch (Error){
+        console.log("The request could not be fulfilled.");
+    }
+}
+
 //endpoint: metastore/schemas/{schema}/items/{identifier}
 async function getSchemaItemById(schemaName, itemId){
     try {

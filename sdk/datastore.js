@@ -1,4 +1,5 @@
 //'11196f15-1a77-5b80-97f3-c46c0ce19894'
+//'d5eaf378-dcef-5779-83de-acdd8347d68e' nadac
 //datastore = distribution
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
@@ -111,12 +112,12 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
         ],
         "limit": limit
     }
-    // try{
+    try{
         let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
         return response.results;
-    // }catch (Error){
-    //     console.log("The post could not be fulfilled.");
-    // }
+    }catch (Error){
+        console.log("The post could not be fulfilled.");
+    }
 }
 
 async function getDatastoreQueryDatasetId(datasetId, limit=0, offset=0){
@@ -148,28 +149,18 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
     }
 }
 
-function setSqlQuery(datastoreId, columnName, columnValue, limit, offset){
-    // [SELECT * FROM id][WHERE columnName = "columnValue"][LIMIT x OFFSET y];
-    let baseQuery = `[SELECT * FROM ${datastoreId}]`;
-    if (columnValue != null && columnName != null){
-        baseQuery += `[WHERE ${columnName} = "${columnValue}"]`;
-    }
-    if (limit !== null && offset !== null){
-        baseQuery += `[LIMIT ${limit} OFFSET ${offset}]`;
-    }
-    else if (limit !== null){
-        baseQuery += `[LIMIT ${limit}]`
-    }
-    return baseQuery;
-}
-async function getDatastoreQuerySql(id, columnName= null, columnValue = null, limit= null, offset = null){
+async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
     try{
-        let sqlQuery = setSqlQuery(id, columnName, columnValue, limit, offset);
+        if (!showColumnFlag){
+            return await getItems(`datastore/sql?query=${sqlQuery}`);
+        }
         return await getItems(`datastore/sql?query=${sqlQuery};&show_db_columns=true`);
     }catch(Error){
         console.log("The request could not be fulfilled");
     }
 }
+
+// getDatastoreQuerySql('[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"][LIMIT 1]').then(r => console.log(r));
 // getDatastoreQuerySql('11196f15-1a77-5b80-97f3-c46c0ce19894', null, null, 3).then(r => console.log(r));
 
 export{
