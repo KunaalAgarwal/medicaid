@@ -3,7 +3,7 @@
 //datastore = distribution
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
-import {getItems, postItem, postDownloadableItem} from '../sdk.js';
+import {getItems, postItem, postDownloadableItem} from './httpMethods.js';
 
 async function getDatastoreImport(datastoreId){
     try {
