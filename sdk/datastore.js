@@ -165,17 +165,33 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
 }
 
 async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
+    //format sql as: '[SELECT * FROM datstore_id][WHERE columnName = "value"][LIMIT value OFFSET value]'
     try{
+        const allData = [];
+        let endpoint = `datastore/sql?query=${sqlQuery};&show_db_columns=true`
+
         if (!showColumnFlag){
-            return await getItems(`datastore/sql?query=${sqlQuery}`);
+            endpoint = `datastore/sql?query=${sqlQuery}`;
         }
-        return await getItems(`datastore/sql?query=${sqlQuery};&show_db_columns=true`);
+        if (!sqlQuery.includes("LIMIT")){
+            let limit = 10000;
+            let offset = 0;
+            while(true) {
+                const results = await getItems(endpoint)
+                allData.push(...results);
+                if (results.length < limit){
+                    break;
+                }
+                offset += limit;
+            }
+            return allData;
+        }
+
+        return await getItems(endpoint);
     }catch(Error){
         console.log("The request could not be fulfilled");
     }
 }
-
-// getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r));
 
 export{
     getDatastoreImport,

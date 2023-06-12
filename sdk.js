@@ -98,20 +98,6 @@ async function postDownloadableItem(endpoint, payload, headerContent) {
 }
 
 
-// async function deleteItem(endpoint){
-//     const options = {
-//         method: 'DELETE'
-//     }
-//     return fetch(baseUrl+endpoint)
-//         .then(response => {
-//             console.log('Dataset deleted');
-//         })
-//         .catch(error => {
-//             console.log('An error occurred when creating the item.');
-//         });
-// }
-
-
 export {
     getItems,
     postItem,
