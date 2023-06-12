@@ -26,7 +26,8 @@ import {
 } from './sdk/datastore.js';
 
 import {
-    getSearchFacets
+    getSearchFacets,
+    getSearch
 } from "./sdk/search.js";
 
 
@@ -55,7 +56,8 @@ export {
     getDownloadByDatasetId,
     getDatastoreQuerySql,
     //search
-    getSearchFacets
+    getSearchFacets,
+    getSearch
 }
 
 
