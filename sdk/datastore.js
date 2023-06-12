@@ -68,33 +68,13 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
         console.log("The post could not be fulfilled.");
     }
 }
-
-async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
-    let headers = {'Content-Type': 'application/json'}
-    let requestBody = {
-        "conditions": [
-            {
-                "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
-            }
-        ],
-        "limit": limit
-    }
-    try{
-        let response = await postItem('datastore/query', requestBody, headers);
-        return response.results;
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
-    }
-}
 async function getDatastoreQueryDistributionId(distributionId, limit = null, offset = 0){
-    //offset is starting index, if limit is zero then having an offset will lead to a null array
+//offset is starting index, if limit is zero then having an offset will lead to a null array
     try {
         const allData = [];
         const maxLimit = 10000;
         let results = [];
+
 
         if (limit !== null) {
             while (limit > 0) {
@@ -124,7 +104,7 @@ async function getDatastoreQueryDistributionId(distributionId, limit = null, off
     }
 }
 
-async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
+async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
     let requestBody = {
         "conditions": [
@@ -138,7 +118,7 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
         "limit": limit
     }
     try{
-        let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
+        let response = await postItem('datastore/query', requestBody, headers);
         return response.results;
     }catch (Error){
         console.log("The post could not be fulfilled.");
@@ -176,6 +156,27 @@ async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
         return allData;
     } catch (error) {
         console.log("The request could not be fulfilled.", error);
+    }
+}
+
+async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
+    let headers = {'Content-Type': 'application/json'}
+    let requestBody = {
+        "conditions": [
+            {
+                "resource": "t",
+                "property": columnName,
+                "value": columnValue,
+                "operator": operator
+            }
+        ],
+        "limit": limit
+    }
+    try{
+        let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
+        return response.results;
+    }catch (Error){
+        console.log("The post could not be fulfilled.");
     }
 }
 
@@ -240,6 +241,7 @@ export{
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
     getAllDataFromDataset,
+    getAllDataFromDistribution,
     getDownloadByDistributionId,
     getDownloadByDatasetId,
     getDatastoreQuerySql

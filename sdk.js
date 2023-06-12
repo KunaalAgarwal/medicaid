@@ -23,6 +23,7 @@ import {
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
     getAllDataFromDataset,
+    getAllDataFromDistribution,
     getDownloadByDistributionId,
     getDownloadByDatasetId,
     getDatastoreQuerySql
@@ -121,6 +122,7 @@ export {
     getDatastoreQueryDistributionId,
     getDatastoreQueryDatasetId,
     getAllDataFromDataset,
+    getAllDataFromDistribution,
     getDownloadByDistributionId,
     getDownloadByDatasetId,
     getDatastoreQuerySql
