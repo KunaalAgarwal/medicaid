@@ -132,6 +132,9 @@ async function getDatasetById(datasetId){
     }
 }
 
+// getSchemaItems("publisher").then(r => console.log(r));
+// getSchemaItems("theme").then(r => console.log(r));
+// getSchemaItems("keyword").then(r => console.log(r));
 
 
 export {

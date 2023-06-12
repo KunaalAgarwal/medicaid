@@ -232,6 +232,13 @@ async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
     }
 }
 
+function convertBlob(blob){
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    return a;
+}
+
 export{
     getDatastoreImport,
     postDatastoreQuery,

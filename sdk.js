@@ -25,6 +25,10 @@ import {
     getDatastoreQuerySql
 } from './sdk/datastore.js';
 
+import {
+    getSearchFacets
+} from "./sdk/search.js";
+
 
 export {
     //metastore
@@ -49,7 +53,9 @@ export {
     getAllDataFromDistribution,
     getDownloadByDistributionId,
     getDownloadByDatasetId,
-    getDatastoreQuerySql
+    getDatastoreQuerySql,
+    //search
+    getSearchFacets
 }
 
 
