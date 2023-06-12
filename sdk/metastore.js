@@ -32,7 +32,6 @@ async function getSchemaItems(schemaName){
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
-
 }
 
 async function getAllDatasetUrls(){
