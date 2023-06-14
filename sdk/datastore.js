@@ -1,4 +1,5 @@
 //'11196f15-1a77-5b80-97f3-c46c0ce19894'
+// 7d91ef5c-c0c0-5511-9b83-2d5170fdb05b nadac distribution id
 //'d5eaf378-dcef-5779-83de-acdd8347d68e' nadac
 //datastore = distribution
 
@@ -205,31 +206,30 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
     }
 }
 
-async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true){
-    //format sql as: '[SELECT * FROM datastore_id][WHERE columnName = "value"][LIMIT value OFFSET value]'
-    try{
+async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
+    try {
         const allData = [];
-        let endpoint = `datastore/sql?query=${sqlQuery};&show_db_columns=true`
+        let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
 
-        if (!showColumnFlag){
-            endpoint = `datastore/sql?query=${sqlQuery}`;
-        }
-        if (!sqlQuery.includes("LIMIT")){
+        if (!sqlQuery.includes("LIMIT")) {
             let limit = 10000;
             let offset = 0;
-            while(true) {
-                const results = await getItems(endpoint)
+
+            while (true) {
+                const queryWithLimitOffset = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
+                baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
+                const results = await getItems(baseEndpoint);
                 allData.push(...results);
-                if (results.length < limit){
+
+                if (results.length < limit) {
                     break;
                 }
                 offset += limit;
             }
             return allData;
         }
-
-        return await getItems(endpoint);
-    }catch(Error){
+        return await getItems(baseEndpoint);
+    } catch (Error) {
         console.log("The request could not be fulfilled");
     }
 }
@@ -240,6 +240,13 @@ function convertBlob(blob){
     a.href = url;
     return a;
 }
+
+// getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r))
+// getDatastoreQueryDatasetId('d5eaf378-dcef-5779-83de-acdd8347d68e', 20001).then(r => console.log(r));
+// getAllDataFromDistribution('7d91ef5c-c0c0-5511-9b83-2d5170fdb05b').then(r => console.log(r))
+
+let sql = '[SELECT * FROM 7d91ef5c-c0c0-5511-9b83-2d5170fdb05b]'
+getDatastoreQuerySql(sql).then(r => console.log(r))
 
 export{
     getDatastoreImport,
