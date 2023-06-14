@@ -1,10 +1,11 @@
 const baseUrl = 'https://data.medicaid.gov/api/1/';
+import localForage from "localforage";
 
 async function getItems(endpoint, downloadFlag = false) {
     try{
-        const cachedData = localStorage.getItem(endpoint);
+        const cachedData = await localForage.getItem(endpoint);
         if (cachedData !== null) {
-            return JSON.parse(cachedData);
+            return cachedData
         }
         const response = await fetch(baseUrl + endpoint);
         if (response.ok){
@@ -14,7 +15,7 @@ async function getItems(endpoint, downloadFlag = false) {
             } else {
                 responseData = await response.json();
             }
-            localStorage.setItem(endpoint, JSON.stringify(responseData));
+            await localForage.setItem(endpoint, responseData);
             return responseData
         }
     } catch (Error){
@@ -29,10 +30,9 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         body: JSON.stringify(payload)
     };
     try {
-        const cacheKey = JSON.stringify(endpoint);
-        const cachedData = localStorage.getItem(cacheKey)
+        const cachedData = localForage.getItem(endpoint)
         if (cachedData !== null){
-            return JSON.parse(cachedData)
+            return cachedData
         }
         const response = await fetch(baseUrl + endpoint, options);
         if (response.ok){
@@ -42,7 +42,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             } else {
                 responseData = await response.json();
             }
-            localStorage.setItem(endpoint, JSON.stringify(responseData));
+            await localForage.setItem(endpoint, responseData);
             return responseData
         }
     } catch (error) {
