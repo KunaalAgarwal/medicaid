@@ -1,9 +1,9 @@
 const baseUrl = 'https://data.medicaid.gov/api/1/';
-import localForage from "localforage";
+import localforage from 'https://cdn.skypack.dev/localforage';
 
 async function getItems(endpoint, downloadFlag = false) {
     try{
-        const cachedData = await localForage.getItem(endpoint);
+        const cachedData = await localforage.getItem(endpoint);
         if (cachedData !== null) {
             return cachedData
         }
@@ -15,7 +15,7 @@ async function getItems(endpoint, downloadFlag = false) {
             } else {
                 responseData = await response.json();
             }
-            await localForage.setItem(endpoint, responseData);
+            await localforage.setItem(endpoint, responseData);
             return responseData
         }
     } catch (Error){
@@ -30,7 +30,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         body: JSON.stringify(payload)
     };
     try {
-        const cachedData = localForage.getItem(endpoint)
+        const cachedData = localforage.getItem(endpoint)
         if (cachedData !== null){
             return cachedData
         }
@@ -42,7 +42,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             } else {
                 responseData = await response.json();
             }
-            await localForage.setItem(endpoint, responseData);
+            await localforage.setItem(endpoint, responseData);
             return responseData
         }
     } catch (error) {

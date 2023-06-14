@@ -7,8 +7,5 @@
     "url": "https://github.com/KunaalAgarwal/medicaid.git"
   },
   "author": "Kunaal Agarwal",
-  "type": "module",
-  "dependencies": {
-    "localforage": "^1.10.0"
-  }
+  "type": "module"
 }
