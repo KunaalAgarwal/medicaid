@@ -1,7 +1,6 @@
-//'11196f15-1a77-5b80-97f3-c46c0ce19894'
+//'11196f15-1a77-5b80-97f3-c46c0ce19894' small distribution id
 // 7d91ef5c-c0c0-5511-9b83-2d5170fdb05b nadac distribution id
-//'d5eaf378-dcef-5779-83de-acdd8347d68e' nadac
-//datastore = distribution
+//'d5eaf378-dcef-5779-83de-acdd8347d68e' nadac dataset id
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
 import {getItems, postItem} from './httpMethods.js';
@@ -208,31 +207,59 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
 
 async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
     try {
-        const allData = [];
         let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
-
-        if (!sqlQuery.includes("LIMIT")) {
-            let limit = 10000;
-            let offset = 0;
-
-            while (true) {
-                const queryWithLimitOffset = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
-                baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
-                const results = await getItems(baseEndpoint);
-                allData.push(...results);
-
-                if (results.length < limit) {
-                    break;
-                }
-                offset += limit;
-            }
-            return allData;
+        let limit;
+        const allData = [];
+        let offset = 0;
+        if (sqlQuery.includes("OFFSET")){
+            offset = parseInt(sqlQuery.split("OFFSET")[1].trimStart().split("]")[0])
         }
-        return await getItems(baseEndpoint);
+        if (sql.includes("LIMIT")){
+            limit = parseInt((sqlQuery.split("LIMIT")[1].trimStart().split(" ")[0]).split("]")[0])
+            if (limit <= 10000){
+                return await getItems(baseEndpoint);
+            } else {
+                while (limit > 0) {
+                    let currentLimit = Math.min(limit, 10000);
+                    let queryWithLimitOffset;
+                    if (sqlQuery.includes("OFFSET")){
+                        queryWithLimitOffset = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`).replace(/\[OFFSET \d+\]/, `[OFFSET ${offset}]`);
+                    } else {
+                        queryWithLimitOffset = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`)
+                    }
+                    baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
+                    const results = await getItems(baseEndpoint);
+                    allData.push(...results);
+                    offset += currentLimit;
+                    limit -= currentLimit;
+                }
+                return allData;
+            }
+        }
+
+        limit = 10000;
+        while (true) {
+            let queryWithLimitOffset;
+            if (sqlQuery.includes("OFFSET")){
+                queryWithLimitOffset = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
+            }
+            else {
+                queryWithLimitOffset = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
+            }
+            baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
+            const results = await getItems(baseEndpoint);
+            allData.push(...results);
+            if (results.length < limit) {
+                break;
+            }
+            offset += limit;
+        }
+        return allData;
     } catch (Error) {
         console.log("The request could not be fulfilled");
     }
 }
+
 
 function convertBlob(blob){
     let url = URL.createObjectURL(blob);
@@ -240,13 +267,6 @@ function convertBlob(blob){
     a.href = url;
     return a;
 }
-
-// getAllDataFromDataset('d5eaf378-dcef-5779-83de-acdd8347d68e').then(r => console.log(r))
-// getDatastoreQueryDatasetId('d5eaf378-dcef-5779-83de-acdd8347d68e', 20001).then(r => console.log(r));
-// getAllDataFromDistribution('7d91ef5c-c0c0-5511-9b83-2d5170fdb05b').then(r => console.log(r))
-
-let sql = '[SELECT * FROM 7d91ef5c-c0c0-5511-9b83-2d5170fdb05b]'
-getDatastoreQuerySql(sql).then(r => console.log(r))
 
 export{
     getDatastoreImport,
