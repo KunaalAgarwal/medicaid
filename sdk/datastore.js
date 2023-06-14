@@ -3,7 +3,7 @@
 //datastore = distribution
 
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
-import {getItems, postItem, postDownloadableItem} from './httpMethods.js';
+import {getItems, postItem} from './httpMethods.js';
 
 async function getDatastoreImport(datastoreId){
     try {
@@ -63,7 +63,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
         "format": "csv"
     }
     try{
-        return await postDownloadableItem('datastore/query/download', requestBody, headers);
+        return await postItem('datastore/query/download', requestBody, headers, true);
     }catch (Error){
         console.log("The post could not be fulfilled.");
     }
