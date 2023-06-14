@@ -10,12 +10,10 @@ async function getItems(endpoint, downloadFlag = false) {
         if (response.ok){
             let responseData;
             if (downloadFlag){
-                responseData = response.blob();
-                localStorage.setItem(endpoint, JSON.stringify(responseData));
-                return responseData;
+                responseData = await response.blob();
+            } else {
+                responseData = await response.json();
             }
-
-            responseData = response.json();
             localStorage.setItem(endpoint, JSON.stringify(responseData));
             return responseData
         }
@@ -32,22 +30,21 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         body: JSON.stringify(payload)
     };
     try {
-        const cacheKey = JSON.stringify(options.headers);
+        const cacheKey = JSON.stringify(endpoint);
         const cachedData = localStorage.getItem(cacheKey)
         if (cachedData !== null){
             return JSON.parse(cachedData)
         }
         const response = await fetch(baseUrl + endpoint, options);
-        if (response.ok) {
+        if (response.ok){
             let responseData;
             if (downloadFlag){
-                responseData = response.blob();
-                localStorage.setItem(JSON.stringify(options.headers), JSON.stringify(responseData));
-                return responseData
+                responseData = await response.blob();
+            } else {
+                responseData = await response.json();
             }
-            responseData = response.json()
-            localStorage.setItem(JSON.stringify(options.headers), JSON.stringify(responseData));
-            return responseData;
+            localStorage.setItem(endpoint, JSON.stringify(responseData));
+            return responseData
         }
     } catch (error) {
         console.log("An error occurred in the API post");
