@@ -90,7 +90,7 @@ async function getDatastoreQueryDistributionId(distributionId, limit = null, off
 
         do {
             const promises = [];
-            for (let i = 0; i < 10; i++) { // Adjust the number of parallel requests as needed
+            for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
                 promises.push(getItems(`datastore/query/${distributionId}?limit=${maxLimit}&offset=${offset}`));
                 offset += maxLimit;
             }
@@ -118,12 +118,14 @@ async function postDatastoreQueryDistributionId(datastoreId, columnName, columnV
         "limit": limit
     }
     try{
-        let response = await postItem('datastore/query', requestBody, headers);
+        let response = await postItem(`datastore/query/${datastoreId}`, requestBody, headers);
         return response.results;
     }catch (Error){
         console.log("The post could not be fulfilled.");
     }
 }
+
+
 
 async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
     try {
@@ -145,7 +147,7 @@ async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
 
         do {
             const promises = [];
-            for (let i = 0; i < 10; i++) { // Adjust the number of parallel requests as needed
+            for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
                 promises.push(getItems(`datastore/query/${datasetId}/${0}?limit=${maxLimit}&offset=${offset}`));
                 offset += maxLimit;
             }
@@ -253,3 +255,4 @@ export{
     getDownloadByDatasetId,
     getDatastoreQuerySql
 }
+

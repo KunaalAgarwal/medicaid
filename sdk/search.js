@@ -20,7 +20,6 @@ async function getSearch(fullText = "", sortProperty = null, sortOrder = null, f
         if (keyword !== null){
             baseEndpoint += `&keyword=${keyword}`
         }
-        console.log(baseEndpoint);
         return await getItems(baseEndpoint)
     }catch(Error){
         console.log("The request could not fulfilled.")

@@ -28,13 +28,13 @@
         </p>
         <p>
             <strong>Key Features:</strong>
+        </p>
         <ul>
             <li>Easy Integration</li>
             <li>Secure Authentication</li>
             <li>Data Retrieval and Submission</li>
             <li>Error Handling and Logging</li>
         </ul>
-        </p>
     </section>
 
     <section id="installation">
@@ -70,6 +70,18 @@
         <p>
             Explore the <a href="link/to/examples">examples</a> directory to find sample applications and code snippets demonstrating how to integrate the Medicaid SDK into different scenarios. These examples serve as a starting point for your development process and showcase various use cases.
         </p>
+        <p>Here's an example usage:</p>
+        <pre><code>
+// Get the filtered data from distribution
+sdk.getDatastoreQueryDistributionId('11196f15-1a77-5b80-97f3-c46c0ce19894', 10000);
+
+// Get all the data from a distribution or dataset
+sdk.getAllDataFromDistribution('11196f15-1a77-5b80-97f3-c46c0ce19894')
+
+// Execute a SQL query using the Medicaid SDK
+let sql = '[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"]';
+sdk.getDatastoreQuerySql(sql);
+</code></pre>
     </section>
 
     <section id="support">
@@ -79,10 +91,11 @@
         </p>
     </section>
 </main>
-<script>src = "sdk.js"</script>
+
+<script src="sdk.js"></script>
+
 <footer>
     <p>&copy; 2023 Your Company. All rights reserved.</p>
 </footer>
-
 </body>
 </html>
