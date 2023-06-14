@@ -41,7 +41,6 @@ async function postDatastoreQuery(datastoreId, columnName, columnValue,operator 
         console.log("The post could not be fulfilled.");
     }
 }
-
 async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'text/csv'}
     let requestBody = {
@@ -282,4 +281,7 @@ export{
     getDownloadByDatasetId,
     getDatastoreQuerySql
 }
+
+// postDatastoreQuery("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa", "=", 1).then(r => console.log(r))
+// postDatastoreQueryDownload("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa").then(r => console.log(r))
 

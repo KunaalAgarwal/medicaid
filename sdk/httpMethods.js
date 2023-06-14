@@ -30,7 +30,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         body: JSON.stringify(payload)
     };
     try {
-        const cachedData = localforage.getItem(endpoint)
+        const cachedData = await localforage.getItem(endpoint)
         if (cachedData !== null){
             return cachedData
         }
@@ -49,6 +49,32 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         console.log("An error occurred in the API post");
     }
 }
+
+// async function postItem(endpoint, payload, headerContent, downloadFlag = false) {
+//     const options = {
+//         method: 'POST',
+//         headers: headerContent,
+//         body: JSON.stringify(payload)
+//     };
+//     try {
+//         const response = await fetch(baseUrl + endpoint, options);
+//         if (response.ok){
+//             let responseData;
+//             if (downloadFlag){
+//                 responseData = await response.blob();
+//                 console.log(responseData)
+//             } else {
+//                 responseData = await response.json();
+//             }
+//             return responseData
+//         }
+//         else {
+//             console.log("Invalid json or identifier");
+//         }
+//     } catch (error) {
+//         console.error('Error:', error.message);
+//     }
+// }
 
 export{
     getItems,
