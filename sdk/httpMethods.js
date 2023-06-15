@@ -1,6 +1,5 @@
 const baseUrl = 'https://data.medicaid.gov/api/1/';
 import localforage from 'https://cdn.skypack.dev/localforage';
-
 async function getItems(endpoint, downloadFlag = false) {
     try{
         const cachedData = await localforage.getItem(endpoint);
@@ -22,8 +21,6 @@ async function getItems(endpoint, downloadFlag = false) {
         console.log("An error occurred in the API request.")
     }
 }
-
-
 async function postItem(endpoint, payload, headerContent, downloadFlag = false) {
     const options = {
         method: 'POST',
@@ -51,8 +48,13 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
     }
 }
 
+function clearCache(){
+    localforage.clear();
+}
+
 export{
     getItems,
-    postItem
+    postItem,
+    clearCache
 }
 

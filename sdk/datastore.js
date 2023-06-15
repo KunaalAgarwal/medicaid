@@ -185,7 +185,7 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
 }
 async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
     //handles all sql query GET requests
-    try {
+    // try {
         let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
         let limit = parseLimit(sqlQuery);
         if (limit <= 10000 && limit !== null){
@@ -194,11 +194,12 @@ async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
         else if (limit > 10000){
             return await sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag);
         }
+        console.log('mode 3')
         return await sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag);
 
-    } catch (Error) {
-        console.log("The request could not be fulfilled");
-    }
+    // } catch (Error) {
+    //     console.log("The request could not be fulfilled");
+    // }
 }
 
 function parseOffset(query) {
@@ -239,30 +240,35 @@ async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
     return allData;
 }
 
-async function sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag){
-    //executes sql queries with no limit, bypassing the api's 10000 max limit using the offset param
+async function fetchChunk(offset, limit, sqlQuery, showColumnFlag) {
+    let adjustedQuery;
+    if (sqlQuery.includes("OFFSET")) {
+        adjustedQuery = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
+    } else {
+        adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
+    }
+    const baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumnFlag}`;
+    return getItems(baseEndpoint);
+}
+
+async function sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag) {
     let allData = [];
     let limit = 10000;
     let offset = parseOffset(sqlQuery);
-    while (true) {
-        let adjustedQuery;
-        if (sqlQuery.includes("OFFSET")){
-            adjustedQuery = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
+    let responses;
+    do {
+        const promises = [];
+        for (let i = 0; i < 5; i++) {
+            promises.push(fetchChunk(offset + i * limit, limit, sqlQuery, showColumnFlag));
         }
-        else {
-            adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
-        }
-
-        baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumnFlag}`;
-        const results = await getItems(baseEndpoint);
-        allData.push(...results);
-
-        if (results.length < limit) {break}
-        offset += limit;
-    }
-    return allData
+        responses = await Promise.all(promises);
+        responses.forEach(chunk => {
+            allData.push(...chunk);
+        });
+        offset += limit * 5;
+    } while (responses.some(response => response.length === limit));
+    return allData;
 }
-
 
 function convertBlob(blob){
     let url = URL.createObjectURL(blob);

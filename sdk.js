@@ -35,8 +35,13 @@ import {
     getSearch
 } from "./sdk/search.js";
 
+import {
+    clearCache
+} from "./sdk/httpMethods.js"
+
 
 export {
+    clearCache,
     //metastore
     getSchemas,
     getSpecificSchema,
