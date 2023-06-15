@@ -1,13 +1,18 @@
 import {
-    getAllDatasetUrls,
-    getDatasetByDescription,
-    getDatasetById,
-    getDatasetByKeyword,
-    getDatasetByTitleName,
-    getSchemaItemById,
-    getSchemaItems,
     getSchemas,
-    getSpecificSchema
+    getSpecificSchema,
+    getSchemaItems,
+    getAllDatasetUrls,
+    getDatasetByTitleName,
+    getDatasetByKeyword,
+    getDatasetByDescription,
+    getSchemaItemById,
+    getDatasetById,
+    getDatasetByDownloadUrl,
+    parseDownloadLink,
+    convertDatasetToDistributionId,
+    getDistributionByDownloadUrl,
+    getDistributionById
 } from './sdk/metastore.js';
 
 import {
@@ -42,6 +47,11 @@ export {
     getDatasetByDescription,
     getSchemaItemById,
     getDatasetById,
+    getDatasetByDownloadUrl,
+    parseDownloadLink,
+    convertDatasetToDistributionId,
+    getDistributionByDownloadUrl,
+    getDistributionById,
     //datastore
     getDatastoreImport,
     postDatastoreQuery,

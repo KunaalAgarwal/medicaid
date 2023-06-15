@@ -49,7 +49,6 @@ async function getAllDatasetUrls(){
 function parseDownloadLink(dataset){
     return (dataset.distribution[0]).downloadURL;
 }
-
 async function getDatasetByTitleName(datasetTitle) {
     try{
         const items =  await getSchemaItems("dataset");
@@ -101,7 +100,7 @@ async function getDatasetByDescription(datasetDescription) {
 async function getDatasetByDownloadUrl(url){
     try{
         const items =  await getSchemaItems("dataset");
-        let filteredItems = items.filter(item => item.description.toLocaleUpperCase() === datasetDescription.toLocaleUpperCase());
+        let filteredItems = items.filter(item => parseDownloadLink(item) === url);
         if (filteredItems.length > 1){
             return filteredItems;
         }
@@ -113,6 +112,23 @@ async function getDatasetByDownloadUrl(url){
         console.log("The request could not be fulfilled.");
     }
 }
+
+async function getDistributionByDownloadUrl(url){
+    try{
+        const items =  await getSchemaItems("distribution");
+        let filteredItems = items.filter(item => item.data.downloadURL === url);
+        if (filteredItems.length > 1){
+            return filteredItems;
+        }
+        else if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return null;
+    } catch (Error){
+        console.log("The request could not be fulfilled.");
+    }
+}
+
 
 //endpoint: metastore/schemas/{schema}/items/{identifier}
 async function getSchemaItemById(schemaName, itemId){
@@ -126,11 +142,25 @@ async function getSchemaItemById(schemaName, itemId){
 
 async function getDatasetById(datasetId){
     try {
-        return await getItems(`metastore/schemas/dataset/items/${datasetId}`);
+        return await getSchemaItemById('dataset', datasetId);
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
 }
+async function getDistributionById(distributionId){
+    try {
+        return await getSchemaItemById('distribution', distributionId)
+    } catch (Error){
+        console.log("The request could not be fulfilled.");
+    }
+}
+
+async function convertDatasetToDistributionId(datasetId) {
+    let dataset = await getDatasetById(datasetId);
+    let downloadLink = parseDownloadLink(dataset);
+    return (await getDistributionByDownloadUrl(downloadLink)).identifier;
+}
+
 
 export {
     getSchemas,
@@ -141,6 +171,11 @@ export {
     getDatasetByKeyword,
     getDatasetByDescription,
     getSchemaItemById,
-    getDatasetById
+    getDatasetById,
+    getDatasetByDownloadUrl,
+    parseDownloadLink,
+    convertDatasetToDistributionId,
+    getDistributionByDownloadUrl,
+    getDistributionById
 }
 

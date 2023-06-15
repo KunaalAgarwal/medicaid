@@ -14,7 +14,6 @@ async function getDatastoreImport(datastoreId){
 }
 
 //datastore: query
-
 async function postDatastoreQuery(datastoreId, columnName, columnValue,operator = "=", limit = 0) {
     let headers = {'Content-Type': 'application/json'}
     let requestBody = {
@@ -132,6 +131,7 @@ async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
 }
 
 async function datastoreQueryWithLimit(schemaId, limit, offset) {
+    //executes get request for datastore queries given a limit
     const allData = []
     if (limit !== null) {
         while (limit > 0) {
@@ -146,6 +146,7 @@ async function datastoreQueryWithLimit(schemaId, limit, offset) {
 }
 
 async function datastoreQueryNoLimit(schemaId, offset){
+    //executes get request for datastore query, getting all possible elements
     let allData = [];
     let responses = [];
     do {
