@@ -67,41 +67,6 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
         console.log("The post could not be fulfilled.");
     }
 }
-async function getDatastoreQueryDistributionId(distributionId, limit = null, offset = 0){
-//offset is starting index, if limit is zero then having an offset will lead to a null array
-    try {
-        const allData = [];
-        const maxLimit = 10000;
-        let results = [];
-
-
-        if (limit !== null) {
-            while (limit > 0) {
-                const currentLimit = Math.min(limit, maxLimit);
-                const items = await getItems(`datastore/query/${distributionId}?limit=${currentLimit}&offset=${offset}`);
-                results = items.results;
-                allData.push(...results);
-                offset += currentLimit;
-                limit -= currentLimit;
-            }
-            return allData;
-        }
-
-        do {
-            const promises = [];
-            for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
-                promises.push(getItems(`datastore/query/${distributionId}?limit=${maxLimit}&offset=${offset}`));
-                offset += maxLimit;
-            }
-            results = await Promise.all(promises);
-            results.forEach(result => allData.push(...result.results));
-        } while (results.some(result => result.results.length === maxLimit));
-
-        return allData;
-    } catch (error) {
-        console.log("The request could not be fulfilled.", error);
-    }
-}
 
 async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
@@ -121,42 +86,6 @@ async function postDatastoreQueryDistributionId(datastoreId, columnName, columnV
         return response.results;
     }catch (Error){
         console.log("The post could not be fulfilled.");
-    }
-}
-
-
-
-async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
-    try {
-        const allData = [];
-        const maxLimit = 10000;
-        let results = [];
-
-        if (limit !== null) {
-            while (limit > 0) {
-                const currentLimit = Math.min(limit, maxLimit);
-                const items = await getItems(`datastore/query/${datasetId}/${0}?limit=${currentLimit}&offset=${offset}`);
-                results = items.results;
-                allData.push(...results);
-                offset += currentLimit;
-                limit -= currentLimit;
-            }
-            return allData;
-        }
-
-        do {
-            const promises = [];
-            for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
-                promises.push(getItems(`datastore/query/${datasetId}/${0}?limit=${maxLimit}&offset=${offset}`));
-                offset += maxLimit;
-            }
-            results = await Promise.all(promises);
-            results.forEach(result => allData.push(...result.results));
-        } while (results.some(result => result.results.length === maxLimit));
-
-        return allData;
-    } catch (error) {
-        console.log("The request could not be fulfilled.", error);
     }
 }
 
@@ -180,12 +109,62 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
         console.log("The post could not be fulfilled.");
     }
 }
+async function getDatastoreQueryDistributionId(distributionId, limit = null, offset = 0){
+    try {
+        if (limit !== null) {
+            return await datastoreQueryWithLimit(distributionId, limit, offset)
+        }
+        return await datastoreQueryNoLimit(distributionId, offset);
+    } catch (error) {
+        console.log("The request could not be fulfilled.", error);
+    }
+}
+
+async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
+    try {
+        if (limit !== null) {
+            return await datastoreQueryWithLimit(`${datasetId}/0`, limit, offset)
+        }
+        return await datastoreQueryNoLimit(`${datasetId}/0`, offset);
+    } catch (error) {
+        console.log("The request could not be fulfilled.", error);
+    }
+}
+
+async function datastoreQueryWithLimit(schemaId, limit, offset) {
+    const allData = []
+    if (limit !== null) {
+        while (limit > 0) {
+            const currentLimit = Math.min(limit, 10000);
+            const items = await getItems(`datastore/query/${schemaId}?limit=${currentLimit}&offset=${offset}`);
+            allData.push(...items.results);
+            offset += currentLimit;
+            limit -= currentLimit;
+        }
+        return allData;
+    }
+}
+
+async function datastoreQueryNoLimit(schemaId, offset){
+    let allData = [];
+    let responses = [];
+    do {
+        const promises = [];
+        for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
+            promises.push(getItems(`datastore/query/${schemaId}?limit=10000&offset=${offset}`));
+            offset += 10000;
+        }
+        responses = await Promise.all(promises);
+        responses.forEach(response => allData.push(...response.results));
+    } while (responses.some(response => response.results.length === 10000));
+    return allData;
+}
 
 async function getAllDataFromDistribution(distributionId){
     return await getDatastoreQueryDistributionId(distributionId);
 }
 async function getAllDataFromDataset(datasetId) {
-    return getDatastoreQueryDatasetId(datasetId);
+    return await getDatastoreQueryDatasetId(datasetId);
 }
 
 async function getDownloadByDistributionId(distributionId, format = "csv"){
@@ -203,8 +182,8 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
         console.log("The request could not be fulfilled");
     }
 }
-
 async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
+    //handles all sql query GET requests
     try {
         let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
         let limit = parseLimit(sqlQuery);
@@ -238,6 +217,7 @@ function parseLimit(query){
 }
 
 async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
+    //executes sql query for limits above the api's max limit (10000)
     let allData = [];
     let offset = parseOffset(sqlQuery)
     let limit = parseLimit(sqlQuery)
@@ -259,6 +239,7 @@ async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
 }
 
 async function sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag){
+    //executes sql queries with no limit, bypassing the api's 10000 max limit using the offset param
     let allData = [];
     let limit = 10000;
     let offset = parseOffset(sqlQuery);
@@ -304,9 +285,3 @@ export{
     getDownloadByDatasetId,
     getDatastoreQuerySql
 }
-
-// let sql = '[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"][OFFSET 11]'
-// postDatastoreQuery('ca3ec9ab-7e5f-50e3-88dc-8aca3dbcb598', 'state','virginia').then(r => console.log(r))
-// postDatastoreQuery("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa", "=", 1).then(r => console.log(r))
-// postDatastoreQueryDownload("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa").then(r => console.log(r))
-
