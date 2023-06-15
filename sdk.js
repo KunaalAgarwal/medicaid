@@ -26,14 +26,17 @@ import {
     getAllDataFromDataset,
     getAllDataFromDistribution,
     getDownloadByDistributionId,
-    getDownloadByDatasetId,
-    getDatastoreQuerySql
+    getDownloadByDatasetId
 } from './sdk/datastore.js';
 
 import {
     getSearchFacets,
     getSearch
 } from "./sdk/search.js";
+
+import {
+    getDatastoreQuerySql
+} from "./sdk/sql.js"
 
 import {
     clearCache
