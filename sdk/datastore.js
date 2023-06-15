@@ -207,56 +207,78 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
 async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
     try {
         let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
-        let limit;
-        const allData = [];
-        let offset = 0;
-        if (sqlQuery.includes("OFFSET")){
-            offset = parseInt(sqlQuery.split("OFFSET")[1].trimStart().split("]")[0])
+        let limit = parseLimit(sqlQuery);
+        if (limit <= 10000 && limit !== null){
+            return await getItems(baseEndpoint);
         }
-        if (sql.includes("LIMIT")){
-            limit = parseInt((sqlQuery.split("LIMIT")[1].trimStart().split(" ")[0]).split("]")[0])
-            if (limit <= 10000){
-                return await getItems(baseEndpoint);
-            } else {
-                while (limit > 0) {
-                    let currentLimit = Math.min(limit, 10000);
-                    let queryWithLimitOffset;
-                    if (sqlQuery.includes("OFFSET")){
-                        queryWithLimitOffset = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`).replace(/\[OFFSET \d+\]/, `[OFFSET ${offset}]`);
-                    } else {
-                        queryWithLimitOffset = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`)
-                    }
-                    baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
-                    const results = await getItems(baseEndpoint);
-                    allData.push(...results);
-                    offset += currentLimit;
-                    limit -= currentLimit;
-                }
-                return allData;
-            }
+        else if (limit > 10000){
+            return await sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag);
         }
+        return await sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag);
 
-        limit = 10000;
-        while (true) {
-            let queryWithLimitOffset;
-            if (sqlQuery.includes("OFFSET")){
-                queryWithLimitOffset = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
-            }
-            else {
-                queryWithLimitOffset = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
-            }
-            baseEndpoint = `datastore/sql?query=${queryWithLimitOffset}&show_db_columns=${showColumnFlag}`;
-            const results = await getItems(baseEndpoint);
-            allData.push(...results);
-            if (results.length < limit) {
-                break;
-            }
-            offset += limit;
-        }
-        return allData;
     } catch (Error) {
         console.log("The request could not be fulfilled");
     }
+}
+
+function parseOffset(query) {
+    if (query.includes("OFFSET")) {
+        let offset = query.split("OFFSET")[1].trimStart().split("]")[0]
+        return parseInt(offset);
+    }
+    return 0;
+}
+
+function parseLimit(query){
+    if (query.includes("LIMIT")) {
+        let limit = (query.split("LIMIT")[1].trimStart().split(" ")[0]).split("]")[0]
+        return parseInt(limit)
+    }
+    return null;
+}
+
+async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
+    let allData = [];
+    let offset = parseOffset(sqlQuery)
+    let limit = parseLimit(sqlQuery)
+    while (limit > 0) {
+        let currentLimit = Math.min(limit, 10000);
+        let updatedQuery;
+        if (offset > 0){
+            updatedQuery = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`).replace(/\[OFFSET \d+\]/, `[OFFSET ${offset}]`);
+        } else {
+            updatedQuery = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`)
+        }
+        baseEndpoint = `datastore/sql?query=${updatedQuery}&show_db_columns=${showColumnFlag}`;
+        const results = await getItems(baseEndpoint);
+        allData.push(...results);
+        offset += currentLimit;
+        limit -= currentLimit;
+    }
+    return allData;
+}
+
+async function sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag){
+    let allData = [];
+    let limit = 10000;
+    let offset = parseOffset(sqlQuery);
+    while (true) {
+        let adjustedQuery;
+        if (sqlQuery.includes("OFFSET")){
+            adjustedQuery = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
+        }
+        else {
+            adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
+        }
+
+        baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumnFlag}`;
+        const results = await getItems(baseEndpoint);
+        allData.push(...results);
+
+        if (results.length < limit) {break}
+        offset += limit;
+    }
+    return allData
 }
 
 
@@ -266,6 +288,7 @@ function convertBlob(blob){
     a.href = url;
     return a;
 }
+
 
 export{
     getDatastoreImport,
@@ -282,6 +305,8 @@ export{
     getDatastoreQuerySql
 }
 
+// let sql = '[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"][OFFSET 11]'
+// postDatastoreQuery('ca3ec9ab-7e5f-50e3-88dc-8aca3dbcb598', 'state','virginia').then(r => console.log(r))
 // postDatastoreQuery("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa", "=", 1).then(r => console.log(r))
 // postDatastoreQueryDownload("11196f15-1a77-5b80-97f3-c46c0ce19894", 'state', "Iowa").then(r => console.log(r))
 
