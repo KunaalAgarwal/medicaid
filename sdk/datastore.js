@@ -17,6 +17,7 @@ async function getDatastoreImport(datastoreId){
 //datastore: query
 async function postDatastoreQuery(datastoreId, columnName, columnValue,operator = "=", limit = 0) {
     let headers = {'Content-Type': 'application/json'}
+    if (limit > 10000){limit = 10000}
     let requestBody = {
         "conditions": [
             {
@@ -43,6 +44,7 @@ async function postDatastoreQuery(datastoreId, columnName, columnValue,operator 
 }
 async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'text/csv'}
+    if (limit > 10000){limit = 10000}
     let requestBody = {
         "conditions": [
             {
@@ -70,6 +72,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
 
 async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
+    if (limit > 10000){limit = 10000}
     let requestBody = {
         "conditions": [
             {
@@ -91,6 +94,7 @@ async function postDatastoreQueryDistributionId(datastoreId, columnName, columnV
 
 async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
+    if (limit > 10000){limit = 10000}
     let requestBody = {
         "conditions": [
             {
@@ -184,11 +188,22 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
         console.log("The request could not be fulfilled");
     }
 }
-function convertBlob(blob){
-    let url = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-    a.href = url;
-    return a;
+function createDownloadLink(blob) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'filename.ext'; // Replace with your desired filename and extension
+    link.textContent = 'Download file';
+
+    // Trigger the download and remove the element when the user clicks the link
+    link.addEventListener('click', () => {
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            link.remove();
+        }, 1000); // Adjust the delay as needed
+    });
+
+    return link;
 }
 
 
@@ -203,5 +218,6 @@ export{
     getAllDataFromDataset,
     getAllDataFromDistribution,
     getDownloadByDistributionId,
-    getDownloadByDatasetId
+    getDownloadByDatasetId,
+    createDownloadLink
 }
