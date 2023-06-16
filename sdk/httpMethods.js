@@ -28,7 +28,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         body: JSON.stringify(payload)
     };
     try {
-        const cachedData = await localforage.getItem(endpoint)
+        const cachedData = await localforage.getItem(options.body)
         if (cachedData !== null){
             return cachedData
         }
@@ -40,7 +40,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             } else {
                 responseData = await response.json();
             }
-            await localforage.setItem(endpoint, responseData);
+            await localforage.setItem(options.body, responseData);
             return responseData
         }
     } catch (error) {
