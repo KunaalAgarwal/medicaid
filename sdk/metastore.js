@@ -181,6 +181,7 @@ export {
     getDatasetByDownloadUrl,
     parseDownloadLink,
     convertDatasetToDistributionId,
+    convertDistributionToDatasetId,
     getDistributionByDownloadUrl,
     getDistributionById
 }

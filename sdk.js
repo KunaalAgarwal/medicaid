@@ -11,6 +11,7 @@ import {
     getDatasetByDownloadUrl,
     parseDownloadLink,
     convertDatasetToDistributionId,
+    convertDistributionToDatasetId,
     getDistributionByDownloadUrl,
     getDistributionById
 } from './sdk/metastore.js';
@@ -58,6 +59,7 @@ export {
     getDatasetByDownloadUrl,
     parseDownloadLink,
     convertDatasetToDistributionId,
+    convertDistributionToDatasetId,
     getDistributionByDownloadUrl,
     getDistributionById,
     //datastore
