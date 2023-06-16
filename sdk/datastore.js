@@ -188,12 +188,12 @@ async function getDownloadByDatasetId(datasetId, format = "csv"){
         console.log("The request could not be fulfilled");
     }
 }
-function createDownloadLink(blob) {
+function createDownloadLink(blob, filename = 'filename.ext', textContent ='Download file') {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'filename.ext'; // Replace with your desired filename and extension
-    link.textContent = 'Download file';
+    link.download = filename; // Replace with your desired filename and extension
+    link.textContent = textContent;
 
     // Trigger the download and remove the element when the user clicks the link
     link.addEventListener('click', () => {
@@ -201,8 +201,12 @@ function createDownloadLink(blob) {
             URL.revokeObjectURL(url);
             link.remove();
         }, 1000); // Adjust the delay as needed
-    });
+    })
 
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        link.remove();
+    }, 15000)
     return link;
 }
 
