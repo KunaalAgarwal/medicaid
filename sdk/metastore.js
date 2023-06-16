@@ -161,6 +161,12 @@ async function convertDatasetToDistributionId(datasetId) {
     return (await getDistributionByDownloadUrl(downloadLink)).identifier;
 }
 
+async function convertDistributionToDatasetId(distributionId){
+    let distribution = await getDistributionById(distributionId);
+    let downloadLink = distribution.data.downloadURL
+    return (await getDatasetByDownloadUrl(downloadLink)).identifier
+}
+
 
 export {
     getSchemas,
