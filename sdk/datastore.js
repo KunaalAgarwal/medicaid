@@ -7,11 +7,7 @@
 import {getItems, postItem} from './httpMethods.js';
 
 async function getDatastoreImport(datastoreId){
-    try {
-        return await getItems(`datastore/imports/${datastoreId}`);
-    } catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
+    return await getItems(`datastore/imports/${datastoreId}`);
 }
 
 //datastore: query
@@ -63,11 +59,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
         ],
         "format": "csv"
     }
-    try{
-        return await postItem('datastore/query/download', requestBody, headers, true);
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
-    }
+    return await postItem('datastore/query/download', requestBody, headers, true);
 }
 
 async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
@@ -174,39 +166,34 @@ async function getAllDataFromDataset(datasetId) {
 }
 
 async function getDownloadByDistributionId(distributionId, format = "csv"){
-    try{
-        return await getItems(`datastore/query/${distributionId}/download?format=${format}`, true);
-    }catch(Error){
-        console.log("The request could not be fulfilled");
-    }
+    return await getItems(`datastore/query/${distributionId}/download?format=${format}`, true);
 }
 
 async function getDownloadByDatasetId(datasetId, format = "csv"){
-    try{
-        return await getItems(`datastore/query/${datasetId}/0/download?format=${format}`, true);
-    }catch(Error){
-        console.log("The request could not be fulfilled");
-    }
+    return await getItems(`datastore/query/${datasetId}/0/download?format=${format}`, true);
 }
-function createDownloadLink(blob, filename = 'filename.ext', textContent ='Download file') {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.textContent = textContent;
 
-    link.addEventListener('click', () => {
-        setTimeout(() => {
+function createDownloadLink(blob, filename = 'filename.ext', textContent = 'Download file') {
+    try {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.textContent = textContent;
+        const cleanupLink = () => {
             URL.revokeObjectURL(url);
             link.remove();
-        }, 1000);
-    })
+        };
 
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-        link.remove();
-    }, 15000)
-    return link;
+        link.addEventListener('click', () => {
+            setTimeout(cleanupLink, 1000);
+        });
+
+        setTimeout(cleanupLink, 15000);
+        return link;
+    } catch (error) {
+        console.log('The downloadable link could not be created.');
+    }
 }
 
 

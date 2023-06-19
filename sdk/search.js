@@ -27,14 +27,8 @@ async function getSearch(fullText = "", sortProperty = null, sortOrder = null, f
 }
 
 async function getSearchFacets(){
-    try{
-        return await getItems(`search/facets`);
-    }catch(Error){
-        console.log("The request could not be fulfilled.")
-    }
+    return await getItems(`search/facets`);
 }
-
-// getSearch("", "title", "desc", "",'data.medicaid.gov', null, 'nadac').then(r => console.log(r));
 
 export{
     getSearchFacets,
