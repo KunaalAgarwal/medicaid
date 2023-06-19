@@ -192,15 +192,14 @@ function createDownloadLink(blob, filename = 'filename.ext', textContent ='Downl
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename; // Replace with your desired filename and extension
+    link.download = filename;
     link.textContent = textContent;
 
-    // Trigger the download and remove the element when the user clicks the link
     link.addEventListener('click', () => {
         setTimeout(() => {
             URL.revokeObjectURL(url);
             link.remove();
-        }, 1000); // Adjust the delay as needed
+        }, 1000);
     })
 
     setTimeout(() => {
