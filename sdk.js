@@ -45,6 +45,10 @@ import {
     updateCount
 } from "./sdk/httpMethods.js"
 
+import {
+    getMedNames
+} from "./sdk/plot.js";
+
 
 export {
     clearCache,
@@ -82,7 +86,9 @@ export {
     getDatastoreQuerySql,
     //search
     getSearchFacets,
-    getSearch
+    getSearch,
+    //plot
+    getMedNames
 }
 
 
