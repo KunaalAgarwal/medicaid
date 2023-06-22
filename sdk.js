@@ -46,7 +46,9 @@ import {
 } from "./sdk/httpMethods.js"
 
 import {
-    getMedNames
+    getMedNames,
+    getAllDataFromMed,
+    createPlot
 } from "./sdk/plot.js";
 
 
@@ -88,7 +90,9 @@ export {
     getSearchFacets,
     getSearch,
     //plot
-    getMedNames
+    getMedNames,
+    getAllDataFromMed,
+    createPlot
 }
 
 
