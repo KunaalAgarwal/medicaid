@@ -68,7 +68,12 @@ async function getDatasetByDownloadUrl(url){
 async function getDistributionByDownloadUrl(url){
     try{
         const items =  await getSchemaItems("distribution");
-        return items.filter(item => item.data.downloadURL === url);
+        const filteredItems = items.filter(item => item.data.downloadURL === url);
+        if (filteredItems.length === 1){
+            return filteredItems[0]
+        }
+        else
+            return filteredItems
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -91,7 +96,7 @@ async function convertDatasetToDistributionId(datasetId) {
     try{
         let downloadLink = parseDownloadLink((await getDatasetById(datasetId)));
         let distribution = await getDistributionByDownloadUrl(downloadLink);
-        return distribution[0].identifier;
+        return distribution.identifier;
     } catch (error){
         console.log("Could not convert the id.");
     }

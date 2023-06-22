@@ -41,12 +41,14 @@ import {
 } from "./sdk/sql.js"
 
 import {
-    clearCache
+    clearCache,
+    updateCount
 } from "./sdk/httpMethods.js"
 
 
 export {
     clearCache,
+    updateCount,
     //metastore
     getSchemas,
     getSpecificSchema,
