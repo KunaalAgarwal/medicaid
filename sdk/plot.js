@@ -20,12 +20,12 @@ async function getAllMedNames(){
     return await getDatastoreQuerySql(sql);
 }
 
-async function getMedNames(med){
+async function getMedNames(medicine){
     const medList = await getAllMedNames()
     let medNames = {};
     medList.forEach(med => {
         med = med.ndc_description.toUpperCase();
-        if (med.includes(med.toUpperCase())){
+        if (med.includes(medicine.toUpperCase())){
             medNames[med] = "1";
         }})
     return Object.keys(medNames);
