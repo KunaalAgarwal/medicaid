@@ -94,9 +94,9 @@ async function getDistributionById(distributionId){
 
 async function convertDatasetToDistributionId(datasetId) {
     try{
-        let downloadLink = parseDownloadLink((await getDatasetById(datasetId)));
-        let distribution = await getDistributionByDownloadUrl(downloadLink);
-        return distribution.identifier;
+        let dataset = await getDatasetById(datasetId);
+        let downloadLink = parseDownloadLink(dataset);
+        return (await getDistributionByDownloadUrl(downloadLink)).identifier;
     } catch (error){
         console.log("Could not convert the id.");
     }
@@ -111,7 +111,6 @@ async function convertDistributionToDatasetId(distributionId){
         console.log("Could not convert the id.")
     }
 }
-
 
 export {
     getSchemas,
