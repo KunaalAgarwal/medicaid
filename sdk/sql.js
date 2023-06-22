@@ -34,7 +34,7 @@ function parseLimit(query){
 }
 
 async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
-    //executes sql query for limits above the api's max limit (10000)
+    //executes sql query for limits above the api max limit (10000)
     let allData = [];
     let offset = parseOffset(sqlQuery)
     let limit = parseLimit(sqlQuery)

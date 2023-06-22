@@ -8,7 +8,7 @@ async function getItems(endpoint, downloadFlag = false) {
         const timeStamp = Date.now();
         const cachedData = await localforage.getItem(endpoint);
         if (cachedData !== null) {
-            localStorage.setItem(`${endpoint}time`, timeStamp);
+            localStorage.setItem(endpoint, timeStamp);
             return cachedData
         }
         const response = await fetch(baseUrl + endpoint);
@@ -20,7 +20,7 @@ async function getItems(endpoint, downloadFlag = false) {
                 responseData = await response.json();
             }
             localforage.setItem(endpoint, responseData);
-            localStorage.setItem(`${endpoint}time`, timeStamp);
+            localStorage.setItem(endpoint, timeStamp);
             return responseData
         }
     } catch (error){
@@ -39,7 +39,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
         const timeStamp = Date.now();
         const cachedData = await localforage.getItem(options.body);
         if (cachedData !== null){
-            localStorage.setItem(`${options.body}time`, timeStamp);
+            localStorage.setItem(options.body, timeStamp);
             return cachedData;
         }
 
@@ -52,7 +52,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
                 responseData = await response.json();
             }
             localforage.setItem(options.body, responseData);
-            localStorage.setItem(`${options.body}time`, timeStamp);
+            localStorage.setItem(options.body, timeStamp);
             return responseData;
         }
     } catch (error) {
@@ -89,6 +89,7 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache
+    clearCache,
+    updateCount
 }
 
