@@ -60,6 +60,7 @@ async function createPlot(data, layout){
 }
 
 export {
+    getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
     createPlot
