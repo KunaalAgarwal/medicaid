@@ -32,7 +32,7 @@ function parseDownloadLink(dataset){
 async function getDatasetByTitleName(datasetTitle) {
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.title.toLocaleUpperCase() === datasetTitle.toLocaleUpperCase());
+        return items.filter(item => item.title.toUpperCase() === datasetTitle.toUpperCase());
     } catch (error){
         console.log("The request could not be fulfilled.");
     }
@@ -41,7 +41,7 @@ async function getDatasetByTitleName(datasetTitle) {
 async function getDatasetByKeyword(datasetKeyword){
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.keyword.some(key => key.toLocaleUpperCase() === datasetKeyword.toLocaleUpperCase()));
+        return items.filter(item => item.keyword.some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
     }catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -50,7 +50,7 @@ async function getDatasetByKeyword(datasetKeyword){
 async function getDatasetByDescription(datasetDescription) {
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.description.toLocaleUpperCase() === datasetDescription.toLocaleUpperCase());
+        return items.filter(item => item.description.toUpperCase() === datasetDescription.toUpperCase());
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }

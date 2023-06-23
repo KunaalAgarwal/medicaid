@@ -1,4 +1,5 @@
 import {getDatastoreQuerySql} from "./sql.js";
+import * as Plotly from "https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm";
 
 let nadacDistributions = [
     "37ad62a2-f107-5ec9-b168-000694b6b8b9",
@@ -17,18 +18,15 @@ let nadacDistributions = [
 async function getAllNadacMeds(){
     //uses the 2017 nadac
     let sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`
-    return await getDatastoreQuerySql(sql);
+    const medObjects = await getDatastoreQuerySql(sql);
+    let medList = {}
+    medObjects.forEach(med => {medList[med.ndc_description.toUpperCase()] = 1})
+    return Object.keys(medList)
 }
 
 async function getMedNames(medicine){
     const medList = await getAllNadacMeds()
-    let medNames = {};
-    medList.forEach(med => {
-        med = med.ndc_description.toUpperCase();
-        if (med.includes(medicine.toUpperCase())){
-            medNames[med] = "1";
-        }})
-    return Object.keys(medNames);
+    return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
 async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
