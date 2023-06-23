@@ -1,5 +1,4 @@
 import {getDatastoreQuerySql} from "./sql.js";
-import Plotly from "https://cdn.plot.ly/plotly-2.24.1.min.js";
 
 let nadacDistributions = [
     "37ad62a2-f107-5ec9-b168-000694b6b8b9",
