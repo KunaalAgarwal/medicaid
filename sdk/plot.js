@@ -1,4 +1,5 @@
 import {getDatastoreQuerySql} from "./sql.js";
+import Plotly from "https://cdn.plot.ly/plotly-2.24.1.min.js";
 
 let nadacDistributions = [
     "37ad62a2-f107-5ec9-b168-000694b6b8b9",
@@ -14,14 +15,14 @@ let nadacDistributions = [
     "c5be50a1-0b23-5fcf-8b82-da7189b60e92"
 ]
 
-async function getAllMedNames(){
+async function getAllNadacMeds(){
     //uses the 2017 nadac
     let sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`
     return await getDatastoreQuerySql(sql);
 }
 
 async function getMedNames(medicine){
-    const medList = await getAllMedNames()
+    const medList = await getAllNadacMeds()
     let medNames = {};
     medList.forEach(med => {
         med = med.ndc_description.toUpperCase();
@@ -31,28 +32,32 @@ async function getMedNames(medicine){
     return Object.keys(medNames);
 }
 
-async function getAllDataFromMed(med){
-    const meds = await getMedNames(med)
-    console.log(meds);
-    let asOfDates = [];
-    let ndcPerUnit = [];
-    for (let dataset of nadacDistributions){
-        for (let med of meds){
-            let sql = `[SELECT ndc_description,as_of_date,nadac_per_unit FROM ${dataset}][WHERE ndc_description = "${med}"]`
-            const data = await getDatastoreQuerySql(sql);
-            for (let datapoint of data){
-                asOfDates.push(datapoint.as_of_date);
-                ndcPerUnit.push(datapoint.nadac_per_unit);
+async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
+    try{
+        const meds = await getMedNames(med)
+        let xValues = [];
+        let yValues = [];
+        for (let dataset of nadacDistributions){
+            for (let med of meds){
+                let sql = `[SELECT ndc_description,${vars.xAxis},${vars.yAxis} FROM ${dataset}][WHERE ndc_description = "${med}"]`
+                const data = await getDatastoreQuerySql(sql);
+                for (let datapoint of data){
+                    xValues.push(datapoint[vars.xAxis]);
+                    yValues.push(datapoint[vars.yAxis]);
+                }
             }
         }
+        return {x: xValues, y: yValues}
+    } catch (error){
+        console.log("There was an error collecting the data.")
     }
-    return [{x: asOfDates, y: ndcPerUnit}]
 }
 
-async function createPlot(med, layout, width){
+async function createPlot(data, layout){
     const plot = document.createElement('a');
-    const traces = getAllDataFromMed(med);
-    Plotly.newPlot(plot, traces, layout, {width: width})
+    data.forEach(trace => {trace.x.sort()})
+    Plotly.newPlot(plot, data, layout)
+    return plot
 }
 
 export {
@@ -60,13 +65,3 @@ export {
     getAllDataFromMed,
     createPlot
 }
-
-// async function a(){
-//     let totalItems = []
-//     for (let id of nadac_2013_2023_distributionIds){
-//         let sql = `[SELECT ndc_description FROM ${id}][WHERE ndc_description = "LANTUS 100 UNIT/ML"]`
-//         const items = await sdk.getDatastoreQuerySql(sql);
-//         totalItems.push(...items);
-//     }
-//     return totalItems
-// }
