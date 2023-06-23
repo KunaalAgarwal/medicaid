@@ -52,7 +52,9 @@ async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac
 
 async function plotPriceVersusTime(medList, layout){
     let data = [];
-    medList.forEach(med => {data.push(getAllDataFromMed(med))})
+    for (const med of medList) {
+        data.push(await getAllDataFromMed(med))
+    }
     const plot = document.createElement('a');
     Plotly.newPlot(plot, data, layout)
     return plot;
