@@ -44,22 +44,23 @@ async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac
                 }
             }
         }
-        return {x: xValues, y: yValues}
+        return {x: xValues.sort(), y: yValues}
     } catch (error){
         console.log("There was an error collecting the data.")
     }
 }
 
-async function createPlot(data, layout){
+async function plotPriceVersusTime(medList, layout){
+    let data = [];
+    medList.forEach(med => {data.push(getAllDataFromMed(med))})
     const plot = document.createElement('a');
-    data.forEach(trace => {trace.x.sort()})
     Plotly.newPlot(plot, data, layout)
-    return plot
+    return plot;
 }
 
 export {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    createPlot
+    plotPriceVersusTime
 }

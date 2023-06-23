@@ -49,7 +49,7 @@ import {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    createPlot
+    plotPriceVersusTime
 } from "./sdk/plot.js";
 
 
@@ -94,7 +94,7 @@ export {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    createPlot
+    plotPriceVersusTime
 }
 
 
