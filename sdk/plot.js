@@ -44,7 +44,7 @@ async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac
                 }
             }
         }
-        return {x: xValues.sort(), y: yValues}
+        return {x: xValues.sort(), y: yValues, name: med}
     } catch (error){
         console.log("There was an error collecting the data.")
     }
