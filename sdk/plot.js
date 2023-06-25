@@ -1,5 +1,5 @@
 import {getDatastoreQuerySql} from "./sql.js";
-import * as Plotly from "https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm";
+import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
 let nadacDistributions = [
     "37ad62a2-f107-5ec9-b168-000694b6b8b9",
@@ -29,33 +29,41 @@ async function getMedNames(medicine){
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
-async function getAllDataFromMed(med, vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
-    try{
-        const meds = await getMedNames(med)
+async function getAllDataFromMed(med, vars = { xAxis: "as_of_date", yAxis: "nadac_per_unit" }) {
+    try {
+        const meds = await getMedNames(med);
         let xValues = [];
         let yValues = [];
-        for (let dataset of nadacDistributions){
-            for (let med of meds){
-                let sql = `[SELECT ndc_description,${vars.xAxis},${vars.yAxis} FROM ${dataset}][WHERE ndc_description = "${med}"]`
-                const data = await getDatastoreQuerySql(sql);
-                for (let datapoint of data){
-                    xValues.push(datapoint[vars.xAxis]);
-                    yValues.push(datapoint[vars.yAxis]);
-                }
+        const fetchData = async (dataset, med) => {
+            let sql = `[SELECT ndc_description,${vars.xAxis},${vars.yAxis} FROM ${dataset}][WHERE ndc_description = "${med}"]`;
+            const data = await getDatastoreQuerySql(sql);
+            for (let datapoint of data) {
+                xValues.push(datapoint[vars.xAxis]);
+                yValues.push(datapoint[vars.yAxis]);
             }
         }
-        return {x: xValues.sort(), y: yValues, name: med}
-    } catch (error){
-        console.log("There was an error collecting the data.")
+        const fetchDataPromises = [];
+        for (let dataset of nadacDistributions) {
+            for (let med of meds) {
+                fetchDataPromises.push(fetchData(dataset, med));
+            }
+        }
+        await Promise.all(fetchDataPromises);
+        return {x: xValues.sort(), y: yValues, name: med };
+    } catch (error) {
+        console.log("There was an error collecting the data.");
     }
 }
 
 async function plotPriceVersusTime(medList, layout){
     let data = [];
+    if (medList < 1) {
+        return;
+    }
     for (const med of medList) {
         data.push(await getAllDataFromMed(med))
     }
-    const plot = document.createElement('a');
+    const plot = document.createElement('div');
     Plotly.newPlot(plot, data, layout)
     return plot;
 }
@@ -64,5 +72,6 @@ export {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime
+    plotPriceVersusTime,
+    Plotly
 }

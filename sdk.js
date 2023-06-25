@@ -42,20 +42,21 @@ import {
 
 import {
     clearCache,
-    updateCount
+    updateCache
 } from "./sdk/httpMethods.js"
 
 import {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime
+    plotPriceVersusTime,
+    Plotly
 } from "./sdk/plot.js";
 
 
 export {
     clearCache,
-    updateCount,
+    updateCache,
     //metastore
     getSchemas,
     getSpecificSchema,
@@ -94,7 +95,8 @@ export {
     getAllNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime
+    plotPriceVersusTime,
+    Plotly
 }
 
 

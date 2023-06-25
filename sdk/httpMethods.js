@@ -90,6 +90,6 @@ export{
     getItems,
     postItem,
     clearCache,
-    updateCount
+    updateCache
 }
 
