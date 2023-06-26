@@ -67,16 +67,23 @@ async function plotNadacMed(medList, layout){
 
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
-async function getSimilarMeds(medList){
+async function getSimilarMeds(medList) {
     let allSimMeds = [];
-    for (let i of medList){
+    for (let i of medList) {
         let generalName = i.split(" ")[0];
         let meds = await getMedNames(generalName);
-        for (let m of meds){
-            allSimMeds.push({
-                General_Drug: generalName,
-                Specific_Name: m
-            })
+        for (let m of meds) {
+            if (allSimMeds.some((med) => med.generalDrug === generalName && med.specificName === m)) {
+                allSimMeds.push({
+                    generalDrug: `${generalName}2`,
+                    specificName: m
+                });
+            } else {
+                allSimMeds.push({
+                    generalDrug: generalName,
+                    specificName: m
+                });
+            }
         }
     }
     return allSimMeds;
@@ -84,11 +91,11 @@ async function getSimilarMeds(medList){
 
 function parseSelectedMeds(medList) {
     return Object.values(medList.reduce((result, obj) => {
-        const {General_Drug, Specific_Name} = obj;
-        if (General_Drug in result) {
-            result[General_Drug].push(Specific_Name);
+        const {generalDrug, specificName} = obj;
+        if (generalDrug in result) {
+            result[generalDrug].push(specificName);
         } else {
-            result[General_Drug] = [Specific_Name];
+            result[generalDrug] = [specificName];
         }
         return result;
     }, {}));
