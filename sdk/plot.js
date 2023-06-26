@@ -55,17 +55,43 @@ async function getAllDataFromMed(medList, vars = { xAxis: "as_of_date", yAxis: "
 }
 
 async function plotNadacMed(medList, layout){
-    try{
-        let data = [];
-        for (const med of medList) {
-            data.push(await getAllDataFromMed(med))
-        }
-        const plot = document.createElement('div');
-        Plotly.newPlot(plot, data, layout)
-        return plot;
-    } catch (error) {
-        console.log("Invalid plotting conditions.")
+    if (medList.length < 1){return}
+    let data = [];
+    for (const med of medList) {
+        data.push(await getAllDataFromMed(med))
     }
+    const plot = document.createElement('div');
+    Plotly.newPlot(plot, data, layout)
+    return plot;
+}
+
+
+//OBSERVABLE NOTEBOOK RELATED METHODS
+async function getSimilarMeds(medList){
+    let allSimMeds = [];
+    for (let i of medList){
+        let generalName = i.split(" ")[0];
+        let meds = await getMedNames(generalName);
+        for (let m of meds){
+            allSimMeds.push({
+                General_Drug: generalName,
+                Specific_Name: m
+            })
+        }
+    }
+    return allSimMeds;
+}
+
+function parseSelectedMeds(medList) {
+    return Object.values(medList.reduce((result, obj) => {
+        const {General_Drug, Specific_Name} = obj;
+        if (General_Drug in result) {
+            result[General_Drug].push(Specific_Name);
+        } else {
+            result[General_Drug] = [Specific_Name];
+        }
+        return result;
+    }, {}));
 }
 
 export {
@@ -73,5 +99,7 @@ export {
     getMedNames,
     getAllDataFromMed,
     plotNadacMed,
+    getSimilarMeds,
+    parseSelectedMeds,
     Plotly
 }

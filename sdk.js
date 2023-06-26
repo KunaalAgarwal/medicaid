@@ -50,6 +50,8 @@ import {
     getMedNames,
     getAllDataFromMed,
     plotNadacMed,
+    getSimilarMeds,
+    parseSelectedMeds,
     Plotly
 } from "./sdk/plot.js";
 
@@ -96,6 +98,8 @@ export {
     getMedNames,
     getAllDataFromMed,
     plotNadacMed,
+    getSimilarMeds,
+    parseSelectedMeds,
     Plotly
 }
 
