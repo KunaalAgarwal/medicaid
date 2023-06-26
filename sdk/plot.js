@@ -15,23 +15,21 @@ let nadacDistributions = [
     "c5be50a1-0b23-5fcf-8b82-da7189b60e92"
 ]
 
-async function getAllNadacMeds(){
+async function getNadacMeds(){
     //uses the 2017 nadac
-    let sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`
+    const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
     const medObjects = await getDatastoreQuerySql(sql);
-    let medList = {}
-    medObjects.forEach(med => {medList[med.ndc_description.toUpperCase()] = 1})
-    return Object.keys(medList)
+    const medList = new Set(medObjects.map(med => med.ndc_description.toUpperCase()));
+    return Array.from(medList).sort();
 }
 
 async function getMedNames(medicine){
-    const medList = await getAllNadacMeds()
+    const medList = await getNadacMeds()
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
-async function getAllDataFromMed(med, vars = { xAxis: "as_of_date", yAxis: "nadac_per_unit" }) {
+async function getAllDataFromMed(medList, vars = { xAxis: "as_of_date", yAxis: "nadac_per_unit" }) {
     try {
-        const meds = await getMedNames(med);
         let xValues = [];
         let yValues = [];
         const fetchData = async (dataset, med) => {
@@ -42,36 +40,38 @@ async function getAllDataFromMed(med, vars = { xAxis: "as_of_date", yAxis: "nada
                 yValues.push(datapoint[vars.yAxis]);
             }
         }
+
         const fetchDataPromises = [];
         for (let dataset of nadacDistributions) {
-            for (let med of meds) {
+            for (let med of medList) {
                 fetchDataPromises.push(fetchData(dataset, med));
             }
         }
         await Promise.all(fetchDataPromises);
-        return {x: xValues.sort(), y: yValues, name: med };
+        return {x: xValues.sort(), y: yValues, name: (medList[0].split(' '))[0]};
     } catch (error) {
-        console.log("There was an error collecting the data.");
+        console.log("Please enter a valid medicine.");
     }
 }
 
-async function plotPriceVersusTime(medList, layout){
-    let data = [];
-    if (medList < 1) {
-        return;
+async function plotNadacMed(medList, layout){
+    try{
+        let data = [];
+        for (const med of medList) {
+            data.push(await getAllDataFromMed(med))
+        }
+        const plot = document.createElement('div');
+        Plotly.newPlot(plot, data, layout)
+        return plot;
+    } catch (error) {
+        console.log("Invalid plotting conditions.")
     }
-    for (const med of medList) {
-        data.push(await getAllDataFromMed(med))
-    }
-    const plot = document.createElement('div');
-    Plotly.newPlot(plot, data, layout)
-    return plot;
 }
 
 export {
-    getAllNadacMeds,
+    getNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime,
+    plotNadacMed,
     Plotly
 }

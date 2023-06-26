@@ -46,10 +46,10 @@ import {
 } from "./sdk/httpMethods.js"
 
 import {
-    getAllNadacMeds,
+    getNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime,
+    plotNadacMed,
     Plotly
 } from "./sdk/plot.js";
 
@@ -92,10 +92,10 @@ export {
     getSearchFacets,
     getSearch,
     //plot
-    getAllNadacMeds,
+    getNadacMeds,
     getMedNames,
     getAllDataFromMed,
-    plotPriceVersusTime,
+    plotNadacMed,
     Plotly
 }
 
