@@ -1,5 +1,6 @@
 import {getDatastoreQuerySql} from "./sql.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
+import {convertDatasetToDistributionId, getDatasetByKeyword} from "./metastore.js";
 
 let nadacDistributions = [
     "37ad62a2-f107-5ec9-b168-000694b6b8b9",
@@ -28,31 +29,39 @@ async function getMedNames(medicine){
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
-async function getAllDataFromMed(medList, vars = { xAxis: "as_of_date", yAxis: "nadac_per_unit" }) {
+async function getAllDataFromMed(medList,  vars = { xAxis: "as_of_date", yAxis: "nadac_per_unit" }){
+    let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
+    let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+    return await getPlotData(medList ,vars.xAxis ,vars.yAxis, nadacDistributions)
+}
+
+async function getPlotData(items, xAxis, yAxis, distributions) {
     try {
         let xValues = [];
         let yValues = [];
-        const fetchData = async (dataset, med) => {
-            let sql = `[SELECT ndc_description,${vars.xAxis},${vars.yAxis} FROM ${dataset}][WHERE ndc_description = "${med}"]`;
+        const fetchData = async (identifier, item) => {
+            let sql = `[SELECT ndc_description,${xAxis},${yAxis} FROM ${identifier}][WHERE ndc_description = "${item}"]`;
             const data = await getDatastoreQuerySql(sql);
             for (let datapoint of data) {
-                xValues.push(datapoint[vars.xAxis]);
-                yValues.push(datapoint[vars.yAxis]);
+                xValues.push(datapoint[xAxis]);
+                yValues.push(datapoint[yAxis]);
             }
         }
 
         const fetchDataPromises = [];
-        for (let dataset of nadacDistributions) {
-            for (let med of medList) {
-                fetchDataPromises.push(fetchData(dataset, med));
-            }
+        for (let dataset of distributions) {
+            items.forEach(item => {
+                fetchDataPromises.push(fetchData(dataset, item));
+            })
         }
         await Promise.all(fetchDataPromises);
-        return {x: xValues.sort(), y: yValues, name: (medList[0].split(' '))[0]};
+        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]};
     } catch (error) {
         console.log("Please enter a valid medicine.");
     }
 }
+
+
 
 async function plotNadacMed(medList, layout, vars){
     if (medList.length < 1){return}
