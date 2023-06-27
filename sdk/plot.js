@@ -12,7 +12,7 @@ let nadacDistributions = [
     "c961ae91-bf7a-5ab6-98f4-f84ee765c71c",
     "88b0eac5-6164-5737-b746-16eaefd52664",
     "99cac002-f9d9-565b-b23a-7e9be602ba74",
-    "c5be50a1-0b23-5fcf-8b82-da7189b60e92"
+    "bd58d95e-f4b3-5139-b3b8-aabecffde0c9"
 ]
 
 async function getNadacMeds(){
@@ -60,11 +60,14 @@ async function plotNadacMed(medList, layout){
     for (const med of medList) {
         data.push(await getAllDataFromMed(med))
     }
-    const plot = document.createElement('div');
-    Plotly.newPlot(plot, data, layout)
-    return plot;
+    return plot(data, layout)
 }
 
+function plot(data, layout){
+    const div = document.createElement('div')
+    Plotly.newPlot(div, data, layout);
+    return div;
+}
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
 async function getSimilarMeds(medList) {
