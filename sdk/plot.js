@@ -54,19 +54,23 @@ async function getAllDataFromMed(medList, vars = { xAxis: "as_of_date", yAxis: "
     }
 }
 
-async function plotNadacMed(medList, layout){
+async function plotNadacMed(medList, layout, vars){
     if (medList.length < 1){return}
     let data = [];
     for (const med of medList) {
-        data.push(await getAllDataFromMed(med))
+        data.push(await getAllDataFromMed(med, vars))
     }
     return plot(data, layout)
 }
 
 function plot(data, layout){
-    const div = document.createElement('div')
-    Plotly.newPlot(div, data, layout);
-    return div;
+    try{
+        const div = document.createElement('div')
+        Plotly.newPlot(div, data, layout);
+        return div;
+    } catch (error){
+        console.log("The plot could not be created.")
+    }
 }
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
