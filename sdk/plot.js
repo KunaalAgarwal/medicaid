@@ -30,7 +30,7 @@ async function getPlotData(items, xAxis, yAxis, distributions) {
     }
     const fetchData = async (identifier, item) => {
         let sql = `[SELECT ndc_description,${xAxis},${yAxis} FROM ${identifier}][WHERE ndc_description = "${item}"]`;
-        const data = await sdk.getDatastoreQuerySql(sql);
+        const data = await getDatastoreQuerySql(sql);
         for (let datapoint of data) {
             xValues.push(datapoint[xAxis]);
             yValues.push(datapoint[yAxis]);
