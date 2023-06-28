@@ -47,13 +47,17 @@ async function getPlotData(items, xAxis, yAxis, distributions) {
     }
 }
 
-async function plotNadacMed(medList, layout, vars){
-    if (medList.length < 1){return}
-    let data = [];
-    for (const med of medList) {
-        data.push(await getAllDataFromMed(med, vars))
-    }
-    return plot(data, layout)
+async function plotNadacMed(medList, layout, vars) {
+    const medListOutput = Array.isArray(medList) ? medList : [medList];
+    if (medListOutput.length === 0) return;
+    const data = await Promise.all(medListOutput.map(async (med) => {
+        if (typeof med === "string") {
+            return await getAllDataFromMed([med], vars);
+        } else {
+            return await getAllDataFromMed(med, vars);
+        }
+    }));
+    return plot(data, layout);
 }
 
 function plot(data, layout){

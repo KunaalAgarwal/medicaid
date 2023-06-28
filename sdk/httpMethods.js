@@ -62,14 +62,14 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
 
 function updateCache() {
     try {
-        if (updateCount < 30) {
+        if (updateCount < 10000) {
             updateCount++;
             return;
         }
         const timeStamp = Date.now();
         Object.keys(localStorage).forEach(key => {
             const value = Number.parseInt(localStorage.getItem(key));
-            if (timeStamp - value > 86400000) { // 24 hours in ms
+            if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
                 const dataKey = key.split("time")[0];
                 localStorage.removeItem(key);
                 localforage.removeItem(dataKey);
