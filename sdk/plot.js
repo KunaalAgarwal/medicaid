@@ -60,6 +60,10 @@ async function plotNadacMed(medList, layout, vars) {
     return plot(data, layout, "line");
 }
 
+async function plotTimeSeries(){
+
+}
+
 function plot(data, layout, type = "line"){
     try{
         const div = document.createElement('div');
