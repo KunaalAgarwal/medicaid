@@ -60,9 +60,12 @@ async function plotNadacMed(medList, layout, vars) {
     return plot(data, layout);
 }
 
-function plot(data, layout){
+function plot(data, layout, type = "line"){
     try{
-        const div = document.createElement('div')
+        const div = document.createElement('div');
+        for (let trace of data){
+            trace.type = type;
+        }
         Plotly.newPlot(div, data, layout);
         return div;
     } catch (error){
