@@ -18,15 +18,15 @@ async function getMedNames(medicine){
 async function getAllDataFromMed(medList,  vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
     let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
     let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
-    return await getPlotData(medList ,vars.xAxis ,vars.yAxis, nadacDistributions)
+    return await getPlotData(medList ,vars.xAxis ,vars.yAxis,"ndc_description",nadacDistributions)
 }
 
-async function getPlotData(items, xAxis, yAxis, distributions) {
+async function getPlotData(items, xAxis, yAxis, filter, distributions) {
     try {
         let xValues = [];
         let yValues = [];
         const fetchData = async (identifier, item) => {
-            let sql = `[SELECT ndc_description,${xAxis},${yAxis} FROM ${identifier}][WHERE ndc_description = "${item}"]`;
+            let sql = `[SELECT ${filter},${xAxis},${yAxis} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
             const data = await getDatastoreQuerySql(sql);
             for (let datapoint of data) {
                 xValues.push(datapoint[xAxis]);
@@ -57,7 +57,7 @@ async function plotNadacMed(medList, layout, vars) {
             return await getAllDataFromMed(med, vars);
         }
     }));
-    return plot(data, layout);
+    return plot(data, layout, "line");
 }
 
 function plot(data, layout, type = "line"){
