@@ -2,6 +2,7 @@ import {getDatastoreQuerySql} from "./sql.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword} from "./metastore.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+//NADAC Related
 async function getNadacMeds(){
     //uses the 2017 nadac
     const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
@@ -18,35 +19,8 @@ async function getMedNames(medicine){
 async function getAllDataFromMed(medList,  vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
     let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
     let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
-    return await getPlotData(medList ,vars.xAxis ,vars.yAxis,"ndc_description",nadacDistributions)
+    return await getPlotData(medList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc_description"}, nadacDistributions)
 }
-
-async function getPlotData(items, xAxis, yAxis, filter, distributions) {
-    try {
-        let xValues = [];
-        let yValues = [];
-        const fetchData = async (identifier, item) => {
-            let sql = `[SELECT ${filter},${xAxis},${yAxis} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
-            const data = await getDatastoreQuerySql(sql);
-            for (let datapoint of data) {
-                xValues.push(datapoint[xAxis]);
-                yValues.push(datapoint[yAxis]);
-            }
-        }
-
-        const fetchDataPromises = [];
-        for (let dataset of distributions) {
-            items.forEach(item => {
-                fetchDataPromises.push(fetchData(dataset, item));
-            })
-        }
-        await Promise.all(fetchDataPromises);
-        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]};
-    } catch (error) {
-        console.log("Please enter a valid medicine.");
-    }
-}
-
 async function plotNadacMed(medList, layout, vars) {
     const medListOutput = Array.isArray(medList) ? medList : [medList];
     if (medListOutput.length === 0) return;
@@ -60,20 +34,50 @@ async function plotNadacMed(medList, layout, vars) {
     return plot(data, layout, "line");
 }
 
-async function plotTimeSeries(){
+//ADULT AND CHILD HEALTH CARE QUALITY MEASURES
+
+async function getStateMeasureData(items, measureName, distributions){
 
 }
 
+//GENERAL
 function plot(data, layout, type = "line"){
     try{
         const div = document.createElement('div');
-        for (let trace of data){
-            trace.type = type;
-        }
+        for (let trace of data){trace.type = type;}
         Plotly.newPlot(div, data, layout);
         return div;
     } catch (error){
         console.log("The plot could not be created.")
+    }
+}
+
+
+async function getPlotData(items, vars, distributions) {
+    try {
+        let xValues = [];
+        let yValues = [];
+        let varsString = ""
+        Object.values(vars).forEach(v => {varsString += `,${v}`})
+        varsString = varsString.slice(1, varsString.length)
+        const fetchData = async (identifier, item) => {
+            let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${vars.filter} = "${item}"]`;
+            const data = await getDatastoreQuerySql(sql);
+            for (let datapoint of data) {
+                xValues.push(datapoint[vars.xAxis]);
+                yValues.push(datapoint[vars.yAxis]);
+            }
+        }
+        const fetchDataPromises = [];
+        for (let dataset of distributions) {
+            items.forEach(item => {
+                fetchDataPromises.push(fetchData(dataset, item));
+            })
+        }
+        await Promise.all(fetchDataPromises);
+        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]};
+    } catch (error) {
+        console.log("Please enter a valid medicine.");
     }
 }
 
