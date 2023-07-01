@@ -16,7 +16,7 @@ async function getMedNames(medicine){
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
-async function getAllDataFromMed(medList,  vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
+async function getMedData(medList, vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
     let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
     let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
     return await getPlotData(medList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc_description"}, nadacDistributions)
@@ -27,20 +27,38 @@ async function plotNadacMed(medList, layout, vars) {
     if (medListOutput.length === 0) return;
     const data = await Promise.all(medListOutput.map(async (med) => {
         if (typeof med === "string") {
-            return await getAllDataFromMed([med], vars);
+            return await getMedData([med], vars);
         } else {
-            return await getAllDataFromMed(med, vars);
+            return await getMedData(med, vars);
         }
     }));
     return plot(data, layout, "line");
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
-
-async function getStateMeasureData(items, measureName, distributions){
+async function plotMeasure(stateList, layout, vars, measureName) {
+    const states = Array.isArray(stateList) ? stateList : [stateList];
+    if (states.length === 0) return;
+    const data = await Promise.all(states.map(async (state) => {
+        if (typeof state === "string") {
+            return await getStateMeasureData([state], vars, measureName);
+        } else {
+            return await getStateMeasureData(state, vars, measureName);
+        }
+    }));
+    return plot(data, layout, "line");
+}
+async function getStateMeasureData(states, vars, measureName){
+    let xValues = [];
+    let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
-    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.title)}))
-    return await getPlotData(items, {xAxis: 'ffy', yAxis: "state_rate", filter: "state", })
+    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
+    const data =  await getAllData(states, vars, distributionIds)
+    data.filter(x => x.measure_name === measureName).forEach(datapoint => {
+        xValues.push(datapoint[vars.xAxis])
+        yValues.push(datapoint[vars.yAxis])
+    });
+    return {x: xValues.sort(), y: yValues, name: states[0]}
 }
 
 //GENERAL
@@ -125,7 +143,7 @@ function parseSelectedMeds(medList) {
 export {
     getNadacMeds,
     getMedNames,
-    getAllDataFromMed,
+    getMedData,
     plotNadacMed,
     getSimilarMeds,
     parseSelectedMeds,

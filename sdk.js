@@ -48,7 +48,7 @@ import {
 import {
     getNadacMeds,
     getMedNames,
-    getAllDataFromMed,
+    getMedData,
     plotNadacMed,
     getSimilarMeds,
     parseSelectedMeds,
@@ -98,7 +98,7 @@ export {
     //plot
     getNadacMeds,
     getMedNames,
-    getAllDataFromMed,
+    getMedData,
     plotNadacMed,
     getSimilarMeds,
     parseSelectedMeds,
