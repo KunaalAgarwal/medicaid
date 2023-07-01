@@ -21,6 +21,7 @@ async function getAllDataFromMed(medList,  vars = {xAxis: "as_of_date", yAxis: "
     let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
     return await getPlotData(medList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc_description"}, nadacDistributions)
 }
+
 async function plotNadacMed(medList, layout, vars) {
     const medListOutput = Array.isArray(medList) ? medList : [medList];
     if (medListOutput.length === 0) return;
@@ -37,7 +38,9 @@ async function plotNadacMed(medList, layout, vars) {
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
 
 async function getStateMeasureData(items, measureName, distributions){
-
+    let datasets = await getDatasetByKeyword("performance rates");
+    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.title)}))
+    return await getPlotData(items, {xAxis: 'ffy', yAxis: "state_rate", filter: "state", })
 }
 
 //GENERAL
@@ -52,33 +55,36 @@ function plot(data, layout, type = "line"){
     }
 }
 
-
 async function getPlotData(items, vars, distributions) {
-    try {
-        let xValues = [];
-        let yValues = [];
-        let varsString = ""
-        Object.values(vars).forEach(v => {varsString += `,${v}`})
-        varsString = varsString.slice(1, varsString.length)
-        const fetchData = async (identifier, item) => {
-            let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${vars.filter} = "${item}"]`;
-            const data = await getDatastoreQuerySql(sql);
-            for (let datapoint of data) {
-                xValues.push(datapoint[vars.xAxis]);
-                yValues.push(datapoint[vars.yAxis]);
-            }
-        }
-        const fetchDataPromises = [];
-        for (let dataset of distributions) {
-            items.forEach(item => {
-                fetchDataPromises.push(fetchData(dataset, item));
-            })
-        }
-        await Promise.all(fetchDataPromises);
-        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]};
-    } catch (error) {
-        console.log("Please enter a valid medicine.");
+    try{
+        const xValues = [];
+        const yValues = [];
+        const data = await getAllData(items, vars, distributions);
+        data.forEach(datapoint => {
+            xValues.push(datapoint[vars.xAxis]);
+            yValues.push(datapoint[vars.yAxis]);
+        })
+        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]}
+    } catch(error){
+        console.log("An error occurred in data collection.")
     }
+}
+
+async function getAllData(items, vars, distributions){
+    let varsString = ""
+    const fetchDataPromises = [];
+    Object.values(vars).forEach(v => {varsString += `,${v}`})
+    varsString = varsString.slice(1, varsString.length)
+    const fetchData = async (identifier, item) => {
+        let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${vars.filter} = "${item}"]`;
+        return await getDatastoreQuerySql(sql);
+    }
+    for (let dataset of distributions) {
+        items.forEach(item => {
+            fetchDataPromises.push(fetchData(dataset, item));
+        })
+    }
+    return (await Promise.all(fetchDataPromises)).flat();
 }
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
