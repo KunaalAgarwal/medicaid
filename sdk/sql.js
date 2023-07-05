@@ -1,17 +1,17 @@
 import {getItems} from "./httpMethods.js";
 
-async function getDatastoreQuerySql(sqlQuery, showColumnFlag = true) {
+async function getDatastoreQuerySql(sqlQuery, showColumn = true) {
     //handles all sql query GET requests
     try {
-        let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumnFlag}`;
+        let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumn}`;
         let limit = parseLimit(sqlQuery);
         if (limit <= 10000 && limit !== null){
             return await getItems(baseEndpoint);
         }
         else if (limit > 10000){
-            return await sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag);
+            return await sqlHighLimit(sqlQuery, baseEndpoint, showColumn);
         }
-        return await sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag);
+        return await sqlNoLimit(sqlQuery, baseEndpoint, showColumn);
     } catch (Error) {
         console.log("The request could not be fulfilled");
     }
@@ -33,7 +33,7 @@ function parseLimit(query){
     return null;
 }
 
-async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
+async function sqlHighLimit(sqlQuery, baseEndpoint, showColumn){
     //executes sql query for limits above the api max limit (10000)
     let allData = [];
     let offset = parseOffset(sqlQuery)
@@ -46,7 +46,7 @@ async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
         } else {
             updatedQuery = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`)
         }
-        baseEndpoint = `datastore/sql?query=${updatedQuery}&show_db_columns=${showColumnFlag}`;
+        baseEndpoint = `datastore/sql?query=${updatedQuery}&show_db_columns=${showColumn}`;
         const results = await getItems(baseEndpoint);
         allData.push(...results);
         offset += currentLimit;
@@ -55,14 +55,14 @@ async function sqlHighLimit(sqlQuery, baseEndpoint, showColumnFlag){
     return allData;
 }
 
-async function fetchChunk(offset, limit, sqlQuery, showColumnFlag) {
+async function fetchChunk(offset, limit, sqlQuery, showColumn) {
     let adjustedQuery;
     if (sqlQuery.includes("OFFSET")) {
         adjustedQuery = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
     } else {
         adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
     }
-    const baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumnFlag}`;
+    const baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumn}`;
     return getItems(baseEndpoint);
 }
 

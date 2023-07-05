@@ -1,12 +1,12 @@
 //https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
 import {getItems, postItem} from './httpMethods.js';
 
-async function getDatastoreImport(datastoreId){
-    return await getItems(`datastore/imports/${datastoreId}`);
+async function getDatastoreImport(distributionId){
+    return await getItems(`datastore/imports/${distributionId}`);
 }
 
 //datastore: query
-async function postDatastoreQuery(datastoreId, columnName, columnValue,operator = "=", limit = 0) {
+async function postDatastoreQuery(distributionId, columnName, columnValue, operator = "=", limit = 0) {
     let headers = {'Content-Type': 'application/json'}
     if (limit > 10000){limit = 10000}
     let requestBody = {
@@ -15,13 +15,13 @@ async function postDatastoreQuery(datastoreId, columnName, columnValue,operator 
                 "resource": "t",
                 "property": columnName,
                 "value": columnValue,
-                "operator": `${operator}`
+                "operator": operator
             }
         ],
         "limit": limit,
         "resources": [
             {
-                "id": `${datastoreId}`,
+                "id": `${distributionId}`,
                 "alias": "t"
             },
         ]
@@ -33,7 +33,7 @@ async function postDatastoreQuery(datastoreId, columnName, columnValue,operator 
         console.log("The post could not be fulfilled.");
     }
 }
-async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, operator = "=", limit = 0){
+async function postDatastoreQueryDownload(distributionId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'text/csv'}
     if (limit > 10000){limit = 10000}
     let requestBody = {
@@ -48,7 +48,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
         "limit": limit,
         "resources": [
             {
-                "id": `${datastoreId}`,
+                "id": `${distributionId}`,
                 "alias": "t"
             }
         ],
@@ -57,7 +57,7 @@ async function postDatastoreQueryDownload(datastoreId, columnName, columnValue, 
     return await postItem('datastore/query/download', requestBody, headers, true);
 }
 
-async function postDatastoreQueryDistributionId(datastoreId, columnName, columnValue, operator = "=", limit = 0){
+async function postDatastoreQueryDistributionId(distributionId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
     if (limit > 10000){limit = 10000}
     let requestBody = {
@@ -72,7 +72,7 @@ async function postDatastoreQueryDistributionId(datastoreId, columnName, columnV
         "limit": limit
     }
     try{
-        let response = await postItem(`datastore/query/${datastoreId}`, requestBody, headers);
+        let response = await postItem(`datastore/query/${distributionId}`, requestBody, headers);
         return response.results;
     }catch (Error){
         console.log("The post could not be fulfilled.");
