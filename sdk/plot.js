@@ -149,5 +149,7 @@ export {
     parseSelectedMeds,
     getPlotData,
     plot,
+    getAllData,
+    plotMeasure,
     Plotly
 }

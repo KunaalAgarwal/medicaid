@@ -54,6 +54,8 @@ import {
     parseSelectedMeds,
     getPlotData,
     plot,
+    getAllData,
+    plotMeasure,
     Plotly
 } from "./sdk/plot.js";
 
@@ -104,6 +106,8 @@ export {
     parseSelectedMeds,
     getPlotData,
     plot,
+    getAllData,
+    plotMeasure,
     Plotly
 }
 
