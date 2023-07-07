@@ -97,9 +97,9 @@ async function getAllData(items, vars, distributions){
         let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${vars.filter} = "${item}"]`;
         return await getDatastoreQuerySql(sql);
     }
-    for (let dataset of distributions) {
+    for (let distributionId of distributions) {
         items.forEach(item => {
-            fetchDataPromises.push(fetchData(dataset, item));
+            fetchDataPromises.push(fetchData(distributionId, item));
         })
     }
     return (await Promise.all(fetchDataPromises)).flat();

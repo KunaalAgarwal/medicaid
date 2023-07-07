@@ -1,14 +1,23 @@
 const baseUrl = 'https://data.medicaid.gov/api/1/';
 import localforage from 'https://cdn.skypack.dev/localforage';
 let updateCount = 0;
+const dbName = "localforage"
+let endpointStore = localforage.createInstance({
+    name: dbName,
+    storeName: "endpointStore"
+})
+let timeStore = localforage.createInstance({
+    name: dbName,
+    storeName: "timeStore"
+})
 
 async function getItems(endpoint, downloadFlag = false) {
     try{
         updateCache();
         const timeStamp = Date.now();
-        const cachedData = await localforage.getItem(endpoint);
+        const cachedData = await endpointStore.getItem(endpoint);
         if (cachedData !== null) {
-            localStorage.setItem(endpoint, timeStamp);
+            timeStore.setItem(endpoint, timeStamp);
             return cachedData
         }
         const response = await fetch(baseUrl + endpoint);
@@ -19,8 +28,8 @@ async function getItems(endpoint, downloadFlag = false) {
             } else {
                 responseData = await response.json();
             }
-            localforage.setItem(endpoint, responseData);
-            localStorage.setItem(endpoint, timeStamp);
+            endpointStore.setItem(endpoint, responseData);
+            timeStore.setItem(endpoint, timeStamp);
             return responseData
         }
     } catch (error){
