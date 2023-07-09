@@ -42,7 +42,9 @@ import {
 
 import {
     clearCache,
-    updateCache
+    updateCache,
+    endpointStore,
+    timeStore
 } from "./sdk/httpMethods.js"
 
 import {
@@ -63,6 +65,8 @@ import {
 export {
     clearCache,
     updateCache,
+    endpointStore,
+    timeStore,
     //metastore
     getSchemas,
     getSpecificSchema,

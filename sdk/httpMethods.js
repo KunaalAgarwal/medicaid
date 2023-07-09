@@ -99,5 +99,7 @@ export{
     getItems,
     postItem,
     clearCache,
-    updateCache
+    updateCache,
+    endpointStore,
+    timeStore
 }
