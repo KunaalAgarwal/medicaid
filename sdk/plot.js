@@ -64,8 +64,8 @@ async function getStateMeasureData(stateList, vars, measureName){
     let xValues = new Set();
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
-    let distributionIds = await Promise.all(datasets.map(x => {return   sdk.convertDatasetToDistributionId(x.identifier)}))
-    let data =  await getAllData(states, vars, distributionIds)
+    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
+    let data =  await getAllData(stateList, vars, distributionIds)
     data.forEach(dataset => {
         let count = 0;
         let sum = 0;
@@ -78,7 +78,7 @@ async function getStateMeasureData(stateList, vars, measureName){
             yValues.push(sum/count)
         }
     })
-    return {x: Array.from(xValues).sort(), y: yValues, name: states[0]}
+    return {x: Array.from(xValues).sort(), y: yValues, name: stateList[0]}
 }
 
 //GENERAL
