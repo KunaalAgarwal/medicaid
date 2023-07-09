@@ -46,9 +46,9 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
     try {
         updateCache();
         const timeStamp = Date.now();
-        const cachedData = await localforage.getItem(options.body);
+        const cachedData = await endpointStore.getItem(options.body);
         if (cachedData !== null){
-            localStorage.setItem(options.body, timeStamp);
+            timeStore.setItem(options.body, timeStamp);
             return cachedData;
         }
 
@@ -60,8 +60,8 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             } else {
                 responseData = await response.json();
             }
-            localforage.setItem(options.body, responseData);
-            localStorage.setItem(options.body, timeStamp);
+            endpointStore.setItem(options.body, responseData);
+            timeStore.setItem(options.body, timeStamp);
             return responseData;
         }
     } catch (error) {
@@ -76,12 +76,12 @@ function updateCache() {
             return;
         }
         const timeStamp = Date.now();
-        Object.keys(localStorage).forEach(key => {
-            const value = Number.parseInt(localStorage.getItem(key));
+        timeStore.keys().forEach(key => {
+            const value = Number.parseInt(timeStore.getItem(key));
             if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
                 const dataKey = key.split("time")[0];
-                localStorage.removeItem(key);
-                localforage.removeItem(dataKey);
+                timeStore.removeItem(key);
+                endpointStore.removeItem(dataKey);
             }
         });
         updateCount = 0;
@@ -91,8 +91,8 @@ function updateCache() {
 }
 
 function clearCache(){
-    localforage.clear();
-    localStorage.clear();
+    endpointStore.clear();
+    timeStore.clear();
 }
 
 export{
