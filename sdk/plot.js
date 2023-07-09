@@ -36,6 +36,18 @@ async function plotNadacMed(medList, layout, vars) {
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
+async function getMeasureNames(){
+    const sql = "[SELECT measure_name FROM 602b8a80-98f0-5115-a688-e43d3d52ce2e]";
+    let measureObjects = await getDatastoreQuerySql(sql)
+    return new Set(measureObjects.map(measure => {return measure.measure_name}));
+}
+
+async function getStates(measureName){
+    const sql = `[SELECT state FROM 602b8a80-98f0-5115-a688-e43d3d52ce2e][WHERE measure_name = "${measureName}"]`;
+    let states = await getDatastoreQuerySql(sql);
+    return new Set(states.map(stateObj => {return stateObj.state}))
+}
+
 async function plotMeasure(stateList, layout, vars, measureName) {
     const states = Array.isArray(stateList) ? stateList : [stateList];
     if (states.length === 0) return;
@@ -151,5 +163,7 @@ export {
     plot,
     getAllData,
     plotMeasure,
+    getMeasureNames,
+    getStates,
     Plotly
 }

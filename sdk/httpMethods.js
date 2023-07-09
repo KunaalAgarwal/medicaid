@@ -30,7 +30,7 @@ async function getItems(endpoint, downloadFlag = false) {
             }
             endpointStore.setItem(endpoint, responseData);
             timestore.setItem(endpoint, timeStamp);
-            return responseData
+            return responseData;
         }
     } catch (error){
         console.log("An error occurred in the API request.")

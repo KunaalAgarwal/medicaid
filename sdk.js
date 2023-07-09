@@ -56,6 +56,8 @@ import {
     plot,
     getAllData,
     plotMeasure,
+    getMeasureNames,
+    getStates,
     Plotly
 } from "./sdk/plot.js";
 
@@ -108,6 +110,8 @@ export {
     plot,
     getAllData,
     plotMeasure,
+    getMeasureNames,
+    getStates,
     Plotly
 }
 
