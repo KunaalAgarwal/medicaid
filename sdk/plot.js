@@ -60,17 +60,25 @@ async function plotMeasure(stateList, layout, vars, measureName) {
     }));
     return plot(data, layout, "line");
 }
-async function getStateMeasureData(states, vars, measureName){
-    let xValues = [];
+async function getStateMeasureData(stateList, vars, measureName){
+    let xValues = new Set();
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
-    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
-    const data =  await getAllData(states, vars, distributionIds)
-    data.filter(x => x.measure_name === measureName).forEach(datapoint => {
-        xValues.push(datapoint[vars.xAxis])
-        yValues.push(datapoint[vars.yAxis])
-    });
-    return {x: xValues.sort(), y: yValues, name: states[0]}
+    let distributionIds = await Promise.all(datasets.map(x => {return   sdk.convertDatasetToDistributionId(x.identifier)}))
+    let data =  await getAllData(states, vars, distributionIds)
+    data.forEach(dataset => {
+        let count = 0;
+        let sum = 0;
+        dataset.filter(x => x.measure_name === measureName).forEach(datapoint => {
+            xValues.add(datapoint[vars.xAxis])
+            sum += Number.parseFloat(datapoint[vars.yAxis])
+            count++
+        })
+        if (count > 0){
+            yValues.push(sum/count)
+        }
+    })
+    return {x: Array.from(xValues).sort(), y: yValues, name: states[0]}
 }
 
 //GENERAL
@@ -89,7 +97,7 @@ async function getPlotData(items, vars, distributions) {
     try{
         const xValues = [];
         const yValues = [];
-        const data = await getAllData(items, vars, distributions);
+        const data = (await getAllData(items, vars, distributions)).flat();
         data.forEach(datapoint => {
             xValues.push(datapoint[vars.xAxis]);
             yValues.push(datapoint[vars.yAxis]);
@@ -114,7 +122,7 @@ async function getAllData(items, vars, distributions){
             fetchDataPromises.push(fetchData(distributionId, item));
         })
     }
-    return (await Promise.all(fetchDataPromises)).flat();
+    return await Promise.all(fetchDataPromises);
 }
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
