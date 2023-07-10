@@ -6,12 +6,12 @@ async function getSchemas(){
 
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
-    return getItems(`metastore/schemas/${schemaName}`);
+    return await getItems(`metastore/schemas/${schemaName}`);
 }
 
 //ENDPOINT: "metastore/schemas/{schema}/items"
 async function getSchemaItems(schemaName){
-    return getItems(`metastore/schemas/${schemaName}/items`);
+    return await getItems(`metastore/schemas/${schemaName}/items`);
 }
 
 async function getAllDatasetUrls(){
@@ -32,7 +32,11 @@ function parseDownloadLink(dataset){
 async function getDatasetByTitleName(datasetTitle) {
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.title.toUpperCase() === datasetTitle.toUpperCase());
+        const filteredItems = items.filter(item => item.title.toUpperCase() === datasetTitle.toUpperCase());
+        if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return filteredItems;
     } catch (error){
         console.log("The request could not be fulfilled.");
     }
@@ -41,7 +45,11 @@ async function getDatasetByTitleName(datasetTitle) {
 async function getDatasetByKeyword(datasetKeyword){
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.keyword.some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
+        const filteredItems = items.filter(item => item.keyword.some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
+        if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return filteredItems
     }catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -50,7 +58,11 @@ async function getDatasetByKeyword(datasetKeyword){
 async function getDatasetByDescription(datasetDescription) {
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => item.description.toUpperCase() === datasetDescription.toUpperCase());
+        const filteredItems = items.filter(item => item.description.toUpperCase() === datasetDescription.toUpperCase());
+        if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return filteredItems;
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -59,7 +71,11 @@ async function getDatasetByDescription(datasetDescription) {
 async function getDatasetByDownloadUrl(url){
     try{
         const items =  await getSchemaItems("dataset");
-        return items.filter(item => parseDownloadLink(item) === url);
+        const filteredItems = items.filter(item => parseDownloadLink(item) === url);
+        if (filteredItems.length === 1){
+            return filteredItems[0];
+        }
+        return filteredItems;
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -72,8 +88,7 @@ async function getDistributionByDownloadUrl(url){
         if (filteredItems.length === 1){
             return filteredItems[0]
         }
-        else
-            return filteredItems
+        return filteredItems
     } catch (Error){
         console.log("The request could not be fulfilled.");
     }
@@ -108,7 +123,9 @@ async function convertDistributionToDatasetId(distributionId){
     try{
         let distribution = await getDistributionById(distributionId);
         let downloadLink = distribution.data.downloadURL
-        return (await getDatasetByDownloadUrl(downloadLink))[0].identifier
+        let dataset = await getDatasetByDownloadUrl(downloadLink);
+        let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
+        return (adjustedDataset)[0].identifier
     } catch (error){
         console.log("Could not convert the id.")
     }

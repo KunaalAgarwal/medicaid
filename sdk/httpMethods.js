@@ -18,7 +18,7 @@ async function getItems(endpoint, downloadFlag = false) {
         const cachedData = await endpointStore.getItem(endpoint);
         if (cachedData !== null) {
             timestore.setItem(endpoint, timeStamp);
-            return cachedData
+            return cachedData;
         }
         const response = await fetch(baseUrl + endpoint);
         if (response.ok){
@@ -32,6 +32,7 @@ async function getItems(endpoint, downloadFlag = false) {
             timestore.setItem(endpoint, timeStamp);
             return responseData;
         }
+        console.log("An error occurred in the API request.")
     } catch (error){
         console.log("An error occurred in the API request.")
     }
@@ -64,8 +65,9 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             timestore.setItem(options.body, timeStamp);
             return responseData;
         }
+        console.log("An error occurred in the API post request.");
     } catch (error) {
-        console.log("An error occurred in the API post");
+        console.log("An error occurred in the API post request.");
     }
 }
 
@@ -76,9 +78,9 @@ function updateCache() {
             return;
         }
         const timeStamp = Date.now();
-        timestore.keys().then(function(keys) {
+        timestore.keys().then(keys => {
             keys.forEach(key => {
-                timestore.getItem(key).then(function (value) {
+                timestore.getItem(key).then(value => {
                     if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
                         timestore.removeItem(key);
                         endpointStore.removeItem(key);
