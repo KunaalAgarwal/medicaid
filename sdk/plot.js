@@ -1,5 +1,5 @@
 import {getDatastoreQuerySql} from "./sql.js";
-import {convertDatasetToDistributionId, getDatasetByKeyword} from "./metastore.js";
+import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "./metastore.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
 //NADAC Related
@@ -36,16 +36,33 @@ async function plotNadacMed(medList, layout, vars) {
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
+async function getAllMeasureData(measureName){
+    let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
+    let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
+    return await getDatastoreQuerySql(`[SELECT * FROM ${distributionId}][WHERE measure_name === "${measureName}"]`)
+}
+
 async function getMeasureNames(){
-    const sql = "[SELECT measure_name FROM 602b8a80-98f0-5115-a688-e43d3d52ce2e]";
-    let measureObjects = await getDatastoreQuerySql(sql)
+    let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
+    let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
+    let measureObjects = await getDatastoreQuerySql(`[SELECT measure_name FROM ${distributionId}]`)
     return new Set(measureObjects.map(measure => {return measure.measure_name}));
 }
 
-async function getStates(measureName){
-    const sql = `[SELECT state FROM 602b8a80-98f0-5115-a688-e43d3d52ce2e][WHERE measure_name = "${measureName}"]`;
-    let states = await getDatastoreQuerySql(sql);
-    return new Set(states.map(stateObj => {return stateObj.state}))
+async function getRateDefinitions(measureName){
+    return new Set((await getAllMeasureData(measureName)).map(x => {return x.rate_definition}));
+}
+
+async function getStates(rateName, measureName){
+    let filteredData = (await getAllMeasureData(measureName)).filter(x => x.rate_definition === rateName)
+    return new Set(filteredData.map(x => {return x.state}));
+}
+
+async function getRateData(rateName, measureName){
+    let xValues = Array.from(await getStates(rateName, measureName))
+    let filteredYValues = (await getAllMeasureData(measureName)).filter(x => x.rate_definition === rateName)
+    let yValues = filteredYValues.map(x => {return x.state_rate})
+    return {x: xValues, y: yValues, name: `2022: ${rateName}`}
 }
 
 async function plotMeasure(stateList, layout, vars, measureName) {
@@ -60,16 +77,17 @@ async function plotMeasure(stateList, layout, vars, measureName) {
     }));
     return plot(data, layout, "line");
 }
-async function getStateMeasureData(stateList, vars, measureName){
+async function getStateMeasureData(stateList, vars, rateName){
     let xValues = new Set();
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
     let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
-    let data =  await getAllData(stateList, vars, distributionIds)
+    let rawData =  await getAllData(stateList, vars, distributionIds)
+    let data = rawData.filter(x => x !== undefined);
     data.forEach(dataset => {
         let count = 0;
         let sum = 0;
-        dataset.filter(x => x.measure_name === measureName).forEach(datapoint => {
+        dataset.filter(x => x.rate_definition === rateName).forEach(datapoint => {
             xValues.add(datapoint[vars.xAxis])
             sum += Number.parseFloat(datapoint[vars.yAxis])
             count++
@@ -84,9 +102,10 @@ async function getStateMeasureData(stateList, vars, measureName){
 //GENERAL
 function plot(data, layout, type = "line"){
     try{
+        const adjustedData = Array.isArray(data) ? data : [data];
         const div = document.createElement('div');
-        for (let trace of data){trace.type = type;}
-        Plotly.newPlot(div, data, layout);
+        for (let trace of adjustedData){trace.type = type;}
+        Plotly.newPlot(div, adjustedData, layout);
         return div;
     } catch (error){
         console.log("The plot could not be created.")
@@ -173,5 +192,7 @@ export {
     plotMeasure,
     getMeasureNames,
     getStates,
+    getRateData,
+    getRateDefinitions,
     Plotly
 }
