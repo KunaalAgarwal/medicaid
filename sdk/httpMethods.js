@@ -100,6 +100,5 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache,
-    updateCache
+    clearCache
 }

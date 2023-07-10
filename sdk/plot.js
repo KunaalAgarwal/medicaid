@@ -36,46 +36,33 @@ async function plotNadacMed(medList, layout, vars) {
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
-async function getAllMeasureData(measureName){
+async function getHealthcareQualityData(qualityMeasure){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
     let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
-    return await getDatastoreQuerySql(`[SELECT * FROM ${distributionId}][WHERE measure_name === "${measureName}"]`)
+    return await getDatastoreQuerySql(`[SELECT * FROM ${distributionId}][WHERE measure_name === "${qualityMeasure}"]`)
 }
 
-async function getMeasureNames(){
+async function getQualityMeasures(){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
     let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
     let measureObjects = await getDatastoreQuerySql(`[SELECT measure_name FROM ${distributionId}]`)
     return new Set(measureObjects.map(measure => {return measure.measure_name}));
 }
 
-async function getRateDefinitions(measureName){
-    return new Set((await getAllMeasureData(measureName)).map(x => {return x.rate_definition}));
+async function getRateDefinitions(qualityMeasure){
+    return new Set((await getHealthcareQualityData(qualityMeasure)).map(x => {return x.rate_definition}));
 }
 
-async function getStates(rateName, measureName){
-    let filteredData = (await getAllMeasureData(measureName)).filter(x => x.rate_definition === rateName)
+async function getStates(rateDef, qualityMeasure){
+    let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x.rate_definition === rateDef)
     return new Set(filteredData.map(x => {return x.state}));
 }
 
-async function getRateData(rateName, measureName){
-    let xValues = Array.from(await getStates(rateName, measureName))
-    let filteredYValues = (await getAllMeasureData(measureName)).filter(x => x.rate_definition === rateName)
+async function getRateData(rateDef, qualityMeasure){
+    let xValues = Array.from(await getStates(rateDef, qualityMeasure))
+    let filteredYValues = (await getHealthcareQualityData(qualityMeasure)).filter(x => x.rate_definition === rateDef)
     let yValues = filteredYValues.map(x => {return x.state_rate})
-    return {x: xValues, y: yValues, name: `2022: ${rateName}`}
-}
-
-async function plotMeasure(stateList, layout, vars, measureName) {
-    const states = Array.isArray(stateList) ? stateList : [stateList];
-    if (states.length === 0) return;
-    const data = await Promise.all(states.map(async (state) => {
-        if (typeof state === "string") {
-            return await getStateMeasureData([state], vars, measureName);
-        } else {
-            return await getStateMeasureData(state, vars, measureName);
-        }
-    }));
-    return plot(data, layout, "line");
+    return {x: xValues, y: yValues, name: `2022: ${rateDef}`}
 }
 async function getStateMeasureData(stateList, vars, rateName){
     let xValues = new Set();
@@ -97,6 +84,18 @@ async function getStateMeasureData(stateList, vars, rateName){
         }
     })
     return {x: Array.from(xValues).sort(), y: yValues, name: stateList[0]}
+}
+async function plotMeasure(stateList, layout, vars, rateDef) {
+    const states = Array.isArray(stateList) ? stateList : [stateList];
+    if (states.length === 0) return;
+    const data = await Promise.all(states.map(async (state) => {
+        if (typeof state === "string") {
+            return await getStateMeasureData([state], vars, rateDef);
+        } else {
+            return await getStateMeasureData(state, vars, rateDef);
+        }
+    }));
+    return plot(data, layout, "line");
 }
 
 //GENERAL
@@ -184,15 +183,13 @@ export {
     getMedNames,
     getMedData,
     plotNadacMed,
-    getSimilarMeds,
-    parseSelectedMeds,
-    getPlotData,
-    plot,
-    getAllData,
-    plotMeasure,
-    getMeasureNames,
+    getQualityMeasures,
+    getRateDefinitions,
     getStates,
     getRateData,
-    getRateDefinitions,
+    plotMeasure,
+    plot,
+    getSimilarMeds,
+    parseSelectedMeds,
     Plotly
 }

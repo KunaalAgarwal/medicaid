@@ -41,8 +41,7 @@ import {
 } from "./sdk/sql.js"
 
 import {
-    clearCache,
-    updateCache
+    clearCache
 } from "./sdk/httpMethods.js"
 
 import {
@@ -50,21 +49,20 @@ import {
     getMedNames,
     getMedData,
     plotNadacMed,
+    getQualityMeasures,
+    getRateDefinitions,
+    getStates,
+    getRateData,
+    plotMeasure,
+    plot,
     getSimilarMeds,
     parseSelectedMeds,
-    getPlotData,
-    plot,
-    getAllData,
-    plotMeasure,
-    getMeasureNames,
-    getStates,
     Plotly
 } from "./sdk/plot.js";
 
 
 export {
     clearCache,
-    updateCache,
     //metastore
     getSchemas,
     getSpecificSchema,
@@ -104,14 +102,14 @@ export {
     getMedNames,
     getMedData,
     plotNadacMed,
+    getQualityMeasures,
+    getRateDefinitions,
+    getStates,
+    getRateData,
+    plotMeasure,
+    plot,
     getSimilarMeds,
     parseSelectedMeds,
-    getPlotData,
-    plot,
-    getAllData,
-    plotMeasure,
-    getMeasureNames,
-    getStates,
     Plotly
 }
 
