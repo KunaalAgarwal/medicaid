@@ -38,13 +38,13 @@ async function plotNadacMed(medList, layout, vars) {
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
 async function getHealthcareQualityData(qualityMeasure){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
-    let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
+    let distributionId = await convertDatasetToDistributionId(dataset.identifier)
     return await getDatastoreQuerySql(`[SELECT * FROM ${distributionId}][WHERE measure_name === "${qualityMeasure}"]`)
 }
 
 async function getQualityMeasures(){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
-    let distributionId = await convertDatasetToDistributionId(dataset[0].identifier)
+    let distributionId = await convertDatasetToDistributionId(dataset.identifier)
     let measureObjects = await getDatastoreQuerySql(`[SELECT measure_name FROM ${distributionId}]`)
     return new Set(measureObjects.map(measure => {return measure.measure_name}));
 }
