@@ -58,13 +58,13 @@ async function getStates(rateDef, qualityMeasure){
     return new Set(filteredData.map(x => {return x.state}));
 }
 
-async function getRateData(rateDef, qualityMeasure){
+async function getRateBarData(rateDef, qualityMeasure){
     let xValues = Array.from(await getStates(rateDef, qualityMeasure))
     let filteredYValues = (await getHealthcareQualityData(qualityMeasure)).filter(x => x.rate_definition === rateDef)
     let yValues = filteredYValues.map(x => {return x.state_rate})
     return {x: xValues, y: yValues, name: `2022: ${rateDef}`}
 }
-async function getStateMeasureData(stateList, rateDef){
+async function getRateTimeSeriesData(stateList, rateDef){
     let xValues = new Set();
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
@@ -87,18 +87,25 @@ async function getStateMeasureData(stateList, rateDef){
     return {x: Array.from(xValues).sort(), y: yValues, name: stateList[0]}
 }
 
-async function plotMeasure(stateList, layout, rateDef, div) {
+async function plotRateBar(rateDef, qualityMeasure, layout, div){
+    const data = await getRateBarData(rateDef, qualityMeasure);
+    return plot(data, layout, "bar", div)
+}
+
+async function plotRateTimeSeries(stateList, layout, rateDef, div) {
     const states = Array.isArray(stateList) ? stateList : [stateList];
     if (states.length === 0) return;
     const data = await Promise.all(states.map(async (state) => {
         if (typeof state === "string") {
-            return await getStateMeasureData([state], rateDef);
+            return await getRateTimeSeriesData([state], rateDef);
         } else {
-            return await getStateMeasureData(state, rateDef);
+            return await getRateTimeSeriesData(state, rateDef);
         }
     }));
     return plot(data, layout, "line", div);
 }
+
+
 
 //GENERAL
 function plot(data, layout, type = "line", divElement = null){
@@ -188,8 +195,8 @@ export {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    getRateData,
-    plotMeasure,
+    plotRateTimeSeries,
+    plotRateBar,
     plot,
     getSimilarMeds,
     parseSelectedMeds,
