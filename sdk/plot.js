@@ -22,7 +22,7 @@ async function getMedData(medList, vars = {xAxis: "as_of_date", yAxis: "nadac_pe
     return await getPlotData(medList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc_description"}, nadacDistributions)
 }
 
-async function plotNadacMed(medList, layout, vars) {
+async function plotNadacMed(medList, layout, div, vars) {
     const medListOutput = Array.isArray(medList) ? medList : [medList];
     if (medListOutput.length === 0) return;
     const data = await Promise.all(medListOutput.map(async (med) => {
@@ -32,7 +32,7 @@ async function plotNadacMed(medList, layout, vars) {
             return await getMedData(med, vars);
         }
     }));
-    return plot(data, layout, "line");
+    return plot(data, layout, "line", div);
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
@@ -64,20 +64,20 @@ async function getRateData(rateDef, qualityMeasure){
     let yValues = filteredYValues.map(x => {return x.state_rate})
     return {x: xValues, y: yValues, name: `2022: ${rateDef}`}
 }
-async function getStateMeasureData(stateList, vars, rateName){
+async function getStateMeasureData(stateList, rateDef){
     let xValues = new Set();
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
     let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
     let filteredDistributions = distributionIds.filter(x => x !== "fe534df6-5e82-51b3-a1fa-bee8fa47e479")
-    let rawData =  await getAllData(stateList, vars, filteredDistributions.filter(x => x !== "e6417693-f698-54b0-b830-21de86b02074"))
+    let rawData =  await getAllData(stateList, {xAxis: "ffy", yAxis: "state_rate", filter: "state", b: "rate_definition"}, filteredDistributions.filter(x => x !== "e6417693-f698-54b0-b830-21de86b02074"))
     let data = rawData.filter(x => x !== undefined);
     data.forEach(dataset => {
         let count = 0;
         let sum = 0;
-        dataset.filter(x => x.rate_definition === rateName).forEach(datapoint => {
-            xValues.add(datapoint[vars.xAxis])
-            sum += Number.parseFloat(datapoint[vars.yAxis])
+        dataset.filter(x => x.rate_definition === rateDef).forEach(datapoint => {
+            xValues.add(datapoint.ffy)
+            sum += Number.parseFloat(datapoint.state_rate)
             count++
         })
         if (count > 0){
@@ -86,25 +86,26 @@ async function getStateMeasureData(stateList, vars, rateName){
     })
     return {x: Array.from(xValues).sort(), y: yValues, name: stateList[0]}
 }
-async function plotMeasure(stateList, layout, vars, rateDef) {
+
+async function plotMeasure(stateList, layout, rateDef, div) {
     const states = Array.isArray(stateList) ? stateList : [stateList];
     if (states.length === 0) return;
     const data = await Promise.all(states.map(async (state) => {
         if (typeof state === "string") {
-            return await getStateMeasureData([state], vars, rateDef);
+            return await getStateMeasureData([state], rateDef);
         } else {
-            return await getStateMeasureData(state, vars, rateDef);
+            return await getStateMeasureData(state, rateDef);
         }
     }));
-    return plot(data, layout, "line");
+    return plot(data, layout, "line", div);
 }
 
 //GENERAL
-function plot(data, layout, type = "line"){
+function plot(data, layout, type = "line", divElement = null){
     try{
         const adjustedData = Array.isArray(data) ? data : [data];
-        const div = document.createElement('div');
-        for (let trace of adjustedData){trace.type = type;}
+        const div = divElement || document.createElement('div');
+        for (let trace of adjustedData){trace.type = type}
         Plotly.newPlot(div, adjustedData, layout);
         return div;
     } catch (error){
