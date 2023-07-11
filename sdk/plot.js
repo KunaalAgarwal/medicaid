@@ -69,7 +69,8 @@ async function getStateMeasureData(stateList, vars, rateName){
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
     let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
-    let rawData =  await getAllData(stateList, vars, distributionIds)
+    let filteredDistributions = distributionIds.filter(x => x !== "fe534df6-5e82-51b3-a1fa-bee8fa47e479")
+    let rawData =  await getAllData(stateList, vars, filteredDistributions.filter(x => x !== "e6417693-f698-54b0-b830-21de86b02074"))
     let data = rawData.filter(x => x !== undefined);
     data.forEach(dataset => {
         let count = 0;
