@@ -7,7 +7,7 @@ async function getNadacMeds(){
     //uses the 2017 nadac
     const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
     const medObjects = await getDatastoreQuerySql(sql);
-    const medList = new Set(medObjects.map(med => med.ndc_description.toUpperCase()));
+    const medList = new Set(medObjects.map(med => med["ndc_description"].toUpperCase()));
     return Array.from(medList).sort();
 }
 
@@ -63,45 +63,38 @@ async function getQualityMeasures(){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
     let distributionId = await convertDatasetToDistributionId(dataset.identifier)
     let measureObjects = await getDatastoreQuerySql(`[SELECT measure_name FROM ${distributionId}]`)
-    return new Set(measureObjects.map(measure => {return measure.measure_name}));
+    return new Set(measureObjects.map(measure => measure["measure_name"]));
 }
 
 async function getRateDefinitions(qualityMeasure){
-    return new Set((await getHealthcareQualityData(qualityMeasure)).map(x => {return x.rate_definition}));
+    return new Set((await getHealthcareQualityData(qualityMeasure)).map(x => x["rate_definition"]));
 }
 
 async function getStates(rateDef, qualityMeasure){
-    let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x.rate_definition === rateDef)
+    let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
     return new Set(filteredData.map(x => {return x.state}));
 }
 
 async function getRateBarData(rateDef, qualityMeasure){
     let xValues = Array.from(await getStates(rateDef, qualityMeasure))
-    let filteredYValues = (await getHealthcareQualityData(qualityMeasure)).filter(x => x.rate_definition === rateDef)
-    let yValues = filteredYValues.map(x => {return x.state_rate})
+    let filteredYValues = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
+    let yValues = filteredYValues.map(x => x["state_rate"])
     return {x: xValues, y: yValues, name: `2022: ${rateDef}`}
 }
 async function getRateTimeSeriesData(stateList, rateDef){
-    let xValues = new Set();
+    let xValues = [];
     let yValues = [];
     let datasets = await getDatasetByKeyword("performance rates");
     let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
     let filteredDistributions = distributionIds.filter(x => x !== "fe534df6-5e82-51b3-a1fa-bee8fa47e479")
     let rawData =  await getAllData(stateList, {xAxis: "ffy", yAxis: "state_rate", filter: "state", b: "rate_definition"}, filteredDistributions.filter(x => x !== "e6417693-f698-54b0-b830-21de86b02074"))
-    let data = rawData.filter(x => x !== undefined);
-    data.forEach(dataset => {
-        let count = 0;
-        let sum = 0;
-        dataset.filter(x => x.rate_definition === rateDef).forEach(datapoint => {
-            xValues.add(datapoint.ffy)
-            sum += Number.parseFloat(datapoint.state_rate)
-            count++
-        })
-        if (count > 0){
-            yValues.push(sum/count)
-        }
+    rawData.forEach(dataset => {
+        let data =  dataset.filter(x => x["rate_definition"] === rateDef);
+        let sum = data.reduce((total, datapoint) => total + datapoint["state_rate"], 0);
+        xValues.push(data[0]["ffy"]);
+        yValues.push(sum/data.length);
     })
-    return {x: Array.from(xValues).sort(), y: yValues, name: stateList[0]}
+    return {x: xValues.sort(), y: yValues, name: stateList[0]}
 }
 
 async function plotRateBar(rateDef, qualityMeasure, layout, div){
@@ -209,6 +202,7 @@ export {
     getMedNames,
     getMedData,
     plotNadacMed,
+    getDrugUtilData,
     getQualityMeasures,
     getRateDefinitions,
     getStates,
