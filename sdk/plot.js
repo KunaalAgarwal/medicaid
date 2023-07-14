@@ -76,10 +76,9 @@ async function getStates(rateDef, qualityMeasure){
 }
 
 async function getRateBarData(rateDef, qualityMeasure){
-    let xValues = Array.from(await getStates(rateDef, qualityMeasure))
-    let filteredYValues = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
-    let yValues = filteredYValues.map(x => x["state_rate"])
-    return {x: xValues, y: yValues, name: `2022: ${rateDef}`}
+    let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
+    let averagedData = averageValues(filteredData.map(x => ({[x.state]: x.state_rate })));
+    return {x: Object.keys(averagedData), y: Object.values(averagedData), name: `2022: ${rateDef}`}
 }
 async function getRateTimeSeriesData(stateList, rateDef){
     let xValues = [];
@@ -197,6 +196,26 @@ function parseSelectedMeds(medList) {
         }
         return result;
     }, {}));
+}
+
+function averageValues(data) {
+    const averagedData = data.reduce((result, obj) => {
+        const key = Object.keys(obj)[0];
+        const value = parseFloat(obj[key]);
+        if (!isNaN(value)) {
+            if (!result[key]) {
+                result[key] = { sum: value, count: 1 };
+            } else {
+                result[key].sum += value;
+                result[key].count++;
+            }
+        }
+        return result;
+    }, {});
+    Object.keys(averagedData).forEach((key) => {
+        averagedData[key] = averagedData[key].sum / averagedData[key].count;
+    });
+    return averagedData;
 }
 
 export {
