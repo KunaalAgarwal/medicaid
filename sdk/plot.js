@@ -91,8 +91,10 @@ async function getRateTimeSeriesData(stateList, rateDef){
     rawData.forEach(dataset => {
         let data =  dataset.filter(x => x["rate_definition"] === rateDef);
         let sum = data.reduce((total, datapoint) => total + datapoint["state_rate"], 0);
-        xValues.push(data[0]["ffy"]);
-        yValues.push(sum/data.length);
+        if (data.length > 0){
+            xValues.push(data[0]["ffy"]);
+            yValues.push(sum/data.length);
+        }
     })
     return {x: xValues.sort(), y: yValues, name: stateList[0]}
 }
