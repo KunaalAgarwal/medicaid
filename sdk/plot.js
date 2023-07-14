@@ -35,6 +35,23 @@ async function plotNadacMed(medList, layout, div, vars) {
     return plot(data, layout, "line", div);
 }
 
+async function getDrugUtilData(ndcList, vars = {xAxis: "year", yAxis: "total_amount_reimbursed"}){
+    let drugUtilDatasets = await getDatasetByKeyword("drug utilization");
+    let drugUtilIds = await Promise.all(drugUtilDatasets.map(dataset => convertDatasetToDistributionId(dataset.identifier)));
+    let xValues = [];
+    let yValues = [];
+    drugUtilIds.splice(0,13);
+    let rawData = await getAllData(ndcList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc", a: "suppression_used"}, drugUtilIds);
+    rawData.forEach(dataset => {
+        let data =  dataset.filter(datapoint => datapoint["suppression_used"] === "false");
+        let sum = data.reduce((total, datapoint) => total + parseFloat(datapoint[vars.yAxis]), 0);
+        xValues.push(data[0][vars.xAxis]);
+        yValues.push(sum/data.length);
+    })
+    return {x: xValues, y: yValues};
+}
+
+
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
 async function getHealthcareQualityData(qualityMeasure){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
