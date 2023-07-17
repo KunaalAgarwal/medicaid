@@ -22,22 +22,34 @@ async function getMedNames(medicine){
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
 }
 
-async function getMedData(medList, vars = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
-    let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
+async function getMedData(meds, filter = "ndc_description", dataVariables = ["as_of_date", "nadac_per_unit"]){
+    let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
     let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
-    return await getPlotData(medList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc_description"}, nadacDistributions)
+    const rawData = await getAllData(meds, filter, nadacDistributions, dataVariables);
+    return rawData.flat()
 }
 
-async function plotNadacMed(medList, layout, div, vars) {
-    const medListOutput = Array.isArray(medList) ? medList : [medList];
-    if (medListOutput.length === 0) return;
-    const data = await Promise.all(medListOutput.map(async (med) => {
-        if (typeof med === "string") {
-            return await getMedData([med], vars);
-        } else {
-            return await getMedData(med, vars);
-        }
-    }));
+async function getMedDataPlot(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
+    const medList = Array.isArray(meds) ? meds : [meds];
+    const medData = await getMedData(medList, "ndc_description", Object.values(axis));
+    const result = medData.reduce(
+        (result, obj) => {
+            result.x.push(obj[axis.xAxis])
+            result.y.push(obj[axis.yAxis])
+            return result
+        },
+        {x: [], y: []}
+    );
+    result["x"].sort();
+    result["name"] = medList[0];
+    return result;
+}
+
+async function plotNadacMed(medList, layout, div, axis) {
+    if (medList === undefined){
+        return;
+    }
+    const data = await Promise.all(medList.map(med => getMedDataPlot(med, axis)))
     return plot(data, layout, "line", div);
 }
 
@@ -45,7 +57,7 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     //retrieving distribution ids and converting medicine names into ndc ids
     const adjustedMedList = Array.isArray(meds) ? meds : [meds];
     const ndcList = await Promise.all(adjustedMedList.map(async med => await getNdcFromMed(med)));
-    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(23); //only need datasets from 2014 onwards
+    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
     const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 
     if (!dataVariables.includes("suppression_used")) {
@@ -140,36 +152,27 @@ function plot(data, layout, type = "line", divElement = null){
         console.log("The plot could not be created.")
     }
 }
-
-async function getPlotData(items, dataVariables, distributions) {
-    try{
-        const xValues = [];
-        const yValues = [];
-        const data = (await getAllData(items, dataVariables, distributions)).flat();
-        data.forEach(datapoint => {
-            xValues.push(datapoint[dataVariables.xAxis]);
-            yValues.push(datapoint[dataVariables.yAxis]);
-        })
-        return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]}
-    } catch(error){
-        console.log("An error occurred in data collection.")
-    }
-}
-
 async function getAllData(items, filter, distributions, dataVariables){
-    const itemsArray =  Array.isArray(items) ? items : [items];
-    const varsString = dataVariables.join(',')
-    const fetchDataPromises = [];
-    const fetchData = async (identifier, item) => {
-        let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
-        return await getDatastoreQuerySql(sql);
+    try{
+        if (items === undefined){
+            return;
+        }
+        const itemsArray =  Array.isArray(items) ? items : [items];
+        const varsString = dataVariables.join(',')
+        const fetchDataPromises = [];
+        const fetchData = async (identifier, item) => {
+            let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
+            return await getDatastoreQuerySql(sql);
+        }
+        for (let distributionId of distributions) {
+            itemsArray.forEach(item => {
+                fetchDataPromises.push(fetchData(distributionId, item));
+            })
+        }
+        return await Promise.all(fetchDataPromises);
+    } catch (error){
+        console.log("An error occurred in getAllData()" + error);
     }
-    for (let distributionId of distributions) {
-        itemsArray.forEach(item => {
-            fetchDataPromises.push(fetchData(distributionId, item));
-        })
-    }
-    return await Promise.all(fetchDataPromises);
 }
 
 //OBSERVABLE NOTEBOOK RELATED METHODS
