@@ -11,6 +11,12 @@ async function getNadacMeds(){
     return Array.from(medList).sort();
 }
 
+async function getNdcFromMed(med){
+    const sql = `[SELECT ndc_description,ndc FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff][WHERE ndc_description = "${med}"][LIMIT 1]`;
+    const response = await getDatastoreQuerySql(sql);
+    return response[0]["ndc"]
+}
+
 async function getMedNames(medicine){
     const medList = await getNadacMeds()
     return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
@@ -35,20 +41,26 @@ async function plotNadacMed(medList, layout, div, vars) {
     return plot(data, layout, "line", div);
 }
 
-async function getDrugUtilData(ndcList, vars = {xAxis: "year", yAxis: "total_amount_reimbursed"}){
-    let drugUtilDatasets = await getDatasetByKeyword("drug utilization");
-    let drugUtilIds = await Promise.all(drugUtilDatasets.map(dataset => convertDatasetToDistributionId(dataset.identifier)));
-    let xValues = [];
-    let yValues = [];
-    drugUtilIds.splice(0,13);
-    let rawData = await getAllData(ndcList, {xAxis: vars.xAxis, yAxis: vars.yAxis, filter: "ndc", a: "suppression_used"}, drugUtilIds);
-    rawData.forEach(dataset => {
-        let data =  dataset.filter(datapoint => datapoint["suppression_used"] === "false");
-        let sum = data.reduce((total, datapoint) => total + parseFloat(datapoint[vars.yAxis]), 0);
-        xValues.push(data[0][vars.xAxis]);
-        yValues.push(sum/data.length);
-    })
-    return {x: xValues, y: yValues};
+async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]) {
+    //retrieving distribution ids and converting medicine names into ndc ids
+    const adjustedMedList = Array.isArray(meds) ? meds : [meds];
+    const ndcList = await Promise.all(adjustedMedList.map(async med => await getNdcFromMed(med)));
+    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(23); //only need datasets from 2014 onwards
+    const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+
+    if (!dataVariables.includes("suppression_used")) {
+        dataVariables.push("suppression_used");
+    }
+    //processing and returning data
+    const rawData = await getAllData(ndcList, filter, drugUtilIds, dataVariables);
+    const results = [];
+    for (const datapoint of rawData.flat()) {
+        const { suppression_used, ...rest } = datapoint;
+        if (suppression_used === "false") {
+            results.push(rest);
+        }
+    }
+    return results;
 }
 
 
@@ -77,7 +89,7 @@ async function getStates(rateDef, qualityMeasure){
 
 async function getRateBarData(rateDef, qualityMeasure){
     let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
-    let averagedData = averageValues(filteredData.map(x => ({[x.state]: x.state_rate })));
+    let averagedData = averageValues(filteredData.map(x => ({[x.state]: x.state_rate})));
     return {x: Object.keys(averagedData), y: Object.values(averagedData), name: `2022: ${rateDef}`}
 }
 async function getRateTimeSeriesData(stateList, rateDef){
@@ -116,8 +128,6 @@ async function plotRateTimeSeries(stateList, layout, rateDef, div) {
     return plot(data, layout, "line", div);
 }
 
-
-
 //GENERAL
 function plot(data, layout, type = "line", divElement = null){
     try{
@@ -131,14 +141,14 @@ function plot(data, layout, type = "line", divElement = null){
     }
 }
 
-async function getPlotData(items, vars, distributions) {
+async function getPlotData(items, dataVariables, distributions) {
     try{
         const xValues = [];
         const yValues = [];
-        const data = (await getAllData(items, vars, distributions)).flat();
+        const data = (await getAllData(items, dataVariables, distributions)).flat();
         data.forEach(datapoint => {
-            xValues.push(datapoint[vars.xAxis]);
-            yValues.push(datapoint[vars.yAxis]);
+            xValues.push(datapoint[dataVariables.xAxis]);
+            yValues.push(datapoint[dataVariables.yAxis]);
         })
         return {x: xValues.sort(), y: yValues, name: (items[0].split(' '))[0]}
     } catch(error){
@@ -146,17 +156,16 @@ async function getPlotData(items, vars, distributions) {
     }
 }
 
-async function getAllData(items, vars, distributions){
-    let varsString = ""
+async function getAllData(items, filter, distributions, dataVariables){
+    const itemsArray =  Array.isArray(items) ? items : [items];
+    const varsString = dataVariables.join(',')
     const fetchDataPromises = [];
-    Object.values(vars).forEach(v => {varsString += `,${v}`})
-    varsString = varsString.slice(1, varsString.length)
     const fetchData = async (identifier, item) => {
-        let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${vars.filter} = "${item}"]`;
+        let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
         return await getDatastoreQuerySql(sql);
     }
     for (let distributionId of distributions) {
-        items.forEach(item => {
+        itemsArray.forEach(item => {
             fetchDataPromises.push(fetchData(distributionId, item));
         })
     }
