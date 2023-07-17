@@ -101,25 +101,28 @@ async function getStates(rateDef, qualityMeasure){
 
 async function getRateBarData(rateDef, qualityMeasure){
     let filteredData = (await getHealthcareQualityData(qualityMeasure)).filter(x => x["rate_definition"] === rateDef)
-    let averagedData = averageValues(filteredData.map(x => ({[x.state]: x.state_rate})));
+    let averagedData = averageValues(filteredData.map(x => ({[x.state]: x["state_rate"]})));
     return {x: Object.keys(averagedData), y: Object.values(averagedData), name: `2022: ${rateDef}`}
 }
-async function getRateTimeSeriesData(stateList, rateDef){
-    let xValues = [];
-    let yValues = [];
-    let datasets = await getDatasetByKeyword("performance rates");
-    let distributionIds = await Promise.all(datasets.map(x => {return convertDatasetToDistributionId(x.identifier)}))
-    let filteredDistributions = distributionIds.filter(x => x !== "fe534df6-5e82-51b3-a1fa-bee8fa47e479")
-    let rawData =  await getAllData(stateList, {xAxis: "ffy", yAxis: "state_rate", filter: "state", b: "rate_definition"}, filteredDistributions.filter(x => x !== "e6417693-f698-54b0-b830-21de86b02074"))
-    rawData.forEach(dataset => {
-        let data =  dataset.filter(x => x["rate_definition"] === rateDef);
-        let sum = data.reduce((total, datapoint) => total + datapoint["state_rate"], 0);
-        if (data.length > 0){
-            xValues.push(data[0]["ffy"]);
-            yValues.push(sum/data.length);
-        }
-    })
-    return {x: xValues.sort(), y: yValues, name: stateList[0]}
+async function getRateTimeSeriesData(states, rateDef) {
+    const stateList = Array.isArray(states) ? states : [states];
+    const datasets = await getDatasetByKeyword("performance rates");
+    const filteredDatasets = datasets.filter(dataset => dataset.title.split(" ")[0] > 2015);
+    const distributionIds = await Promise.all(filteredDatasets.map(x => convertDatasetToDistributionId(x.identifier)));
+    const rawData = await getAllData(stateList, "state", distributionIds, ["ffy", "state_rate", "rate_definition"]);
+    const { xValues, yValues } = rawData.reduce(
+        (result, dataset) => {
+            const data = dataset.filter(x => x["rate_definition"] === rateDef);
+            if (data.length > 0) {
+                const sum = data.reduce((total, datapoint) => total + datapoint["state_rate"], 0);
+                result.xValues.push(data[0]["ffy"]);
+                result.yValues.push(sum / data.length);
+            }
+            return result;
+        },
+        { xValues: [], yValues: [] }
+    );
+    return { x: xValues.sort(), y: yValues, name: stateList[0] };
 }
 
 async function plotRateBar(rateDef, qualityMeasure, layout, div){
