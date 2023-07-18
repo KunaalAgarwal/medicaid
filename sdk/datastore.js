@@ -2,7 +2,11 @@
 import {getItems, postItem} from './httpMethods.js';
 
 async function getDatastoreImport(distributionId){
-    return await getItems(`datastore/imports/${distributionId}`);
+    const distributionColumns = await getItems(`datastore/imports/${distributionId}`);
+    if (distributionColumns === undefined){
+        throw new Error("An error occurred in retrieving the distribution information. Please check the provided Id.")
+    }
+    return distributionColumns;
 }
 
 //datastore: query
@@ -26,12 +30,11 @@ async function postDatastoreQuery(distributionId, columnName, columnValue, opera
             },
         ]
     }
-    try{
-        let response = await postItem('datastore/query', requestBody, headers);
-        return response["results"];
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
+    let response = await postItem('datastore/query', requestBody, headers);
+    if (response === undefined){
+        throw new Error("An error occurred in the distribution post query. ")
     }
+    return response["results"];
 }
 async function postDatastoreQueryDownload(distributionId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'text/csv'}
@@ -54,7 +57,11 @@ async function postDatastoreQueryDownload(distributionId, columnName, columnValu
         ],
         "format": "csv"
     }
-    return await postItem('datastore/query/download', requestBody, headers, true);
+    let response = await postItem('datastore/query/download', requestBody, headers, true);
+    if (response === undefined){
+        throw new Error("An error occurred in the distribution post query.")
+    }
+    return response;
 }
 
 async function postDatastoreQueryDistributionId(distributionId, columnName, columnValue, operator = "=", limit = 0){
@@ -71,12 +78,11 @@ async function postDatastoreQueryDistributionId(distributionId, columnName, colu
         ],
         "limit": limit
     }
-    try{
-        let response = await postItem(`datastore/query/${distributionId}`, requestBody, headers);
-        return response["results"];
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
+    let response = await postItem(`datastore/query/${distributionId}`, requestBody, headers);
+    if (response === undefined){
+        throw new Error("An error occurred in the distribution post query.")
     }
+    return response["results"];
 }
 
 async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
@@ -93,13 +99,13 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
         ],
         "limit": limit
     }
-    try{
-        let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
-        return response["results"];
-    }catch (Error){
-        console.log("The post could not be fulfilled.");
+    let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
+    if (response === undefined){
+        throw new Error("An error occurred in the dataset post query. ")
     }
+    return response["results"];
 }
+
 async function getDatastoreQueryDistributionId(distributionId, limit = null, offset = 0){
     try {
         if (limit !== null) {
@@ -124,32 +130,37 @@ async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
 
 async function datastoreQueryWithLimit(schemaId, limit, offset) {
     //executes get request for datastore queries given a limit
-    const allData = []
-    if (limit !== null) {
-        while (limit > 0) {
-            const currentLimit = Math.min(limit, 10000);
-            const items = await getItems(`datastore/query/${schemaId}?limit=${currentLimit}&offset=${offset}`);
-            allData.push(...items["results"]);
-            offset += currentLimit;
-            limit -= currentLimit;
-        }
-        return allData;
+    const fetchPromises = [];
+    if (limit === 0) {
+        return []; // Return an empty array if the limit is 0
     }
+    const maxLimit = 10000;
+    for (let currentOffset = offset; limit > 0; currentOffset += maxLimit) {
+        const currentLimit = Math.min(limit, maxLimit);
+        fetchPromises.push(getItems(`datastore/query/${schemaId}?limit=${currentLimit}&offset=${currentOffset}`));
+        limit -= currentLimit;
+    }
+    const responses = await Promise.all(fetchPromises);
+    return responses.flatMap(response => response["results"]);
 }
 
 async function datastoreQueryNoLimit(schemaId, offset){
     //executes get request for datastore query, getting all possible elements
+    let condition = true
     let allData = [];
     let responses = [];
-    do {
+    while (condition){
         const promises = [];
-        for (let i = 0; i < 5; i++) { // Adjust the number of parallel requests as needed
+        for (let i = 0; i < 5; i++) {
             promises.push(getItems(`datastore/query/${schemaId}?limit=10000&offset=${offset}`));
             offset += 10000;
         }
         responses = await Promise.all(promises);
-        responses.forEach(response => allData.push(...response["results"]));
-    } while (responses.some(response => response["results"].length === 10000));
+        allData.push(...responses.flatMap(response => response["results"]))
+        if (responses.some(response => response["results"].length !== 10000)){
+            condition = false;
+        }
+    }
     return allData;
 }
 
