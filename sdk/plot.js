@@ -234,17 +234,22 @@ function averageValues(data) {
 }
 
 export {
+    //general getters
     getNadacMeds,
+    getNdcFromMed,
     getMedNames,
-    getMedData,
-    plotNadacMed,
-    getDrugUtilData,
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    plotRateTimeSeries,
+    //data retrieval
+    getMedData,
+    getDrugUtilData,
+    //plotting
+    plotNadacMed,
     plotRateBar,
+    plotRateTimeSeries,
     plot,
+    //Observable notebook helpers
     getSimilarMeds,
     parseSelectedMeds,
     Plotly
