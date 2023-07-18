@@ -46,7 +46,7 @@ async function getMedDataPlot(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_p
 }
 
 async function plotNadacMed(meds, layout, div, axis) {
-    if (medList === undefined){
+    if (meds === undefined){
         return;
     }
     const medList = Array.isArray(meds) ? meds : [meds];
