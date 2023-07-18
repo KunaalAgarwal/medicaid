@@ -27,7 +27,7 @@ async function getAllDatasetUrls(){
 }
 
 function parseDownloadLink(dataset){
-    return (dataset.distribution[0]).downloadURL;
+    return (dataset["distribution"][0])["downloadURL"];
 }
 async function getDatasetByTitleName(datasetTitle) {
     try{
@@ -45,7 +45,7 @@ async function getDatasetByTitleName(datasetTitle) {
 async function getDatasetByKeyword(datasetKeyword){
     try{
         const items =  await getSchemaItems("dataset");
-        const filteredItems = items.filter(item => item.keyword.some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
+        const filteredItems = items.filter(item => item["keyword"].some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
         if (filteredItems.length === 1){
             return filteredItems[0];
         }
@@ -84,7 +84,7 @@ async function getDatasetByDownloadUrl(url){
 async function getDistributionByDownloadUrl(url){
     try{
         const items =  await getSchemaItems("distribution");
-        const filteredItems = items.filter(item => item.data.downloadURL === url);
+        const filteredItems = items.filter(item => item.data["downloadURL"] === url);
         if (filteredItems.length === 1){
             return filteredItems[0]
         }
@@ -122,7 +122,7 @@ async function convertDatasetToDistributionId(datasetId) {
 async function convertDistributionToDatasetId(distributionId){
     try{
         let distribution = await getDistributionById(distributionId);
-        let downloadLink = distribution.data.downloadURL
+        let downloadLink = distribution.data["downloadURL"]
         let dataset = await getDatasetByDownloadUrl(downloadLink);
         let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
         return (adjustedDataset)[0].identifier

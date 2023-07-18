@@ -45,10 +45,11 @@ async function getMedDataPlot(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_p
     return result;
 }
 
-async function plotNadacMed(medList, layout, div, axis) {
+async function plotNadacMed(meds, layout, div, axis) {
     if (medList === undefined){
         return;
     }
+    const medList = Array.isArray(meds) ? meds : [meds];
     const data = await Promise.all(medList.map(med => getMedDataPlot(med, axis)))
     return plot(data, layout, "line", div);
 }

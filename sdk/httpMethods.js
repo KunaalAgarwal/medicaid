@@ -12,8 +12,7 @@ let timestore = localforage.createInstance({
 })
 
 async function getItems(endpoint, downloadFlag = false) {
-    try{
-        updateCache();
+    try {
         const timeStamp = Date.now();
         const cachedData = await endpointStore.getItem(endpoint);
         if (cachedData !== null) {
@@ -23,74 +22,75 @@ async function getItems(endpoint, downloadFlag = false) {
         const response = await fetch(baseUrl + endpoint);
         if (response.ok){
             let responseData;
-            if (downloadFlag){
+            if (downloadFlag) {
                 responseData = await response.blob();
             } else {
                 responseData = await response.json();
             }
+            await updateCache();
             endpointStore.setItem(endpoint, responseData);
             timestore.setItem(endpoint, timeStamp);
             return responseData;
         }
-        console.log("An error occurred in the API request.")
-    } catch (error){
-        console.log("An error occurred in the API request.")
+        console.log("An error occurred in the API get request.");
+    } catch (error) {
+        console.log("An error occurred in the API get request.", error);
     }
 }
 
+
 async function postItem(endpoint, payload, headerContent, downloadFlag = false) {
-    const options = {
-        method: 'POST',
-        headers: headerContent,
-        body: JSON.stringify(payload)
-    };
     try {
-        updateCache();
+        const options = {
+            method: 'POST',
+            headers: headerContent,
+            body: JSON.stringify(payload)
+        };
         const timeStamp = Date.now();
         const cachedData = await endpointStore.getItem(options.body);
-        if (cachedData !== null){
+        if (cachedData !== null) {
             timestore.setItem(options.body, timeStamp);
             return cachedData;
         }
-
         const response = await fetch(baseUrl + endpoint, options);
         if (response.ok){
             let responseData;
-            if (downloadFlag){
+            if (downloadFlag) {
                 responseData = await response.blob();
             } else {
                 responseData = await response.json();
             }
+            await updateCache();
             endpointStore.setItem(options.body, responseData);
             timestore.setItem(options.body, timeStamp);
             return responseData;
         }
         console.log("An error occurred in the API post request.");
     } catch (error) {
-        console.log("An error occurred in the API post request.");
+        console.log("An error occurred in the API post request.", error);
     }
 }
 
-function updateCache() {
+async function updateCache() {
     try {
         if (updateCount < 10000) {
             updateCount++;
             return;
         }
         const timeStamp = Date.now();
-        timestore.keys().then(keys => {
-            keys.forEach(key => {
-                timestore.getItem(key).then(value => {
-                    if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
-                        timestore.removeItem(key);
-                        endpointStore.removeItem(key);
-                    }
-                });
-            });
-        });
+        const keys = await timestore.keys();
+        for (const key of keys) {
+            const value = await timestore.getItem(key);
+            if (timeStamp - value > 86400000 * 30) {
+                await Promise.all([
+                    timestore.removeItem(key),
+                    endpointStore.removeItem(key)
+                ]);
+            }
+        }
         updateCount = 0;
     } catch (error) {
-        console.log("The cache could not be updated");
+        console.log("The cache could not be updated:", error);
     }
 }
 
