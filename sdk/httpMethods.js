@@ -13,6 +13,7 @@ let timestore = localforage.createInstance({
 
 async function getItems(endpoint, downloadFlag = false) {
     try {
+        updateCache();
         const timeStamp = Date.now();
         const cachedData = await endpointStore.getItem(endpoint);
         if (cachedData !== null) {
@@ -27,7 +28,6 @@ async function getItems(endpoint, downloadFlag = false) {
             } else {
                 responseData = await response.json();
             }
-            await updateCache();
             endpointStore.setItem(endpoint, responseData);
             timestore.setItem(endpoint, timeStamp);
             return responseData;
@@ -46,6 +46,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             headers: headerContent,
             body: JSON.stringify(payload)
         };
+        updateCache();
         const timeStamp = Date.now();
         const cachedData = await endpointStore.getItem(options.body);
         if (cachedData !== null) {
@@ -60,7 +61,6 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             } else {
                 responseData = await response.json();
             }
-            await updateCache();
             endpointStore.setItem(options.body, responseData);
             timestore.setItem(options.body, timeStamp);
             return responseData;
@@ -71,26 +71,26 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
     }
 }
 
-async function updateCache() {
+function updateCache() {
     try {
         if (updateCount < 10000) {
             updateCount++;
             return;
         }
         const timeStamp = Date.now();
-        const keys = await timestore.keys();
-        for (const key of keys) {
-            const value = await timestore.getItem(key);
-            if (timeStamp - value > 86400000 * 30) {
-                await Promise.all([
-                    timestore.removeItem(key),
-                    endpointStore.removeItem(key)
-                ]);
-            }
-        }
+        timestore.keys().then(keys => {
+            keys.forEach(key => {
+                timestore.getItem(key).then(value => {
+                    if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
+                        timestore.removeItem(key);
+                        endpointStore.removeItem(key);
+                    }
+                });
+            });
+        });
         updateCount = 0;
     } catch (error) {
-        console.log("The cache could not be updated:", error);
+        console.log("The cache could not be updated");
     }
 }
 
@@ -102,6 +102,5 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache,
-    updateCount
+    clearCache
 }
