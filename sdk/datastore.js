@@ -28,7 +28,7 @@ async function postDatastoreQuery(distributionId, columnName, columnValue, opera
     }
     try{
         let response = await postItem('datastore/query', requestBody, headers);
-        return response.results;
+        return response["results"];
     }catch (Error){
         console.log("The post could not be fulfilled.");
     }
@@ -73,7 +73,7 @@ async function postDatastoreQueryDistributionId(distributionId, columnName, colu
     }
     try{
         let response = await postItem(`datastore/query/${distributionId}`, requestBody, headers);
-        return response.results;
+        return response["results"];
     }catch (Error){
         console.log("The post could not be fulfilled.");
     }
@@ -95,7 +95,7 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
     }
     try{
         let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
-        return response.results;
+        return response["results"];
     }catch (Error){
         console.log("The post could not be fulfilled.");
     }
@@ -129,7 +129,7 @@ async function datastoreQueryWithLimit(schemaId, limit, offset) {
         while (limit > 0) {
             const currentLimit = Math.min(limit, 10000);
             const items = await getItems(`datastore/query/${schemaId}?limit=${currentLimit}&offset=${offset}`);
-            allData.push(...items.results);
+            allData.push(...items["results"]);
             offset += currentLimit;
             limit -= currentLimit;
         }
@@ -148,8 +148,8 @@ async function datastoreQueryNoLimit(schemaId, offset){
             offset += 10000;
         }
         responses = await Promise.all(promises);
-        responses.forEach(response => allData.push(...response.results));
-    } while (responses.some(response => response.results.length === 10000));
+        responses.forEach(response => allData.push(...response["results"]));
+    } while (responses.some(response => response["results"].length === 10000));
     return allData;
 }
 

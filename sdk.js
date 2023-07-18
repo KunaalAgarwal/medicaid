@@ -41,7 +41,8 @@ import {
 } from "./sdk/sql.js"
 
 import {
-    clearCache
+    clearCache,
+    updateCount
 } from "./sdk/httpMethods.js"
 
 import {
@@ -114,7 +115,8 @@ export {
     plot,
     getSimilarMeds,
     parseSelectedMeds,
-    Plotly
+    Plotly,
+    updateCount
 }
 
 
