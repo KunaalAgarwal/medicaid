@@ -1,110 +1,86 @@
 import {getItems} from './httpMethods.js';
 //endpoint: "metastore/schemas/";
 async function getSchemas(){
-    return await getItems("metastore/schemas");
+    const response = await getItems("metastore/schemas");
+    if (response === undefined){
+        throw new Error("Failed to retrieve datasets from the API.");
+    }
+    return response;
 }
 
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
-    return await getItems(`metastore/schemas/${schemaName}`);
+    const response = await getItems(`metastore/schemas/${schemaName.toLowerCase()}`);
+    if (response === undefined){
+        throw new Error("Failed to retrieve datasets from the API.");
+    }
+    return response;
 }
 
 //ENDPOINT: "metastore/schemas/{schema}/items"
 async function getSchemaItems(schemaName){
-    return await getItems(`metastore/schemas/${schemaName}/items`);
+    let schemaItems = await getItems(`metastore/schemas/${schemaName.toLowerCase()}/items`);
+    if (schemaItems === undefined){
+        throw new Error("Failed to retrieve schema items from the API.");
+    }
+    return schemaItems;
 }
 
 async function getAllDatasetUrls(){
-    let urlArray = [];
-    try{
-        Object.values(await getSchemaItems('dataset')).forEach(dataset => {
-            urlArray.push(parseDownloadLink(dataset));
-        })
-        return urlArray;
-    }catch(error){
-        console.log("The request could not be fulfilled");
-    }
+    const datasets = await getSchemaItems('dataset');
+    return Object.values(datasets).map(dataset => parseDownloadLink(dataset));
 }
 
 function parseDownloadLink(dataset){
+    if (dataset === undefined){
+        throw new Error("The dataset has not been defined and cannot be parsed.")
+    }
     return (dataset["distribution"][0])["downloadURL"];
 }
-async function getDatasetByTitleName(datasetTitle) {
+async function filterSchemaItems(schemaName, filterFn){
     try{
-        const items =  await getSchemaItems("dataset");
-        const filteredItems = items.filter(item => item.title.toUpperCase() === datasetTitle.toUpperCase());
-        if (filteredItems.length === 1){
-            return filteredItems[0];
-        }
-        return filteredItems;
-    } catch (error){
-        console.log("The request could not be fulfilled.");
+        const items = await getSchemaItems(schemaName);
+        const filteredItems = items.filter(filterFn);
+        return filteredItems.length === 1 ? filteredItems[0] : filteredItems;
+    }catch (error) {
+        console.log("The datasets could not be filtered.")
     }
+}
+async function getDatasetByTitleName(datasetTitle) {
+    return await filterSchemaItems("dataset", item => item.title.toUpperCase() === datasetTitle.toUpperCase());
 }
 
 async function getDatasetByKeyword(datasetKeyword){
-    try{
-        const items =  await getSchemaItems("dataset");
-        const filteredItems = items.filter(item => item["keyword"].some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
-        if (filteredItems.length === 1){
-            return filteredItems[0];
-        }
-        return filteredItems
-    }catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
+    return await filterSchemaItems("dataset", item => item["keyword"].some(key => key.toUpperCase() === datasetKeyword.toUpperCase()));
 }
 
 async function getDatasetByDescription(datasetDescription) {
-    try{
-        const items =  await getSchemaItems("dataset");
-        const filteredItems = items.filter(item => item.description.toUpperCase() === datasetDescription.toUpperCase());
-        if (filteredItems.length === 1){
-            return filteredItems[0];
-        }
-        return filteredItems;
-    } catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
+    return await filterSchemaItems("dataset", item => item.description.toUpperCase() === datasetDescription.toUpperCase());
 }
 
 async function getDatasetByDownloadUrl(url){
-    try{
-        const items =  await getSchemaItems("dataset");
-        const filteredItems = items.filter(item => parseDownloadLink(item) === url);
-        if (filteredItems.length === 1){
-            return filteredItems[0];
-        }
-        return filteredItems;
-    } catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
+    return await filterSchemaItems("dataset", item => parseDownloadLink(item) === url);
 }
 
 async function getDistributionByDownloadUrl(url){
-    try{
-        const items =  await getSchemaItems("distribution");
-        const filteredItems = items.filter(item => item.data["downloadURL"] === url);
-        if (filteredItems.length === 1){
-            return filteredItems[0]
-        }
-        return filteredItems
-    } catch (Error){
-        console.log("The request could not be fulfilled.");
-    }
+    return await filterSchemaItems("distribution", item => parseDownloadLink(item) === url);
 }
 
 //endpoint: metastore/schemas/{schema}/items/{identifier}
 async function getSchemaItemById(schemaName, itemId){
-    return await getItems(`metastore/schemas/${schemaName}/items/${itemId}`);
+    const response = await getItems(`metastore/schemas/${schemaName.toLowerCase()}/items/${itemId}`);
+    if (response === undefined){
+        throw new Error ("The item could not be retrieved by its ID.");
+    }
+    return response;
 }
 
 async function getDatasetById(datasetId){
-    return await getSchemaItemById('dataset', datasetId);
+    return await getSchemaItemById("dataset", datasetId);
 }
 
 async function getDistributionById(distributionId){
-    return await getSchemaItemById('distribution', distributionId)
+    return await getSchemaItemById("distribution", distributionId);
 }
 
 async function convertDatasetToDistributionId(datasetId) {

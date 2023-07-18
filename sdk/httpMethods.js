@@ -20,21 +20,21 @@ async function getItems(endpoint, downloadFlag = false) {
             timestore.setItem(endpoint, timeStamp);
             return cachedData;
         }
-        const response = await fetch(baseUrl + endpoint);
-        if (response.ok){
-            let responseData;
-            if (downloadFlag) {
-                responseData = await response.blob();
-            } else {
-                responseData = await response.json();
-            }
-            endpointStore.setItem(endpoint, responseData);
-            timestore.setItem(endpoint, timeStamp);
-            return responseData;
+        const response = await fetch(`${baseUrl}${endpoint}`);
+        if (!response.ok){
+            throw new Error("An error occurred in the API get Request");
         }
-        console.log("An error occurred in the API get request.");
+        let responseData;
+        if (downloadFlag) {
+            responseData = await response.blob();
+        } else {
+            responseData = await response.json();
+        }
+        endpointStore.setItem(endpoint, responseData);
+        timestore.setItem(endpoint, timeStamp);
+        return responseData;
     } catch (error) {
-        console.log("An error occurred in the API get request.", error);
+        console.log(error);
     }
 }
 
@@ -53,21 +53,21 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false) 
             timestore.setItem(options.body, timeStamp);
             return cachedData;
         }
-        const response = await fetch(baseUrl + endpoint, options);
-        if (response.ok){
-            let responseData;
-            if (downloadFlag) {
-                responseData = await response.blob();
-            } else {
-                responseData = await response.json();
-            }
-            endpointStore.setItem(options.body, responseData);
-            timestore.setItem(options.body, timeStamp);
-            return responseData;
+        const response = await fetch(`${baseUrl}${endpoint}`, options);
+        if (!response.ok){
+            throw new Error("An error occurred in the API post request.")
         }
-        console.log("An error occurred in the API post request.");
+        let responseData;
+        if (downloadFlag) {
+            responseData = await response.blob();
+        } else {
+            responseData = await response.json();
+        }
+        endpointStore.setItem(options.body, responseData);
+        timestore.setItem(options.body, timeStamp);
+        return responseData;
     } catch (error) {
-        console.log("An error occurred in the API post request.", error);
+        console.log(error);
     }
 }
 
