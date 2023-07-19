@@ -151,7 +151,7 @@ async function datastoreQueryNoLimit(schemaId, offset){
     let responses = [];
     while (condition){
         const promises = [];
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 3; i++) {
             promises.push(getItems(`datastore/query/${schemaId}?limit=10000&offset=${offset}`));
             offset += 10000;
         }

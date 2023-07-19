@@ -1,17 +1,16 @@
 import {getItems} from "./httpMethods.js";
 
-async function getDatastoreQuerySql(sqlQuery, showColumn = true) {
+async function getDatastoreQuerySql(sqlQuery) {
     //handles all sql query GET requests
     try {
-        let baseEndpoint = `datastore/sql?query=${sqlQuery}&show_db_columns=${showColumn}`;
-        let limit = parseLimit(sqlQuery);
-        if (limit <= 10000 && limit !== null){
-            return await getItems(baseEndpoint);
+        let limit= parseLimit(sqlQuery)
+        if (!limit){
+            return await sqlNoLimit(sqlQuery);
         }
-        else if (limit > 10000){
-            return await sqlHighLimit(sqlQuery, baseEndpoint, showColumn);
+        if (limit <= 10000){
+            return await getItems(`datastore/sql?query=${sqlQuery}&show_db_columns=false`);
         }
-        return await sqlNoLimit(sqlQuery, baseEndpoint, showColumn);
+        return await sqlHighLimit(sqlQuery);
     } catch (Error) {
         console.log("The request could not be fulfilled");
     }
@@ -22,7 +21,7 @@ function parseOffset(query) {
         let offset = query.split("OFFSET")[1].trimStart().split("]")[0]
         return parseInt(offset);
     }
-    return 0;
+    return null;
 }
 
 function parseLimit(query){
@@ -33,55 +32,62 @@ function parseLimit(query){
     return null;
 }
 
-async function sqlHighLimit(sqlQuery, baseEndpoint, showColumn){
-    //executes sql query for limits above the api max limit (10000)
-    let allData = [];
-    let offset = parseOffset(sqlQuery)
-    let limit = parseLimit(sqlQuery)
-    while (limit > 0) {
-        let currentLimit = Math.min(limit, 10000);
-        let updatedQuery;
-        if (offset > 0){
-            updatedQuery = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`).replace(/\[OFFSET \d+\]/, `[OFFSET ${offset}]`);
-        } else {
-            updatedQuery = sqlQuery.replace(/\[LIMIT \d+/, `[LIMIT ${currentLimit}`)
-        }
-        baseEndpoint = `datastore/sql?query=${updatedQuery}&show_db_columns=${showColumn}`;
-        const results = await getItems(baseEndpoint);
-        allData.push(...results);
-        offset += currentLimit;
-        limit -= currentLimit;
-    }
-    return allData;
-}
-
-async function fetchChunk(offset, limit, sqlQuery, showColumn) {
+async function fetchChunk(offset, limit, sqlQuery) {
     let adjustedQuery;
-    if (sqlQuery.includes("OFFSET")) {
-        adjustedQuery = sqlQuery.replace(/OFFSET \d+\]/, `LIMIT ${limit} OFFSET ${offset}]`);
+    let parsedOffset = parseOffset(sqlQuery);
+    let parsedLimit = parseLimit(sqlQuery);
+    if (parsedOffset){
+        if (parsedLimit){
+            const splitQuery = sqlQuery.split(`[LIMIT ${parsedLimit} OFFSET ${parsedOffset}]`);
+            adjustedQuery = `${splitQuery[0]}[LIMIT ${limit} OFFSET ${offset}]`
+        } else {
+            const splitQuery = sqlQuery.split(`[OFFSET ${parsedOffset}]`);
+            adjustedQuery = `${splitQuery[0]}[LIMIT ${limit} OFFSET ${offset}]`
+        }
     } else {
-        adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`;
+        if (parsedLimit){
+            const splitQuery = sqlQuery.split(`[LIMIT`)
+            adjustedQuery = `${splitQuery[0]}[LIMIT ${limit} OFFSET ${offset}]`;
+        } else {
+            adjustedQuery = `${sqlQuery}[LIMIT ${limit} OFFSET ${offset}]`
+        }
     }
-    const baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=${showColumn}`;
+    const baseEndpoint = `datastore/sql?query=${adjustedQuery}&show_db_columns=false`;
     return getItems(baseEndpoint);
 }
 
-async function sqlNoLimit(sqlQuery, baseEndpoint, showColumnFlag) {
+async function sqlHighLimit(sqlQuery){
+    //executes sql query for limits above the api max limit (10000)
+    let promises = [];
+    let limit = parseLimit(sqlQuery);
+    let offset = parseOffset(sqlQuery) || 0;
+    while (limit > 0) {
+        const currentLimit = Math.min(limit, 10000);
+        promises.push(fetchChunk(offset, currentLimit, sqlQuery));
+        offset += 10000;
+        limit -= currentLimit;
+    }
+    const responses = await Promise.all(promises);
+    return responses.flat();
+}
+
+async function sqlNoLimit(sqlQuery) {
     let allData = [];
-    let limit = 10000;
-    let offset = parseOffset(sqlQuery);
-    let responses;
-    do {
+    let offset = parseOffset(sqlQuery) || 0;
+    let condition = true
+    let responses = [];
+    while (condition){
         const promises = [];
-        for (let i = 0; i < 5; i++) {
-            promises.push(fetchChunk(offset + i * limit, limit, sqlQuery, showColumnFlag));
+        for (let i = 0; i < 3; i++) {
+            promises.push(fetchChunk(offset, 10000, sqlQuery));
+            offset += 10000;
         }
         responses = await Promise.all(promises);
-        responses.forEach(chunk => {
-            allData.push(...chunk);
-        });
-        offset += limit * 5;
-    } while (responses.some(response => response.length === limit));
+        allData.push(...responses.flat())
+        if (responses.some(response => response.length !== 10000)){
+            condition = false;
+        }
+    }
     return allData;
 }
 
