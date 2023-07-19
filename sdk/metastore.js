@@ -63,7 +63,7 @@ async function getDatasetByDownloadUrl(url){
 }
 
 async function getDistributionByDownloadUrl(url){
-    return await filterSchemaItems("distribution", item => parseDownloadLink(item) === url);
+    return await filterSchemaItems("distribution", item => item.data["downloadURL"] === url);
 }
 
 //endpoint: metastore/schemas/{schema}/items/{identifier}
