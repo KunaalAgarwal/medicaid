@@ -2,6 +2,17 @@ import {getDatastoreQuerySql} from "./sql.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "./metastore.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+// Format names for drop-down selection (ex: states, medicines)
+async function getUniqueValues(variable, distribution) {
+    // Use State Utilization Data 2014
+    let all_values = await getDatastoreQuerySql(`[SELECT ${variable} FROM ${distribution}]`);
+    let unique_values = new Set(all_values.map(o => o[variable]));
+    return (Array.from(unique_values)).sort();
+}
+
+// getUniqueValues('state', '0037a146-9fd0-525c-a4a7-0231f2598ce7').then((value) => console.log(value))
+// getUniqueValues('ndc_description', 'f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff').then((value) => console.log(value))
+
 //NADAC Related
 async function getNadacMeds(){
     //uses the 2017 nadac
@@ -76,6 +87,33 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     return results;
 }
 
+// Plot number_of_prescriptions vs. state for various medications in a single year
+async function plotBarDrugUtilData() {
+    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);
+    const datasetIds = await drugUtilDatasets.map(o => o.identifier);
+    const distributionIds = await datasetIds.map(o => convertDatasetToDistributionId(o));
+    const distr = distributionIds[0];
+
+    const drugUtilData = await getDrugUtilData(['ACNE MEDICATION 10% GEL'], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"])
+
+    // Average number of prescriptions
+    let res = [];
+    let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
+    drugUtilData.forEach((o,i) => {
+        if(i < drugUtilData.length - 1 && o.state === drugUtilData[i+1].state && o.year === drugUtilData[i+1].year) {
+            avg += parseFloat(drugUtilData[i+1].number_of_prescriptions);
+            counter++;
+        } else if(i < drugUtilData.length - 1) {
+            res.push({state: o.state, year: o.year, number_of_prescriptions: avg/counter, product_name: acne_med_generic});
+            avg = parseFloat(drugUtilData[i+1].number_of_prescriptions);
+            counter = 1;
+        } else {
+            res.push({state: o.state, year: o.year, number_of_prescriptions: avg/counter, product_name: acne_med_generic})
+        }
+    })
+
+    return res;
+}
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
 async function getHealthcareQualityData(qualityMeasure){
