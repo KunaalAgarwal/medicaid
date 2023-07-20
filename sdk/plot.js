@@ -7,7 +7,7 @@ async function getNadacMeds(){
     //uses the 2017 nadac
     const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
     const medObjects = await getDatastoreQuerySql(sql);
-    const medList = new Set(medObjects.map(med => med["ndc_description"].toUpperCase()));
+    const medList = new Set(medObjects.map(med => med["ndc_description"]));
     return Array.from(medList).sort();
 }
 
@@ -18,8 +18,9 @@ async function getNdcFromMed(med){
 }
 
 async function getMedNames(medicine){
+    const baseMedName = medicine.split(" ")[0];
     const medList = await getNadacMeds()
-    return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
+    return medList.filter(med => med.split(' ')[0] === `${baseMedName.toUpperCase()}`)
 }
 
 async function getMedData(meds, filter = "ndc_description", dataVariables = ["as_of_date", "nadac_per_unit"]){
@@ -183,17 +184,16 @@ async function getAllData(items, filter, distributions, dataVariables){
 async function getSimilarMeds(medList) {
     let allSimMeds = [];
     for (let i of medList) {
-        let generalName = i.split(" ")[0];
-        let meds = await getMedNames(generalName);
+        let meds = await getMedNames(i);
         for (let m of meds) {
-            if (allSimMeds.some((med) => med.generalDrug === generalName && med.specificName === m)) {
+            if (allSimMeds.some((med) => med.generalDrug === i && med.specificName === m)) {
                 allSimMeds.push({
-                    generalDrug: `${generalName}2`,
+                    generalDrug: `${i}2`,
                     specificName: m
                 });
             } else {
                 allSimMeds.push({
-                    generalDrug: generalName,
+                    generalDrug: i,
                     specificName: m
                 });
             }
@@ -201,7 +201,6 @@ async function getSimilarMeds(medList) {
     }
     return allSimMeds;
 }
-
 function parseSelectedMeds(medList) {
     return Object.values(medList.reduce((result, obj) => {
         const {generalDrug, specificName} = obj;
