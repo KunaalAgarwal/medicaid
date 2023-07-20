@@ -2,12 +2,16 @@ import {getDatastoreQuerySql} from "./sql.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "./metastore.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+//pre import retrieval
+const nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+const nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+const nadac2017 = await getDatastoreQuerySql(`[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`);
+const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
+const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+
 //NADAC Related
 async function getNadacMeds(){
-    //uses the 2017 nadac
-    const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
-    const medObjects = await getDatastoreQuerySql(sql);
-    const medList = new Set(medObjects.map(med => med["ndc_description"]));
+    const medList = new Set(nadac2017.map(med => med["ndc_description"]));
     return Array.from(medList).sort();
 }
 
@@ -24,8 +28,6 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(meds, filter = "ndc_description", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-    let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
     const rawData = await getAllData(meds, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
@@ -59,8 +61,6 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     //retrieving distribution ids and converting medicine names into ndc ids
     const adjustedMedList = Array.isArray(meds) ? meds : [meds];
     const ndcList = await Promise.all(adjustedMedList.map(async med => await getNdcFromMed(med)));
-    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
-    const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
@@ -162,12 +162,12 @@ async function getAllData(items, filter, distributions, dataVariables){
         if (items === undefined){
             return;
         }
+        const fetchDataPromises = [];
         const itemsArray =  Array.isArray(items) ? items : [items];
         const varsString = dataVariables.join(',')
-        const fetchDataPromises = [];
         const fetchData = async (identifier, item) => {
             let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
-            return await getDatastoreQuerySql(sql);
+            return getDatastoreQuerySql(sql);
         }
         for (let distributionId of distributions) {
             itemsArray.forEach(item => {
