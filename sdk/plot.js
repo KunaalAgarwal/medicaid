@@ -77,6 +77,25 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     return results;
 }
 
+async function getDrugUtilDataPlot(meds, axis= {x: "year", y: "total_amount_reimbursed"}){
+    const data = getDrugUtilData(meds);
+    const plotObj = data.reduce((acc, item) => {
+        acc.x.push(item[axis.x]);
+        acc.y.push(parseFloat(item[axis.y]));
+        return acc;
+    }, { x: [], y: []});
+    plotObj[axis.x].sort();
+    return plotObj;
+}
+
+async function plotDrugUtil(meds, layout, div, axis) {
+    if (meds === undefined){
+        return;
+    }
+    const medList = Array.isArray(meds) ? meds : [meds];
+    const data = await Promise.all(medList.map(med => getDrugUtilDataPlot(med, axis)))
+    return plot(data, layout, "line", div);
+}
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
 async function getHealthcareQualityData(qualityMeasure){
@@ -248,6 +267,7 @@ export {
     plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
+    plotDrugUtil,
     plot,
     //Observable notebook helpers
     getSimilarMeds,
