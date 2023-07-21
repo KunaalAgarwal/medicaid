@@ -49,20 +49,29 @@ import {
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
+    getMedData,
+    plotNadacMed,
+    getSimilarMeds,
+    parseSelectedMeds,
+} from "./sdk/plot/nadac.js"
+
+import {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    getMedData,
-    getDrugUtilData,
-    plotNadacMed,
     plotRateBar,
-    plotRateTimeSeries,
-    plotDrugUtil,
+    plotRateTimeSeries
+} from "./sdk/plot/healthcareMeasures.js"
+
+import {
+    getDrugUtilData,
+    plotDrugUtil
+} from "./sdk/plot/drugUtilization.js"
+
+import {
     plot,
-    getSimilarMeds,
-    parseSelectedMeds,
     Plotly
-} from "./sdk/plot.js";
+} from "./sdk/plot/plot.js"
 
 
 export {
