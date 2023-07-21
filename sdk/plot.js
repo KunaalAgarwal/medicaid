@@ -21,6 +21,19 @@ async function getNdcFromMed(med){
     return response[0]["ndc"]
 }
 
+async function getAll_ndcs(distrIds){
+    // returns all unique ndcs and their drug name for some years
+    var flatArr =  Array.from(new Set((await Promise.all(oddNums(nadacDistributions).map(id => sdk.getDatastoreQuerySql(`[SELECT ndc_description,ndc FROM ${id}]`)))).flat().map(JSON.stringify))).map(JSON.parse)
+   return flatArr
+   }
+function oddNums(arr){
+    // save time by only selecting a few datasets
+    var newArr = [];
+    for (var i = 0; i < arr.length; i=i+4) {
+      newArr.push(arr[i]);
+    }
+    return newArr
+    }
 async function getMedNames(medicine){
     const baseMedName = medicine.split(" ")[0];
     const medList = await getNadacMeds()
@@ -260,6 +273,7 @@ export {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
+    getAll_ndcs,
     //data retrieval
     getMedData,
     getDrugUtilData,
