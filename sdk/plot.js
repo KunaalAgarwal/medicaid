@@ -319,6 +319,7 @@ export {
     plotRateTimeSeries,
     plotDrugUtil,
     plot,
+    plotBarDrugUtilData,
     //Observable notebook helpers
     getSimilarMeds,
     parseSelectedMeds,

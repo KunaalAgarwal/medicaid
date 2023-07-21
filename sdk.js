@@ -60,7 +60,8 @@ import {
     plot,
     getSimilarMeds,
     parseSelectedMeds,
-    Plotly
+    Plotly,
+    plotBarDrugUtilData
 } from "./sdk/plot.js";
 
 
@@ -116,7 +117,8 @@ export {
     plot,
     getSimilarMeds,
     parseSelectedMeds,
-    Plotly
+    Plotly,
+    plotBarDrugUtilData
 }
 
 
