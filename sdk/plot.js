@@ -13,12 +13,16 @@ async function getUniqueValues(variable, distribution) {
 // getUniqueValues('state', '0037a146-9fd0-525c-a4a7-0231f2598ce7').then((value) => console.log(value))
 // getUniqueValues('ndc_description', 'f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff').then((value) => console.log(value))
 
+//pre import retrieval
+const nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+const nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+const nadac2017 = await getDatastoreQuerySql(`[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`);
+const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
+const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+
 //NADAC Related
 async function getNadacMeds(){
-    //uses the 2017 nadac
-    const sql = `[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`;
-    const medObjects = await getDatastoreQuerySql(sql);
-    const medList = new Set(medObjects.map(med => med["ndc_description"].toUpperCase()));
+    const medList = new Set(nadac2017.map(med => med["ndc_description"]));
     return Array.from(medList).sort();
 }
 
@@ -29,13 +33,12 @@ async function getNdcFromMed(med){
 }
 
 async function getMedNames(medicine){
+    const baseMedName = medicine.split(" ")[0];
     const medList = await getNadacMeds()
-    return medList.filter(med => med.includes(`${medicine.toUpperCase()} `))
+    return medList.filter(med => med.split(' ')[0] === `${baseMedName.toUpperCase()}`)
 }
 
 async function getMedData(meds, filter = "ndc_description", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-    let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
     const rawData = await getAllData(meds, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
@@ -69,8 +72,6 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     //retrieving distribution ids and converting medicine names into ndc ids
     const adjustedMedList = Array.isArray(meds) ? meds : [meds];
     const ndcList = await Promise.all(adjustedMedList.map(async med => await getNdcFromMed(med)));
-    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
-    const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
@@ -87,32 +88,63 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     return results;
 }
 
-// Plot number_of_prescriptions vs. state for various medications in a single year
-async function plotBarDrugUtilData() {
-    const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);
-    const datasetIds = await drugUtilDatasets.map(o => o.identifier);
-    const distributionIds = await datasetIds.map(o => convertDatasetToDistributionId(o));
-    const distr = distributionIds[0];
-
-    const drugUtilData = await getDrugUtilData(['ACNE MEDICATION 10% GEL'], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"])
-
-    // Average number of prescriptions
+// Plot number_of_prescriptions vs. state for various medications in certain years
+async function plotBarDrugUtilData(meds, years = []) {
     let res = [];
-    let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
-    drugUtilData.forEach((o,i) => {
-        if(i < drugUtilData.length - 1 && o.state === drugUtilData[i+1].state && o.year === drugUtilData[i+1].year) {
-            avg += parseFloat(drugUtilData[i+1].number_of_prescriptions);
-            counter++;
-        } else if(i < drugUtilData.length - 1) {
-            res.push({state: o.state, year: o.year, number_of_prescriptions: avg/counter, product_name: acne_med_generic});
-            avg = parseFloat(drugUtilData[i+1].number_of_prescriptions);
-            counter = 1;
-        } else {
-            res.push({state: o.state, year: o.year, number_of_prescriptions: avg/counter, product_name: acne_med_generic})
-        }
-    })
+    let drugUtilData;
+    for(let i=0; i < meds.length; i++) {
+        drugUtilData = await sdk.getDrugUtilData([meds[i]], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
+        // Average number of prescriptions
+        let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
+        drugUtilData.forEach((o,j) => {
+            if(j < drugUtilData.length - 1 && o.state === drugUtilData[j+1].state && o.year === drugUtilData[j+1].year) {
+                avg += parseFloat(drugUtilData[j+1].number_of_prescriptions);
+                counter++;
+            } else if(j < drugUtilData.length - 1) {
+                res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: meds[i]});
+                avg = parseFloat(drugUtilData[j+1].number_of_prescriptions);
+                counter = 1;
+            } else {
+                res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: meds[i]})
+            }
+        })
+    }
+    years = years.map(yr => parseInt(yr)); // Change strings to integers
+    if(years.length !== 0) {
+        res = res.filter(o => years.includes(o.year))
+    }
 
+    
+    Plot.plot({
+      marginRight: 180,
+      width: 800,
+      marks: [
+        Plot.barY(res, {x: "state", y: "number_of_prescriptions", fy: "product_name", sort: {x: "y", reverse: true}}),
+        Plot.ruleY([0])
+      ]
+    })
+    
     return res;
+}
+
+async function getDrugUtilDataPlot(meds, axis= {x: "year", y: "total_amount_reimbursed"}){
+    const data = getDrugUtilData(meds);
+    const plotObj = data.reduce((acc, item) => {
+        acc.x.push(item[axis.x]);
+        acc.y.push(parseFloat(item[axis.y]));
+        return acc;
+    }, { x: [], y: []});
+    plotObj[axis.x].sort();
+    return plotObj;
+}
+
+async function plotDrugUtil(meds, layout, div, axis) {
+    if (meds === undefined){
+        return;
+    }
+    const medList = Array.isArray(meds) ? meds : [meds];
+    const data = await Promise.all(medList.map(med => getDrugUtilDataPlot(med, axis)))
+    return plot(data, layout, "line", div);
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
@@ -199,12 +231,12 @@ async function getAllData(items, filter, distributions, dataVariables){
         if (items === undefined){
             return;
         }
+        const fetchDataPromises = [];
         const itemsArray =  Array.isArray(items) ? items : [items];
         const varsString = dataVariables.join(',')
-        const fetchDataPromises = [];
         const fetchData = async (identifier, item) => {
             let sql = `[SELECT ${varsString} FROM ${identifier}][WHERE ${filter} = "${item}"]`;
-            return await getDatastoreQuerySql(sql);
+            return getDatastoreQuerySql(sql);
         }
         for (let distributionId of distributions) {
             itemsArray.forEach(item => {
@@ -221,17 +253,16 @@ async function getAllData(items, filter, distributions, dataVariables){
 async function getSimilarMeds(medList) {
     let allSimMeds = [];
     for (let i of medList) {
-        let generalName = i.split(" ")[0];
-        let meds = await getMedNames(generalName);
+        let meds = await getMedNames(i);
         for (let m of meds) {
-            if (allSimMeds.some((med) => med.generalDrug === generalName && med.specificName === m)) {
+            if (allSimMeds.some((med) => med.generalDrug === i && med.specificName === m)) {
                 allSimMeds.push({
-                    generalDrug: `${generalName}2`,
+                    generalDrug: `${i}2`,
                     specificName: m
                 });
             } else {
                 allSimMeds.push({
-                    generalDrug: generalName,
+                    generalDrug: i,
                     specificName: m
                 });
             }
@@ -239,7 +270,6 @@ async function getSimilarMeds(medList) {
     }
     return allSimMeds;
 }
-
 function parseSelectedMeds(medList) {
     return Object.values(medList.reduce((result, obj) => {
         const {generalDrug, specificName} = obj;
@@ -287,6 +317,7 @@ export {
     plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
+    plotDrugUtil,
     plot,
     //Observable notebook helpers
     getSimilarMeds,

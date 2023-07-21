@@ -41,6 +41,7 @@ import {
 } from "./sdk/sql.js"
 
 import {
+    getItems,
     clearCache
 } from "./sdk/httpMethods.js"
 
@@ -64,6 +65,7 @@ import {
 
 
 export {
+    getItems,
     clearCache,
     //metastore
     getSchemas,

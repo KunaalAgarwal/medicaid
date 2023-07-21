@@ -57,10 +57,13 @@ async function fetchChunk(offset, limit, sqlQuery) {
 }
 
 async function sqlHighLimit(sqlQuery){
-    //executes sql query for limits above the api max limit (10000)
     let promises = [];
     let limit = parseLimit(sqlQuery);
     let offset = parseOffset(sqlQuery) || 0;
+    const firstRequestCheck = await fetchChunk(offset, 10000, sqlQuery);
+    if (firstRequestCheck.length < 10000){
+        return firstRequestCheck;
+    }
     while (limit > 0) {
         const currentLimit = Math.min(limit, 10000);
         promises.push(fetchChunk(offset, currentLimit, sqlQuery));
@@ -76,6 +79,11 @@ async function sqlNoLimit(sqlQuery) {
     let offset = parseOffset(sqlQuery) || 0;
     let condition = true
     let responses = [];
+    let count = 0;
+    const firstRequestCheck = await fetchChunk(offset, 500, sqlQuery);
+    if (firstRequestCheck.length < 500){
+        return firstRequestCheck;
+    }
     while (condition){
         const promises = [];
         for (let i = 0; i < 3; i++) {
@@ -83,6 +91,7 @@ async function sqlNoLimit(sqlQuery) {
             offset += 10000;
         }
         responses = await Promise.all(promises);
+        count += promises.length;
         allData.push(...responses.flat())
         if (responses.some(response => response.length !== 10000)){
             condition = false;
