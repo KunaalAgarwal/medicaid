@@ -2,6 +2,7 @@ import {getDatastoreQuerySql} from "./sql.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "./metastore.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+<<<<<<< HEAD
 // Format names for drop-down selection (ex: states, medicines)
 async function getUniqueValues(variable, distribution) {
     // Use State Utilization Data 2014
@@ -12,13 +13,14 @@ async function getUniqueValues(variable, distribution) {
 
 // getUniqueValues('state', '0037a146-9fd0-525c-a4a7-0231f2598ce7').then((value) => console.log(value))
 // getUniqueValues('ndc_description', 'f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff').then((value) => console.log(value))
-
+=======
 //pre import retrieval
 const nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
 const nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
 const nadac2017 = await getDatastoreQuerySql(`[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`);
 const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
 const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+>>>>>>> 861d287dd9d6c666debd23318ea33a6e78b56760
 
 //NADAC Related
 async function getNadacMeds(){
@@ -88,6 +90,7 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
     return results;
 }
 
+<<<<<<< HEAD
 // Plot number_of_prescriptions vs. state for various medications in certain years
 async function plotBarDrugUtilData(meds, years = []) {
     let res = [];
@@ -126,7 +129,7 @@ async function plotBarDrugUtilData(meds, years = []) {
     
     return res;
 }
-
+=======
 async function getDrugUtilDataPlot(meds, axis= {x: "year", y: "total_amount_reimbursed"}){
     const data = getDrugUtilData(meds);
     const plotObj = data.reduce((acc, item) => {
@@ -145,6 +148,7 @@ async function plotDrugUtil(meds, layout, div, axis) {
     const medList = Array.isArray(meds) ? meds : [meds];
     const data = await Promise.all(medList.map(med => getDrugUtilDataPlot(med, axis)))
     return plot(data, layout, "line", div);
+>>>>>>> 861d287dd9d6c666debd23318ea33a6e78b56760
 }
 
 //ADULT AND CHILD HEALTH CARE QUALITY MEASURES
