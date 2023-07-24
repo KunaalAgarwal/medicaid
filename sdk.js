@@ -46,6 +46,7 @@ import {
 } from "./sdk/httpMethods.js"
 
 import {
+    ndcToName,
     getAllNdcs,
     getNadacMeds,
     getNdcFromMed,
@@ -113,6 +114,7 @@ export {
     getSearchFacets,
     getSearch,
     //plot
+    ndcToName,
     getAllNdcs,
     getNadacMeds,
     getNdcFromMed,
