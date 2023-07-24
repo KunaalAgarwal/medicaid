@@ -97,7 +97,7 @@ async function getAllNdcs() {
             break;
         }
         const response = await getDatastoreQuerySql(`[SELECT ndc FROM ${nadacDistributions[i]}]`);
-        response.forEach(ndc => {ndcs.set(ndc["ndc"], 1);})
+        response.forEach(ndc => {ndcs.set(ndc["ndc"].slice(0,ndc["ndc"].length - 2), ndc["ndc"]);})
     }
     return [...ndcs.keys()];
 }
