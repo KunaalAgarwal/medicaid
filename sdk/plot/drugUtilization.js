@@ -37,7 +37,7 @@ async function getDrugUtilDataPlot(ndcs, axis= {x: "year", y: "total_amount_reim
         return acc;
     }, {xData: [], yData: [], y2Data: []});
     result.xData.sort()
-    return [{x: result.xData, y: result.yData}, {x: result.xData, y: result.y2Data, yaxis: 'y2'}]
+    return [{x: result.xData, y: result.yData, name: axis.y}, {x: result.xData, y: result.y2Data, yaxis: 'y2', name: axis.y2}]
 }
 
 async function plotDrugUtil(ndcs, layout, div, axis) {

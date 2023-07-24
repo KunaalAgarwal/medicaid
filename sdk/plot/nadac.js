@@ -25,13 +25,13 @@ async function getMedNames(medicine){
     return medList.filter(med => med.split(' ')[0] === `${baseMedName.toUpperCase()}`)
 }
 
-async function getMedData(meds, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    const rawData = await getAllData(meds, filter, nadacDistributions, dataVariables);
+async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
+    const rawData = await getAllData(ndcs, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
 
-async function getMedDataPlot(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
-    const medList = Array.isArray(meds) ? meds : [meds];
+async function getMedDataPlot(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
+    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
     const medData = await getMedData(medList, "ndc", Object.values(axis));
     const result = medData.reduce(
         (result, obj) => {
@@ -46,11 +46,11 @@ async function getMedDataPlot(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_p
     return result;
 }
 
-async function plotNadacMed(meds, layout, div, axis) {
-    if (meds === undefined){
+async function plotNadacMed(ndcs, layout, div, axis) {
+    if (ndcs === undefined){
         return;
     }
-    const medList = Array.isArray(meds) ? meds : [meds];
+    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
     const data = await Promise.all(medList.map(med => getMedDataPlot(med, axis)))
     return plot(data, layout, "line", div);
 }
