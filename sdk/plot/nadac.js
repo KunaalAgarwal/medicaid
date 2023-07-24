@@ -4,12 +4,12 @@ import {getAllData, plot} from "./plot.js";
 //pre import retrieval
 const nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
 const nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
-const nadac2017 = await getDatastoreQuerySql(`[SELECT ndc_description FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff]`);
 
 async function getNadacMeds(){
-    const medList = new Set(nadac2017.map(med => med["ndc_description"]));
-    return Array.from(medList).sort();
+    const medlist = await getAllNdcs();
+    return new Set(medlist.values());
 }
+
 async function getNdcFromMed(med){
     const sql = `[SELECT ndc_description,ndc FROM f4ab6cb6-e09c-52ce-97a2-fe276dbff5ff][WHERE ndc_description = "${med}"][LIMIT 1]`;
     const response = await getDatastoreQuerySql(sql);
@@ -85,20 +85,20 @@ function parseSelectedMeds(medList) {
     }, {}));
 }
 
-async function getAll_ndcs(distrIds){
-    return Array.from(new Set((await Promise.all(oddNums(nadacDistributions).map(id => getDatastoreQuerySql(`[SELECT ndc_description,ndc FROM ${id}]`)))).flat().map(JSON.stringify))).map(JSON.parse);
-}
-
-function oddNums(arr){
-    let newArr = [];
-    for (let i = 0; i < arr.length; i=i+4) {
-        newArr.push(arr[i]);
+async function getAllNdcs() {
+    const ndcMap = new Map();
+    for (let i = 0; i < nadacDistributions.length; i += 4){
+        const response = await getDatastoreQuerySql(`[SELECT ndc_description,ndc FROM ${nadacDistributions[i]}]`)
+        response.forEach(med => {
+            ndcMap.set(med, med["ndc_description"]);
+        })
     }
-    return newArr
+    return ndcMap;
 }
 
 export {
     //general
+    getAllNdcs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
