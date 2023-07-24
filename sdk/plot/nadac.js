@@ -91,7 +91,6 @@ function parseSelectedMeds(medList) {
 }
 
 async function getAllNdcs() {
-    let startTime = Date.now();
     const ndcs = new Map();
     for (let i = 0; i < nadacDistributions.length; i += 4){
         if (i > nadacDistributions.length){
@@ -100,7 +99,6 @@ async function getAllNdcs() {
         const response = await getDatastoreQuerySql(`[SELECT ndc FROM ${nadacDistributions[i]}]`);
         response.forEach(ndc => {ndcs.set(ndc["ndc"], 1);})
     }
-    console.log(`Grabbed Data: ${Date.now() - startTime}`)
     return [...ndcs.keys()];
 }
 
