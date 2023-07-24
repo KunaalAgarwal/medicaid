@@ -18,7 +18,7 @@ async function getNdcFromMed(med){
 
 async function getMedNames(medicine){
     const baseMedName = medicine.split(" ")[0];
-    const medList = await getNadacMeds()
+    const medList = Array.from(await getNadacMeds());
     return medList.filter(med => med.split(' ')[0] === `${baseMedName.toUpperCase()}`)
 }
 
@@ -88,6 +88,9 @@ function parseSelectedMeds(medList) {
 async function getAllNdcs() {
     const ndcMap = new Map();
     for (let i = 0; i < nadacDistributions.length; i += 4){
+        if (i > nadacDistributions.length){
+            break;
+        }
         const response = await getDatastoreQuerySql(`[SELECT ndc_description,ndc FROM ${nadacDistributions[i]}]`)
         response.forEach(med => {
             ndcMap.set(med, med["ndc_description"]);
