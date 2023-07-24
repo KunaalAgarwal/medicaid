@@ -80,8 +80,8 @@ async function sqlNoLimit(sqlQuery) {
     let condition = true
     let responses = [];
     let count = 0;
-    const firstRequestCheck = await fetchChunk(offset, 500, sqlQuery);
-    if (firstRequestCheck.length < 500){
+    const firstRequestCheck = await fetchChunk(offset, 1000, sqlQuery);
+    if (firstRequestCheck.length < 1000){
         return firstRequestCheck;
     }
     while (condition){

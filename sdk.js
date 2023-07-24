@@ -46,23 +46,34 @@ import {
 } from "./sdk/httpMethods.js"
 
 import {
+    ndcToName,
+    getAllNdcs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
+    getMedData,
+    plotNadacMed,
+    getSimilarMeds,
+    parseSelectedMeds,
+} from "./sdk/plot/nadac.js"
+
+import {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    getMedData,
-    getDrugUtilData,
-    plotNadacMed,
     plotRateBar,
-    plotRateTimeSeries,
+    plotRateTimeSeries
+} from "./sdk/plot/healthcareMeasures.js"
+
+import {
+    getDrugUtilData,
+    plotDrugUtil
+} from "./sdk/plot/drugUtilization.js"
+
+import {
     plot,
-    getSimilarMeds,
-    parseSelectedMeds,
-    Plotly,
-    plotBarDrugUtilData
-} from "./sdk/plot.js";
+    Plotly
+} from "./sdk/plot/plot.js"
 
 
 export {
@@ -103,6 +114,8 @@ export {
     getSearchFacets,
     getSearch,
     //plot
+    ndcToName,
+    getAllNdcs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
@@ -114,13 +127,9 @@ export {
     plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
+    plotDrugUtil,
     plot,
     getSimilarMeds,
     parseSelectedMeds,
-    Plotly,
-    plotBarDrugUtilData
+    Plotly
 }
-
-
-
-

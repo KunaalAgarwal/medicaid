@@ -1,4 +1,3 @@
-const baseUrl = 'https://data.medicaid.gov/api/1/';
 import localforage from 'https://cdn.skypack.dev/localforage';
 let updateCount = 0;
 const dbName = "localforage"
@@ -11,7 +10,7 @@ let timestore = localforage.createInstance({
     storeName: "timestore"
 })
 
-async function getItems(endpoint, downloadFlag = false) {
+async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     try {
         updateCache();
         const timeStamp = Date.now();
@@ -39,7 +38,7 @@ async function getItems(endpoint, downloadFlag = false) {
 }
 
 
-async function postItem(endpoint, payload, headerContent, downloadFlag = false) {
+async function postItem(endpoint, payload, headerContent, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     try {
         const options = {
             method: 'POST',
