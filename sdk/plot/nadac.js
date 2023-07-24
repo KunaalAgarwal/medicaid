@@ -103,6 +103,22 @@ async function getAllNdcs() {
     return [...ndcs.keys()];
 }
 
+async function ndcToName(nadacNdc) {
+    const fdaUrl = "https://api.fda.gov/drug/ndc.json";
+    const searchQuery = nadacNdc.slice(0, 5).replace(/^0/, '') + "-" + nadacNdc.slice(5, 9).replace(/^0/, '');
+    console.log(searchQuery);
+    const response = await fetch(fdaUrl + '?search=product_ndc:"' + searchQuery + '"');
+    const data = await response.json();
+    const results = data.results[0];
+
+    if (results.active_ingredients !== undefined) {
+        const activeIngredientsObj = results.active_ingredients[0];
+        const resultArray = Object.values(activeIngredientsObj).join(" ");
+        return resultArray;
+    } else {
+        return results["brand_name"];
+    }
+}
 export {
     //general
     getAllNdcs,
