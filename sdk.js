@@ -67,10 +67,12 @@ import {
 
 import {
     getDrugUtilData,
-    plotDrugUtil
+    plotDrugUtil,
+    getDrugUtilDataBar
 } from "./sdk/plot/drugUtilization.js"
 
 import {
+    getUniqueValues,
     plot,
     Plotly
 } from "./sdk/plot/plot.js"
@@ -131,5 +133,7 @@ export {
     plot,
     getSimilarMeds,
     parseSelectedMeds,
-    Plotly
+    Plotly,
+    getUniqueValues,
+    getDrugUtilDataBar
 }

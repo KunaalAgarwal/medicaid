@@ -1,6 +1,13 @@
 import {getDatastoreQuerySql} from "../sql.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+async function getUniqueValues(variable, distribution) {
+    // Use State Utilization Data 2014
+    let all_values = await sdk.getDatastoreQuerySql(`[SELECT ${variable} FROM ${distribution}]`);
+    let unique_values = new Set(all_values.map(o => o[variable]));
+    return (Array.from(unique_values)).sort();
+}
+
 function plot(data, layout, type = "line", divElement = null){
     try{
         const adjustedData = Array.isArray(data) ? data : [data];
@@ -36,6 +43,7 @@ async function getAllData(items, filter, distributions, dataVariables){
 }
 
 export {
+    getUniqueValues,
     plot,
     getAllData,
     Plotly
