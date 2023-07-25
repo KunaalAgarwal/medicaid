@@ -80,7 +80,7 @@ function updateCache() {
         timestore.keys().then(keys => {
             keys.forEach(key => {
                 timestore.getItem(key).then(value => {
-                    if (timeStamp - value > 86400000 * 30) { // 24 hours in ms * 30 = 1 month
+                    if (timeStamp - value > 86400000) { // 24 hours in ms
                         timestore.removeItem(key);
                         endpointStore.removeItem(key);
                     }
@@ -101,5 +101,6 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache
+    clearCache,
+    endpointStore
 }
