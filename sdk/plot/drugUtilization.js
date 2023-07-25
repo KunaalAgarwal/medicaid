@@ -52,7 +52,7 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
 // Plot number_of_prescriptions vs. state for various medications in certain years
 async function getDrugUtilDataBar(med, years = []) {
     let res = [];
-    let drugUtilData = await sdk.getDrugUtilData([med], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
+    let drugUtilData = await getDrugUtilData([med], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
     // Average number of prescriptions
     let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
     drugUtilData.forEach((o,j) => {
