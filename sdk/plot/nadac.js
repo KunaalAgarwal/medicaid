@@ -50,9 +50,9 @@ async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "
     return rawData.flat()
 }
 
-async function getMedDataPlot(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
+async function getMedDataPlot(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc"}){
     const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const medData = await getMedData(medList, "ndc", Object.values(axis));
+    const medData = await getMedData(medList, axis.filter, Object.values(axis));
     const result = medData.reduce(
         (result, obj) => {
             result.x.push(obj[axis.xAxis])
