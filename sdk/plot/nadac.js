@@ -31,9 +31,9 @@ async function getNadacMeds(){
     return [...ndcObjs.keys()]
 }
 
-async function getNdcFromMed(med, medToNdcMap){
+function getNdcFromMed(med, medToNdcMap){
     if (medToNdcMap.has(med)){
-        return medToNdcMap.get(med);
+        return Array.from(medToNdcMap.get(med));
     }
     throw new Error("Please provide a medicine that is included in the medicaid dataset.");
 }
@@ -91,6 +91,28 @@ async function updatePreImport(){
         console.log("Update unsuccessful, clear cache if update still needed." + error);
     }
 }
+function parseSelectedMeds(meds, map){
+    let medObjArray = [];
+    meds.forEach(med => {
+        const medNdcs = getNdcFromMed(med, map);
+        medNdcs.forEach(ndc => {
+            medObjArray.push({medName: med, ndc: ndc})
+        })
+    })
+    return medObjArray;
+}
+
+function filterSelectedMeds(medList) {
+    return Object.values(medList.reduce((result, obj) => {
+        const {medName, ndc} = obj;
+        if (medName in result) {
+            result[medName].push(ndc);
+        } else {
+            result[medName] = [ndc];
+        }
+        return result;
+    }, {}));
+}
 
 export {
     //general
@@ -98,9 +120,12 @@ export {
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,
+    parseSelectedMeds,
+    filterSelectedMeds,
     //data collection
     getMedData,
     //plotting
     plotNadacMed
+
 }
 

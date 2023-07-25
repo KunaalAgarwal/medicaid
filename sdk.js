@@ -51,6 +51,8 @@ import {
     getNdcFromMed,
     getMedNames,
     getMedData,
+    parseSelectedMeds,
+    filterSelectedMeds,
     plotNadacMed
 } from "./sdk/plot/nadac.js"
 
@@ -115,6 +117,8 @@ export {
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
+    parseSelectedMeds,
+    filterSelectedMeds,
     getQualityMeasures,
     getRateDefinitions,
     getStates,
