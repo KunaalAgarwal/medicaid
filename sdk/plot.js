@@ -91,44 +91,6 @@ async function getDrugUtilData(meds, filter = "ndc", dataVariables = ["year", "t
 }
 
 <<<<<<< HEAD
-// Plot number_of_prescriptions vs. state for various medications in certain years
-async function plotBarDrugUtilData(meds, years = []) {
-    let res = [];
-    let drugUtilData;
-    for(let i=0; i < meds.length; i++) {
-        drugUtilData = await sdk.getDrugUtilData([meds[i]], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
-        // Average number of prescriptions
-        let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
-        drugUtilData.forEach((o,j) => {
-            if(j < drugUtilData.length - 1 && o.state === drugUtilData[j+1].state && o.year === drugUtilData[j+1].year) {
-                avg += parseFloat(drugUtilData[j+1].number_of_prescriptions);
-                counter++;
-            } else if(j < drugUtilData.length - 1) {
-                res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: meds[i]});
-                avg = parseFloat(drugUtilData[j+1].number_of_prescriptions);
-                counter = 1;
-            } else {
-                res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: meds[i]})
-            }
-        })
-    }
-    years = years.map(yr => parseInt(yr)); // Change strings to integers
-    if(years.length !== 0) {
-        res = res.filter(o => years.includes(o.year))
-    }
-
-    
-    Plot.plot({
-      marginRight: 180,
-      width: 800,
-      marks: [
-        Plot.barY(res, {x: "state", y: "number_of_prescriptions", fy: "product_name", sort: {x: "y", reverse: true}}),
-        Plot.ruleY([0])
-      ]
-    })
-    
-    return res;
-}
 =======
 async function getDrugUtilDataPlot(meds, axis= {x: "year", y: "total_amount_reimbursed"}){
     const data = getDrugUtilData(meds);
@@ -318,6 +280,7 @@ export {
     getMedData,
     getDrugUtilData,
     //plotting
+    getUniqueValues,
     plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
