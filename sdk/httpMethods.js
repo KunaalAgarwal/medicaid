@@ -101,5 +101,6 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache
+    clearCache,
+    endpointStore
 }

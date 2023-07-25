@@ -42,6 +42,7 @@ import {
 
 import {
     getItems,
+    endpointStore,
     clearCache
 } from "./sdk/httpMethods.js"
 
@@ -78,6 +79,7 @@ import {
 
 export {
     getItems,
+    endpointStore,
     clearCache,
     //metastore
     getSchemas,
