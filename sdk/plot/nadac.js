@@ -1,10 +1,12 @@
-import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
+import {getDatasetByKeyword, convertDatasetToDistributionId, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
-import {getItems} from "../../sdk.js";
+import {endpointStore, getItems} from "../httpMethods.js";
+
 //pre import retrieval
-const nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-const nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+let updateDay = Date.now();
+let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
 
 async function getNadacMeds(){
     //waiting on fda api
@@ -26,6 +28,7 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
+    await updatePreImport();
     const rawData = await getAllData(ndcs, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
@@ -97,9 +100,9 @@ async function getAllNdcs() {
             break;
         }
         const response = await getDatastoreQuerySql(`[SELECT ndc FROM ${nadacDistributions[i]}]`);
-        response.forEach(ndc => {ndcs.set(ndc["ndc"], 1);})
+        response.forEach(ndc => {ndcs.set(ndc["ndc"].slice(0,ndc["ndc"].length - 2), ndc["ndc"]);})
     }
-    return [...ndcs.keys()];
+    return [...ndcs.values()];
 }
 
 async function ndcToName(nadacNdc) {
@@ -111,6 +114,23 @@ async function ndcToName(nadacNdc) {
         return Object.values(results["active_ingredients"][0]).join(" ");
     } else {
         return results["brand_name"];
+    }
+}
+
+async function updatePreImport(){
+    try {
+        if (Date.now() - updateDay <  18000000){// 5 hours in ms
+            return;
+        }
+        endpointStore.removeItem("metastore/schemas/dataset/items");
+        const nadac2023 = await getDatasetByTitleName("NADAC (National Average Drug Acquisition Cost) 2023");
+        const nadac2023id = nadac2023.identifier;
+        endpointStore.removeItem(`metastore/schemas/dataset/items/${nadac2023id}`);
+        endpointStore.removeItem("metastore/schemas/distribution/items");
+        nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
+        nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+    } catch (error){
+        console.log("Update unsuccessful, clear cache if update still needed." + error);
     }
 }
 
