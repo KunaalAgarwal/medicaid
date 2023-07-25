@@ -66,10 +66,12 @@ import {
 
 import {
     getDrugUtilData,
-    plotDrugUtil
+    plotDrugUtil,
+    getDrugUtilDataBar
 } from "./sdk/plot/drugUtilization.js"
 
 import {
+    getUniqueValues,
     plot,
     Plotly
 } from "./sdk/plot/plot.js"
@@ -113,6 +115,7 @@ export {
     getSearchFacets,
     getSearch,
     //plot
+    getUniqueValues,
     getAllNdcObjs,
     getNadacMeds,
     getNdcFromMed,
@@ -124,6 +127,7 @@ export {
     getStates,
     getMedData,
     getDrugUtilData,
+    getDrugUtilDataBar,
     plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
