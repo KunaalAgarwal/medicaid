@@ -46,15 +46,12 @@ import {
 } from "./sdk/httpMethods.js"
 
 import {
-    ndcToName,
-    getAllNdcs,
+    getAllNdcObjs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
     getMedData,
-    plotNadacMed,
-    getSimilarMeds,
-    parseSelectedMeds,
+    plotNadacMed
 } from "./sdk/plot/nadac.js"
 
 import {
@@ -114,8 +111,7 @@ export {
     getSearchFacets,
     getSearch,
     //plot
-    ndcToName,
-    getAllNdcs,
+    getAllNdcObjs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
@@ -129,8 +125,6 @@ export {
     plotRateTimeSeries,
     plotDrugUtil,
     plot,
-    getSimilarMeds,
-    parseSelectedMeds,
     Plotly
 }
 
