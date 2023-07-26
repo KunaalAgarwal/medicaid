@@ -50,9 +50,9 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
 }
 
 // Plot number_of_prescriptions vs. state for various medications in certain years
-async function getDrugUtilDataBar(med, years = []) {
+async function getDrugUtilDataBar(ndc, years = []) {
     let res = [];
-    let drugUtilData = await getDrugUtilData([med], "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
+    let drugUtilData = await sdk.getDrugUtilData(ndc, "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
     // Average number of prescriptions
     let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
     drugUtilData.forEach((o,j) => {
@@ -60,11 +60,11 @@ async function getDrugUtilDataBar(med, years = []) {
             avg += parseFloat(drugUtilData[j+1].number_of_prescriptions);
             counter++;
         } else if(j < drugUtilData.length - 1) {
-            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: med});
+            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, ndc: ndc});
             avg = parseFloat(drugUtilData[j+1].number_of_prescriptions);
             counter = 1;
         } else {
-            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, product_name: med})
+            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, ndc: ndc})
         }
     })
     years = years.map(yr => parseInt(yr)); // Change strings to integers
@@ -78,7 +78,6 @@ async function getDrugUtilDataBar(med, years = []) {
         y: res.map(o => o.number_of_prescriptions),
       }
     ];
-    
     return [data[0]];
 }
 
