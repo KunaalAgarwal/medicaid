@@ -58,9 +58,9 @@ async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed") {
     const filteredData = response.filter(x => x["suppression_used"] === "false");
     const states = filteredData.reduce((stateTotals, obj) => {
         if (!stateTotals[obj["state"]]) {
-            stateTotals[obj["state"]] = {sum: obj[yAxis], count: 1};
+            stateTotals[obj["state"]] = {sum: parseFloat(obj[yAxis]), count: 1};
         } else {
-            stateTotals[obj["state"]].sum += obj[yAxis];
+            stateTotals[obj["state"]].sum += parseFloat(obj[yAxis]);
             stateTotals[obj["state"]].count += 1;
         }
         return stateTotals
