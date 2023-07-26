@@ -67,6 +67,7 @@ import {
 import {
     getDrugUtilData,
     plotDrugUtil,
+    plotDrugUtilBar,
     getDrugUtilDataBar
 } from "./sdk/plot/drugUtilization.js"
 
@@ -132,6 +133,7 @@ export {
     plotRateBar,
     plotRateTimeSeries,
     plotDrugUtil,
+    plotDrugUtilBar,
     plot,
     Plotly
 }

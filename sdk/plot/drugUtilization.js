@@ -1,5 +1,6 @@
 import {getAllData, plot} from "./plot.js";
-import {convertDatasetToDistributionId, getDatasetByKeyword} from "../metastore.js";
+import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "../metastore.js";
+import {getDatastoreQuerySql} from "../sql.js";
 
 //pre import retrieval
 const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
@@ -49,42 +50,41 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
     return plot(data.flat(), layout, "line", div);
 }
 
-// Plot number_of_prescriptions vs. state for various medications in certain years
-async function getDrugUtilDataBar(ndc, years = []) {
-    let res = [];
-    let drugUtilData = await getDrugUtilData(ndc, "ndc", ["state", "year", "total_amount_reimbursed", "number_of_prescriptions", "ndc","product_name"]);
-    // Average number of prescriptions
-    let avg = drugUtilData[0].number_of_prescriptions, counter = 0;
-    drugUtilData.forEach((o,j) => {
-        if(j < drugUtilData.length - 1 && o.state === drugUtilData[j+1].state && o.year === drugUtilData[j+1].year) {
-            avg += parseFloat(drugUtilData[j+1].number_of_prescriptions);
-            counter++;
-        } else if(j < drugUtilData.length - 1) {
-            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, ndc: ndc});
-            avg = parseFloat(drugUtilData[j+1].number_of_prescriptions);
-            counter = 1;
-        } else {
-            res.push({state: o.state, year: Number(o.year), number_of_prescriptions: avg/counter, ndc: ndc})
-        }
-    })
-    years = years.map(yr => parseInt(yr)); // Change strings to integers
-    if(years.length !== 0) {
-        res = res.filter(o => years.includes(o.year))
-    }
 
-    var data = [
-      {
-        x: res.map(o => o.state),
-        y: res.map(o => o.number_of_prescriptions),
-      }
-    ];
-    return [data[0]];
+async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed") {
+    const drugUtil2022 = await getDatasetByTitleName("State Drug Utilization Data 2022");
+    const drugUtil2022Id = await convertDatasetToDistributionId(drugUtil2022.identifier);
+    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtil2022Id}][WHERE ndc = "${ndc}"]`);
+    const filteredData = response.filter(x => x["suppression_used"] === "false");
+    const states = filteredData.reduce((stateTotals, obj) => {
+        if (!stateTotals[obj["state"]]) {
+            stateTotals[obj["state"]] = {sum: obj[yAxis], count: 1};
+        } else {
+            stateTotals[obj["state"]].sum += obj[yAxis];
+            stateTotals[obj["state"]].count += 1;
+        }
+        return stateTotals
+    }, {});
+    const yVals = Object.values(states).reduce((result, obj) => {
+        result.push(obj["sum"]/obj["count"]);
+        return result;
+    }, [])
+    return {x: Object.keys(states), y: yVals};
+}
+
+async function plotDrugUtilBar(ndc, layout, div, yAxis){
+    if (ndc === undefined){
+        return;
+    }
+    const data = await getDrugUtilDataBar(ndc, yAxis)
+    return plot(data, layout, "bar", div);
 }
 
 export {
     //data retrieval
     getDrugUtilData,
+    getDrugUtilDataBar,
     //plotting
     plotDrugUtil,
-    getDrugUtilDataBar
+    plotDrugUtilBar
 }

@@ -23,7 +23,6 @@ async function getAllNdcObjs() {
         })
     }
     return ndcs;
-
 }
 
 async function getNadacMeds(){
