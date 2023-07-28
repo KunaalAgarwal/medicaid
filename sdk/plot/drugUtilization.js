@@ -116,7 +116,7 @@ async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
 async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
     let data;
     if(outliers === 'true') {
-    data = await sdk.getDrugUtilDataBar(ndc, yAxis, year)
+    data = await getDrugUtilDataBar(ndc, yAxis, year)
     } else {
     data = await removedOutliers(ndc, yAxis, year);
     }
