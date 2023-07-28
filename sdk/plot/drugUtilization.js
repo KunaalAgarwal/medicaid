@@ -2,11 +2,14 @@ import {getAllData, plot} from "./plot.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 
-//pre import retrieval
-const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
-const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+let drugUtilDatasets;
+let drugUtilIds;
 
 async function rawDrugUtil(ndcs, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
+    if (drugUtilIds === undefined || drugUtilDatasets === undefined){
+        drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);//only need datasets from 2013 onwards
+        drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+    }
     const adjustedNdcsList = Array.isArray(ndcs) ? ndcs : [ndcs];
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
