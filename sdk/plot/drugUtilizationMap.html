@@ -1,0 +1,59 @@
+<head>
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<!-- Plotly chart will be drawn inside this DIV -->
+<div id="myDiv"></div>
+<script type="module">
+import {getDrugUtilDataBar, removedOutliers, getMaximum} from "./drugUtilization.js";
+async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
+  let data;
+  if(outliers === 'true') {
+    data = await getDrugUtilDataBar(ndc, yAxis, year)
+  } else {
+    data = await removedOutliers(ndc, yAxis, year);
+  }
+  var refinedData = [{
+      type: 'choropleth',
+      locationmode: 'USA-states',
+      locations: data['x'],
+      z: data['y'],
+      //text: data['x'],
+      zmin: 0,
+      zmax: getMaximum(outliers),
+      colorscale: [
+        [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+        [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+        [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+      ],
+    colorbar: {
+      title: 'Total Amount Reimbursed',
+      thickness: 0.2
+    },
+    marker: {
+      line:{
+        color: 'rgb(255,255,255)',
+        width: 2
+      }
+    }
+  }];
+
+  var layout = {
+    title: '2022 US Total Amount Reimbursed by State',
+    geo:{
+      scope: 'usa',
+      showlakes: true,
+      lakecolor: 'rgb(255,255,255)'
+    }
+  };
+  Plotly.plot(myDiv, refinedData, layout, {showLink: false});
+}
+
+// User enters input for parameter outliers
+user_input = 'false'
+choroplethMap(user_input, '00536105556').then(value => console.log(value))
+  
+</script>
+</body>
+

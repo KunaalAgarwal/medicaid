@@ -80,10 +80,47 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
+
+// Remove outliers from getDrugUtilDataBar
+async function removedOutliers(ndc, yAxis, year) {
+    let data = await getDrugUtilDataBar(ndc, yAxis, year);
+    let refinedData = data['x'].map((o,i) => {return {x: o, y: data['y'][i]}})
+    refinedData.sort( function(a, b) {return a.y - b.y;});
+    let yValues = refinedData.map(o => o.y);
+
+    let q1 = yValues[Math.floor((yValues.length / 4))];
+    let q3 = yValues[Math.ceil((yValues.length * (3 / 4)))];
+    let iqr = q3 - q1;
+    let maxValue = q3 + iqr*1.5;
+    let minValue = q1 - iqr*1.5;
+
+    let nonOutlierPos = yValues.map((o,i) => {if((yValues[i] <= maxValue) && (yValues[i] >= minValue)) {return i}});
+    let nonOutliers = refinedData.filter((o,i) => nonOutlierPos.includes(i));
+
+    let res = {};
+    res['x'] = nonOutliers.map(o => o.x);
+    res['y'] = nonOutliers.map(o => o.y);
+    return res;
+}
+
+// Get maximum of data with or without outliers
+async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
+    let data;
+    if(outliers === 'true')  {
+        data = await getDrugUtilDataBar(ndc, yAxis, year);
+    } else {
+        data = await removedOutliers(ndc, yAxis, year);
+    }
+    return Math.max.apply(Math, data['y']);
+
+}
+
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
+    removedOutliers,
+    getMaximum,
     //plotting
     plotDrugUtil,
     plotDrugUtilBar
