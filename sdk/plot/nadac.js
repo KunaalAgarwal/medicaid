@@ -1,7 +1,9 @@
 import {getDatasetByKeyword, convertDatasetToDistributionId, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
-import {localforage, endpointStore} from "../httpMethods.js";
+// import {localforage, endpointStore} from "../httpMethods.js";
+import {localforage} from "../httpMethods.js";
+
 
 //pre import retrieval
 // let updateDay = Date.now();
