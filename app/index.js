@@ -69,25 +69,35 @@ const drugUtilState = {
 const prevButton = document.getElementById("prev")
 const nextButton = document.getElementById("next")
 
-const graphGenerators = [
-    async () => await plotDrugUtilMap("00536105556"),
-    async () => await plotNadacMed(["24385005452"], drugTimeLayout),
-    async () => await plotDrugUtil(["24385005452"], drugUtilTime),
-    async () => await plotDrugUtilBar("00536105556", drugUtilState)
-];
-
+const graphDivs = [];
 const graphDiv = document.getElementById("graph");
-let currentGraphIndex = 0;
 
-async function showCurrentGraph() {
-    graphDiv.innerHTML = "";
-    const currentGraph = await graphGenerators[currentGraphIndex]();
-    graphDiv.appendChild(currentGraph);
+async function generateGraphs() {
+    graphDivs.push(await plotDrugUtilMap("00536105556"));
+    graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
+    graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
+    graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
+    graphDivs.forEach(graph => {
+        graphDiv.appendChild(graph);
+    })
+}
+
+await generateGraphs();
+let currentGraphIndex = 0;
+function showCurrentGraph() {
+    // Hide all graph divs
+    graphDivs.forEach((div, index) => {
+        if (index === currentGraphIndex) {
+            div.style.display = "block"; // Show the current graph div
+        } else {
+            div.style.display = "none"; // Hide other graph divs
+        }
+    });
 }
 
 async function next() {
     currentGraphIndex++;
-    if (currentGraphIndex >= graphGenerators.length) {
+    if (currentGraphIndex >= graphDivs.length) {
         currentGraphIndex = 0; // Reset to the first graph if at the end
     }
     await showCurrentGraph();
@@ -96,12 +106,12 @@ async function next() {
 async function prev() {
     currentGraphIndex--;
     if (currentGraphIndex < 0) {
-        currentGraphIndex = graphGenerators.length - 1;
+        currentGraphIndex = graphDivs.length - 1;
     }
     await showCurrentGraph();
 }
 
-prevButton.addEventListener('click', prev);
-nextButton.addEventListener('click', next);
+prevButton.addEventListener("click", prev);
+nextButton.addEventListener("click", next);
 
-await showCurrentGraph();
+showCurrentGraph();
