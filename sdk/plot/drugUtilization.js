@@ -51,10 +51,10 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
 }
 
 
-async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed") {
-    const drugUtil2022 = await getDatasetByTitleName("State Drug Utilization Data 2022");
-    const drugUtil2022Id = await convertDatasetToDistributionId(drugUtil2022.identifier);
-    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtil2022Id}][WHERE ndc = "${ndc}"]`);
+async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed", year = '2022') {
+    const drugUtil = await getDatasetByTitleName("State Drug Utilization Data " + year);
+    const drugUtilId = await convertDatasetToDistributionId(drugUtil.identifier);
+    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtilId}][WHERE ndc = "${ndc}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
     const states = filteredData.reduce((stateTotals, obj) => {
         if (!stateTotals[obj["state"]]) {

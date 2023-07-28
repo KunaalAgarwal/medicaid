@@ -49,9 +49,8 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
   };
   Plotly.plot(myDiv, refinedData, layout, {showLink: false});
 }
-
-// User enters input for parameter outliers
-user_input = 'false'
+  
+let user_input = 'false';
 choroplethMap(user_input, '00536105556').then(value => console.log(value))
   
 </script>
