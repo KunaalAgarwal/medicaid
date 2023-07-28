@@ -144,7 +144,7 @@ async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
             showlakes: true,
             lakecolor: 'rgb(255,255,255)'
         },
-        width: 1000,
+        width: 800,
         height: 600
     };
     return plot(choroplethData, layout, "choropleth", div);

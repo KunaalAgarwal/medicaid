@@ -1,5 +1,5 @@
 import { plotNadacMed } from "../sdk/plot/nadac.js";
-import { plotDrugUtil, plotDrugUtilBar } from "../sdk/plot/drugUtilization.js";
+import {plotDrugUtil, plotDrugUtilBar, plotDrugUtilMap} from "../sdk/plot/drugUtilization.js";
 
 //setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
@@ -69,11 +69,11 @@ const drugUtilState = {
 const prevButton = document.getElementById("prev")
 const nextButton = document.getElementById("next")
 
-//array to flip through graphs
 const graphGenerators = [
+    () => plotDrugUtilMap("00536105556"),
     () => plotNadacMed(["24385005452"], drugTimeLayout),
     () => plotDrugUtil(["24385005452"], drugUtilTime),
-    () => plotDrugUtilBar(["24385005452"], drugUtilState)
+    () => plotDrugUtilBar("00536105556", drugUtilState)
 ];
 
 const graphDiv = document.getElementById("graph");
