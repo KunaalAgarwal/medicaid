@@ -102,5 +102,5 @@ export{
     getItems,
     postItem,
     clearCache,
-    endpointStore
+    // endpointStore
 }
