@@ -70,38 +70,38 @@ const prevButton = document.getElementById("prev")
 const nextButton = document.getElementById("next")
 
 const graphGenerators = [
-    () => plotDrugUtilMap("00536105556"),
-    () => plotNadacMed(["24385005452"], drugTimeLayout),
-    () => plotDrugUtil(["24385005452"], drugUtilTime),
-    () => plotDrugUtilBar("00536105556", drugUtilState)
+    async () => await plotDrugUtilMap("00536105556"),
+    async () => await plotNadacMed(["24385005452"], drugTimeLayout),
+    async () => await plotDrugUtil(["24385005452"], drugUtilTime),
+    async () => await plotDrugUtilBar("00536105556", drugUtilState)
 ];
 
 const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
 
 async function showCurrentGraph() {
-    graphDiv.innerHTML = ""; // Clear the existing content
+    graphDiv.innerHTML = "";
     const currentGraph = await graphGenerators[currentGraphIndex]();
     graphDiv.appendChild(currentGraph);
 }
 
-function next() {
+async function next() {
     currentGraphIndex++;
     if (currentGraphIndex >= graphGenerators.length) {
         currentGraphIndex = 0; // Reset to the first graph if at the end
     }
-    showCurrentGraph();
+    await showCurrentGraph();
 }
 
-function prev() {
+async function prev() {
     currentGraphIndex--;
     if (currentGraphIndex < 0) {
         currentGraphIndex = graphGenerators.length - 1;
     }
-    showCurrentGraph();
+    await showCurrentGraph();
 }
 
 prevButton.addEventListener('click', prev);
 nextButton.addEventListener('click', next);
 
-showCurrentGraph();
+await showCurrentGraph();
