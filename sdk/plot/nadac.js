@@ -74,22 +74,23 @@ async function plotNadacMed(ndcs, layout, div, axis) {
     return plot(data, layout, "line", div);
 }
 
-async function updatePreImport(){
-    try {
-        if (Date.now() - updateDay <  18000000){// 5 hours in ms
-            return;
-        }
-        endpointStore.removeItem("metastore/schemas/dataset/items");
-        const nadac2023 = await getDatasetByTitleName("NADAC (National Average Drug Acquisition Cost) 2023");
-        const nadac2023id = nadac2023.identifier;
-        endpointStore.removeItem(`metastore/schemas/dataset/items/${nadac2023id}`);
-        endpointStore.removeItem("metastore/schemas/distribution/items");
-        nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
-        nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
-    } catch (error){
-        console.log("Update unsuccessful, clear cache if update still needed." + error);
-    }
-}
+// async function updatePreImport(){
+//     try {
+//         if (Date.now() - updateDay <  18000000){// 5 hours in ms
+//             return;
+//         }
+//         endpointStore.removeItem("metastore/schemas/dataset/items");
+//         const nadac2023 = await getDatasetByTitleName("NADAC (National Average Drug Acquisition Cost) 2023");
+//         const nadac2023id = nadac2023.identifier;
+//         endpointStore.removeItem(`metastore/schemas/dataset/items/${nadac2023id}`);
+//         endpointStore.removeItem("metastore/schemas/distribution/items");
+//         nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
+//         nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+//     } catch (error){
+//         console.log("Update unsuccessful, clear cache if update still needed." + error);
+//     }
+// }
+
 function parseSelectedMeds(meds, map){
     let medObjArray = [];
     meds.forEach(med => {
