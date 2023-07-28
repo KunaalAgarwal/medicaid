@@ -42,7 +42,8 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
       ],
     colorbar: {
       title: 'Total Amount Reimbursed',
-      thickness: 0.2
+      x: 1,
+      y: 0.6
     },
     marker: {
       line:{
@@ -58,7 +59,8 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
       scope: 'usa',
       showlakes: true,
       lakecolor: 'rgb(255,255,255)'
-    }
+    },
+    width: 1000, height: 600
   };
   Plotly.plot(myDiv, choroplethData, layout, {showLink: false});
 }
