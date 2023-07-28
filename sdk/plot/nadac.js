@@ -1,13 +1,13 @@
 import {getDatasetByKeyword, convertDatasetToDistributionId, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
-// import {endpointStore} from "../httpMethods.js";
+import {localforage, endpointStore} from "../httpMethods.js";
 
 //pre import retrieval
 // let updateDay = Date.now();
-// let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-// let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
-let nadacDistributions = [];
+await localforage.ready();
+let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
 
 async function getAllNdcObjs() {
     const ndcs = new Map();
