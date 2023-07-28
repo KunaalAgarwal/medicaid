@@ -4,7 +4,7 @@ import {getAllData, plot} from "./plot.js";
 // import {endpointStore} from "../httpMethods.js";
 
 //pre import retrieval
-let updateDay = Date.now();
+// let updateDay = Date.now();
 let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
 let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
 
@@ -44,7 +44,7 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    await updatePreImport();
+    // await updatePreImport();
     const rawData = await getAllData(ndcs, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
