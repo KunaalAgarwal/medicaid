@@ -80,7 +80,6 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
-
 // Remove outliers from getDrugUtilDataBar
 async function removedOutliers(ndc, yAxis, year) {
     let data = await getDrugUtilDataBar(ndc, yAxis, year);
@@ -112,7 +111,67 @@ async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
         data = await removedOutliers(ndc, yAxis, year);
     }
     return Math.max.apply(Math, data['y']);
+}
 
+async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
+    let data;
+    if(outliers === 'true') {
+    data = await sdk.getDrugUtilDataBar(ndc, yAxis, year)
+    } else {
+    data = await removedOutliers(ndc, yAxis, year);
+    }
+    
+    // Add missing states
+    let refinedData = {x: data['x'], y: data['y']};
+    let allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
+    allStates.forEach(s => {
+    if(!(data['x'].includes(s))) {
+      refinedData['x'].push(s);
+      refinedData['y'].push(-1);
+    }
+    })
+    
+    var choroplethData = [{
+      type: 'choropleth',
+      locationmode: 'USA-states',
+      locations: data['x'],
+      z: data['y'],
+      //text: data['x'],
+      zmin: 0,
+      zmax: getMaximum(outliers),
+      colorscale: [
+        [0, 'rgb(211, 211, 211)'], 
+        [0.01, 'rgb(143, 143, 143)'],
+        [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+        [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+        [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+      ],
+    colorbar: {
+      title: 'Total Amount Reimbursed',
+      x: 1,
+      y: 0.6
+    },
+    marker: {
+      line:{
+        color: 'rgb(255,255,255)',
+        width: 2
+      }
+    }
+    }];
+    
+    var layout = {
+    title: '2022 US Total Amount Reimbursed by State',
+    geo:{
+      scope: 'usa',
+      showlakes: true,
+      lakecolor: 'rgb(255,255,255)'
+    },
+    width: 1000, height: 600
+    };
+
+    const div = DOM.element("div");
+    Plotly.newPlot(div, choroplethData, layout);
+    return div;
 }
 
 export {
