@@ -5,8 +5,9 @@ import {getAllData, plot} from "./plot.js";
 
 //pre import retrieval
 // let updateDay = Date.now();
-let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+// let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+// let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+let nadacDistributions = [];
 
 async function getAllNdcObjs() {
     const ndcs = new Map();
