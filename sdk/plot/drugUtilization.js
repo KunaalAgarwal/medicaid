@@ -96,9 +96,9 @@ async function removedOutliers(data) {
     }
 }
 
-async function plotDrugUtilMap(ndc, outliers = 'true', yAxis, year, div) {
+async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
     let data =  await getDrugUtilDataBar(ndc, yAxis, year);
-    if (outliers === 'true') { data = await removedOutliers(data) }
+    if (outliers) { data = await removedOutliers(data) }
     const allStates = new Set(['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID',
         'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
         'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']);
