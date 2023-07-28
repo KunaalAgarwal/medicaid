@@ -138,7 +138,7 @@ export {
     plotDrugUtilBar,
     plot,
     Plotly,
-    removedOutliers
+    choroplethMap
 }
 
 

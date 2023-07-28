@@ -180,6 +180,7 @@ export {
     getDrugUtilDataBar,
     removedOutliers,
     getMaximum,
+    choroplethMap,
     //plotting
     plotDrugUtil,
     plotDrugUtilBar
