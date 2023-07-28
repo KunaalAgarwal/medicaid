@@ -50,9 +50,8 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
     return plot(data.flat(), layout, "line", div);
 }
 
-
 async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed", year = '2022') {
-    const drugUtil = await getDatasetByTitleName("State Drug Utilization Data " + year);
+    const drugUtil = await getDatasetByTitleName(`State Drug Utilization Data ${year}`);
     const drugUtilId = await convertDatasetToDistributionId(drugUtil.identifier);
     const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtilId}][WHERE ndc = "${ndc}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
@@ -80,7 +79,6 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
-// Remove outliers from getDrugUtilDataBar
 async function removedOutliers(ndc, yAxis, year) {
     let data = await getDrugUtilDataBar(ndc, yAxis, year);
     let refinedData = data['x'].map((o,i) => {return {x: o, y: data['y'][i]}})
@@ -102,8 +100,7 @@ async function removedOutliers(ndc, yAxis, year) {
     return res;
 }
 
-// Get maximum of data with or without outliers
-async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
+async function getMaximum(ndc, yAxis, year, outliers = 'true') {
     let data;
     if(outliers === 'true')  {
         data = await getDrugUtilDataBar(ndc, yAxis, year);
@@ -113,15 +110,13 @@ async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
     return Math.max.apply(Math, data['y']);
 }
 
-async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
+async function plotDrugUtilMap(ndc, yAxis, year, outliers = 'true', div) {
     let data;
     if(outliers === 'true') {
-    data = await getDrugUtilDataBar(ndc, yAxis, year)
+        data = await getDrugUtilDataBar(ndc, yAxis, year)
     } else {
-    data = await removedOutliers(ndc, yAxis, year);
+        data = await removedOutliers(ndc, yAxis, year);
     }
-    
-    // Add missing states
     let refinedData = {x: data['x'], y: data['y']};
     let allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
     allStates.forEach(s => {
@@ -130,15 +125,14 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
       refinedData['y'].push(-1);
     }
     })
-    
-    var choroplethData = [{
+    let choroplethData = [{
       type: 'choropleth',
       locationmode: 'USA-states',
       locations: data['x'],
       z: data['y'],
       //text: data['x'],
       zmin: 0,
-      zmax: getMaximum(outliers),
+      zmax: getMaximum(ndc, outliers),
       colorscale: [
         [0, 'rgb(211, 211, 211)'], 
         [0.001, 'rgb(242,240,247)'],
@@ -159,28 +153,23 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
     }
     }];
     
-    var layout = {
+    let layout = {
     title: '2022 US Total Amount Reimbursed by State',
     geo:{
       scope: 'usa',
       showlakes: true,
       lakecolor: 'rgb(255,255,255)'
     },
-    width: 1000, height: 600
     };
-
-    const div = DOM.element("div");
-    Plotly.newPlot(div, choroplethData, layout);
-    return div;
+    return plot(choroplethData, layout, div);
 }
+
 
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
-    removedOutliers,
-    getMaximum,
-    choroplethMap,
+    plotDrugUtilMap,
     //plotting
     plotDrugUtil,
     plotDrugUtilBar
