@@ -51,10 +51,10 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
 }
 
 
-async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed") {
-    const drugUtil2022 = await getDatasetByTitleName("State Drug Utilization Data 2022");
-    const drugUtil2022Id = await convertDatasetToDistributionId(drugUtil2022.identifier);
-    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtil2022Id}][WHERE ndc = "${ndc}"]`);
+async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed", year = '2022') {
+    const drugUtil = await getDatasetByTitleName("State Drug Utilization Data " + year);
+    const drugUtilId = await convertDatasetToDistributionId(drugUtil.identifier);
+    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtilId}][WHERE ndc = "${ndc}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
     const states = filteredData.reduce((stateTotals, obj) => {
         if (!stateTotals[obj["state"]]) {
@@ -80,10 +80,107 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
+// Remove outliers from getDrugUtilDataBar
+async function removedOutliers(ndc, yAxis, year) {
+    let data = await getDrugUtilDataBar(ndc, yAxis, year);
+    let refinedData = data['x'].map((o,i) => {return {x: o, y: data['y'][i]}})
+    refinedData.sort( function(a, b) {return a.y - b.y;});
+    let yValues = refinedData.map(o => o.y);
+
+    let q1 = yValues[Math.floor((yValues.length / 4))];
+    let q3 = yValues[Math.ceil((yValues.length * (3 / 4)))];
+    let iqr = q3 - q1;
+    let maxValue = q3 + iqr*1.5;
+    let minValue = q1 - iqr*1.5;
+
+    let nonOutlierPos = yValues.map((o,i) => {if((yValues[i] <= maxValue) && (yValues[i] >= minValue)) {return i}});
+    let nonOutliers = refinedData.filter((o,i) => nonOutlierPos.includes(i));
+
+    let res = {};
+    res['x'] = nonOutliers.map(o => o.x);
+    res['y'] = nonOutliers.map(o => o.y);
+    return res;
+}
+
+// Get maximum of data with or without outliers
+async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
+    let data;
+    if(outliers === 'true')  {
+        data = await getDrugUtilDataBar(ndc, yAxis, year);
+    } else {
+        data = await removedOutliers(ndc, yAxis, year);
+    }
+    return Math.max.apply(Math, data['y']);
+}
+
+async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
+    let data;
+    if(outliers === 'true') {
+    data = await getDrugUtilDataBar(ndc, yAxis, year)
+    } else {
+    data = await removedOutliers(ndc, yAxis, year);
+    }
+    
+    // Add missing states
+    let refinedData = {x: data['x'], y: data['y']};
+    let allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
+    allStates.forEach(s => {
+    if(!(data['x'].includes(s))) {
+      refinedData['x'].push(s);
+      refinedData['y'].push(-1);
+    }
+    })
+    
+    var choroplethData = [{
+      type: 'choropleth',
+      locationmode: 'USA-states',
+      locations: data['x'],
+      z: data['y'],
+      //text: data['x'],
+      zmin: 0,
+      zmax: getMaximum(outliers),
+      colorscale: [
+        [0, 'rgb(211, 211, 211)'], 
+        [0.001, 'rgb(242,240,247)'],
+        [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+        [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+        [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+      ],
+    colorbar: {
+      title: 'Total Amount Reimbursed',
+      x: 1,
+      y: 0.6
+    },
+    marker: {
+      line:{
+        color: 'rgb(255,255,255)',
+        width: 2
+      }
+    }
+    }];
+    
+    var layout = {
+    title: '2022 US Total Amount Reimbursed by State',
+    geo:{
+      scope: 'usa',
+      showlakes: true,
+      lakecolor: 'rgb(255,255,255)'
+    },
+    width: 1000, height: 600
+    };
+
+    const div = DOM.element("div");
+    Plotly.newPlot(div, choroplethData, layout);
+    return div;
+}
+
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
+    removedOutliers,
+    getMaximum,
+    choroplethMap,
     //plotting
     plotDrugUtil,
     plotDrugUtilBar
