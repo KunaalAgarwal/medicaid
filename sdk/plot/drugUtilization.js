@@ -141,6 +141,7 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
       zmax: getMaximum(outliers),
       colorscale: [
         [0, 'rgb(211, 211, 211)'], 
+        [0.001, 'rgb(242,240,247)'],
         [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
         [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
         [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
