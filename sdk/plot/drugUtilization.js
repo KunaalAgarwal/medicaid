@@ -79,90 +79,77 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
-async function removedOutliers(ndc, yAxis, year) {
-    let data = await getDrugUtilDataBar(ndc, yAxis, year);
-    let refinedData = data['x'].map((o,i) => {return {x: o, y: data['y'][i]}})
-    refinedData.sort( function(a, b) {return a.y - b.y;});
-    let yValues = refinedData.map(o => o.y);
+async function removedOutliers(data) {
+    const yValues = data.y.slice();
+    yValues.sort((a, b) => a - b);
 
-    let q1 = yValues[Math.floor((yValues.length / 4))];
-    let q3 = yValues[Math.ceil((yValues.length * (3 / 4)))];
-    let iqr = q3 - q1;
-    let maxValue = q3 + iqr*1.5;
-    let minValue = q1 - iqr*1.5;
+    // Calculate the quartiles and IQR
+    const q1 = yValues[Math.floor(yValues.length * 0.25)];
+    const q3 = yValues[Math.ceil(yValues.length * 0.75)];
+    const iqr = q3 - q1;
+    const maxValue = q3 + iqr * 1.5;
+    const minValue = q1 - iqr * 1.5;
 
-    let nonOutlierPos = yValues.map((o,i) => {if((yValues[i] <= maxValue) && (yValues[i] >= minValue)) {return i}});
-    let nonOutliers = refinedData.filter((o,i) => nonOutlierPos.includes(i));
-
-    let res = {};
-    res['x'] = nonOutliers.map(o => o.x);
-    res['y'] = nonOutliers.map(o => o.y);
-    return res;
+    return {
+        x: data.x.filter((_, i) => data.y[i] >= minValue && data.y[i] <= maxValue),
+        y: data.y.filter((y) => y >= minValue && y <= maxValue)
+    }
 }
 
-async function getMaximum(ndc, yAxis, year, outliers = 'true') {
-    let data;
-    if(outliers === 'true')  {
-        data = await getDrugUtilDataBar(ndc, yAxis, year);
-    } else {
-        data = await removedOutliers(ndc, yAxis, year);
-    }
-    return Math.max.apply(Math, data['y']);
-}
+async function plotDrugUtilMap(ndc, outliers = 'true', yAxis, year, div) {
+    let data =  await getDrugUtilDataBar(ndc, yAxis, year);
+    if (outliers === 'true') { data = await removedOutliers(data) }
+    const allStates = new Set(['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID',
+        'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
+        'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']);
 
-async function plotDrugUtilMap(ndc, yAxis, year, outliers = 'true', div) {
-    let data;
-    if(outliers === 'true') {
-        data = await getDrugUtilDataBar(ndc, yAxis, year)
-    } else {
-        data = await removedOutliers(ndc, yAxis, year);
+    for (const state of allStates) {
+        if (!data.x.includes(state)) {
+            data.x.push(state);
+            data.y.push(-1);
+        }
     }
-    let refinedData = {x: data['x'], y: data['y']};
-    let allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
-    allStates.forEach(s => {
-    if(!(data['x'].includes(s))) {
-      refinedData['x'].push(s);
-      refinedData['y'].push(-1);
-    }
-    })
+
     let choroplethData = [{
-      type: 'choropleth',
-      locationmode: 'USA-states',
-      locations: data['x'],
-      z: data['y'],
-      //text: data['x'],
-      zmin: 0,
-      zmax: getMaximum(ndc, outliers),
-      colorscale: [
-        [0, 'rgb(211, 211, 211)'], 
-        [0.001, 'rgb(242,240,247)'],
-        [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
-        [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
-        [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
-      ],
-    colorbar: {
-      title: 'Total Amount Reimbursed',
-      x: 1,
-      y: 0.6
-    },
-    marker: {
-      line:{
-        color: 'rgb(255,255,255)',
-        width: 2
-      }
-    }
+        type: 'choropleth',
+        locationmode: 'USA-states',
+        locations: data.x,
+        z: data.y,
+        zmin: 0,
+        zmax: Math.max(...data.y),
+        colorscale: [
+            [0, 'rgb(211, 211, 211)'],
+            [0.001, 'rgb(242,240,247)'],
+            [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+            [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+            [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+        ],
+        colorbar: {
+            title: 'Total Amount Reimbursed',
+            x: 1,
+            y: 0.6
+        },
+        marker: {
+            line: {
+                color: 'rgb(255,255,255)',
+                width: 2
+            }
+        }
     }];
-    
+
     let layout = {
-    title: '2022 US Total Amount Reimbursed by State',
-    geo:{
-      scope: 'usa',
-      showlakes: true,
-      lakecolor: 'rgb(255,255,255)'
-    },
+        title: '2022 US Total Amount Reimbursed by State',
+        geo: {
+            scope: 'usa',
+            showlakes: true,
+            lakecolor: 'rgb(255,255,255)'
+        },
+        width: 1000,
+        height: 600
     };
-    return plot(choroplethData, layout, div);
+    return plot(choroplethData, layout, "choropleth", div);
 }
+
 
 
 export {
