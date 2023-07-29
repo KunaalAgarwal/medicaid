@@ -1,5 +1,7 @@
 import { plotNadacMed } from "../sdk/plot/nadac.js";
 import {plotDrugUtil, plotDrugUtilBar, plotDrugUtilMap} from "../sdk/plot/drugUtilization.js";
+import {localforage} from "../sdk/httpMethods.js"
+import {getSchemas} from "../sdk/metastore.js";
 
 //setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
@@ -72,31 +74,35 @@ const nextButton = document.getElementById("next")
 const graphDivs = [];
 const graphDiv = document.getElementById("graph");
 async function generateGraphs() {
-    try {
-        graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
-        graphDivs.push(await plotDrugUtilMap("00536105556"));
-        graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
-        graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
-        graphDivs.forEach(graph => {
-            graphDiv.appendChild(graph);
-        })
-        if (graphDivs.includes(undefined) || graphDivs.length === 0){
+    localforage.ready().then(async() => {
+            await getSchemas();
+            console.log("Local Forage Ready");
+        }).catch((error) => {
             location.reload();
-        }
-    } catch (error) {
+            console.log("An error occurred in local forage" + error)
+    });
+    graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
+    graphDivs.push(await plotDrugUtilMap("00536105556"));
+    graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
+    graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
+    graphDivs.forEach(graph => {
+        graphDiv.appendChild(graph);
+    })
+    if (graphDivs.includes(undefined) || graphDivs.length === 0){
         location.reload();
     }
 }
 
 await generateGraphs();
+
 let currentGraphIndex = 0;
 function showCurrentGraph() {
     // Hide all graph divs
     graphDivs.forEach((div, index) => {
         if (index === currentGraphIndex) {
-            div.style.display = "block"; // Show the current graph div
+            div.style.display = "block";
         } else {
-            div.style.display = "none"; // Hide other graph divs
+            div.style.display = "none";
         }
     });
 }

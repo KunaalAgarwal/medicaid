@@ -1,6 +1,16 @@
 import localforage from 'https://cdn.skypack.dev/localforage';
 let updateCount = 0;
 const dbName = "localforage"
+
+localforage.config({
+    driver: [
+        localforage.INDEXEDDB,
+        localforage.LOCALSTORAGE,
+        localforage.WEBSQL
+    ],
+    name: 'localforage'
+});
+
 let endpointStore = localforage.createInstance({
     name: dbName,
     storeName: "endpointStore"
