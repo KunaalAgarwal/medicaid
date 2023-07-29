@@ -102,5 +102,6 @@ export{
     getItems,
     postItem,
     clearCache,
+    localforage,
     endpointStore
 }

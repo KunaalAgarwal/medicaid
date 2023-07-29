@@ -73,13 +73,16 @@ const graphDivs = [];
 const graphDiv = document.getElementById("graph");
 async function generateGraphs() {
     try {
-        graphDivs.push(await plotDrugUtilMap("00536105556"));
         graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
+        graphDivs.push(await plotDrugUtilMap("00536105556"));
         graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
         graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);
         })
+        if (graphDivs.includes(undefined) || graphDivs.length === 0){
+            location.reload();
+        }
     } catch (error) {
         location.reload();
     }

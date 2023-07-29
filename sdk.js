@@ -42,7 +42,8 @@ import {
 
 import {
     getItems,
-    clearCache
+    clearCache,
+    localforage
 } from "./sdk/httpMethods.js"
 
 import {
@@ -80,6 +81,7 @@ import {
 
 
 export {
+    localforage,
     getItems,
     clearCache,
     //metastore
