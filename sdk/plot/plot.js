@@ -13,11 +13,8 @@ function plot(data, layout, type = "line", divElement = null){
     const adjustedData = Array.isArray(data) ? data : [data];
     const div = divElement || document.createElement('div');
     for (let trace of adjustedData){trace.type = type}
-    if (plotDataCheck(data)){
-        Plotly.newPlot(div, adjustedData, layout);
-        return div;
-    }
-    throw new Error("The data inputted was invalid and plots could not be created.");
+    Plotly.newPlot(div, adjustedData, layout);
+    return div;
 }
 
 async function getAllData(items, filter, distributions, dataVariables){
@@ -41,10 +38,6 @@ async function getAllData(items, filter, distributions, dataVariables){
         throw new Error("All the data could not be retrieved.")
     }
     return result;
-}
-
-function plotDataCheck(data) {
-    return !(!Array.isArray(data) || data.some(trace => typeof trace !== "object" || !("x" in trace) || !("y" in trace)));
 }
 
 export {

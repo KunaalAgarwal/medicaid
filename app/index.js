@@ -78,12 +78,8 @@ async function generateGraphs() {
         localforage.ready().then(async() => {
             await getSchemas();
             console.log("Local Forage Ready");
-        }).catch((error) => {
-            location.reload();
-            console.log("An error occurred in local forage" + error)
-            generateGraphs();
-        });
-        // graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
+        })
+        graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
         graphDivs.push(await plotDrugUtilMap("00536105556"));
         graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
         graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
@@ -91,6 +87,7 @@ async function generateGraphs() {
             graphDiv.appendChild(graph);
         })
         if (graphDivs.includes(undefined) || graphDivs.length === 0){
+            console.log("graph divs problem");
             location.reload();
         }
     } catch (error){
@@ -100,10 +97,7 @@ async function generateGraphs() {
 
 await generateGraphs();
 console.log(graphDivs);
-console.log(typeof graphDivs[0])
-if (graphDivs.includes(undefined) || graphDivs.length === 0){
-    location.reload();
-}
+
 let currentGraphIndex = 0;
 function showCurrentGraph() {
     // Hide all graph divs
