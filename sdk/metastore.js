@@ -38,13 +38,13 @@ function parseDownloadLink(dataset){
     return (dataset["distribution"][0])["downloadURL"];
 }
 async function filterSchemaItems(schemaName, filterFn){
-    try{
-        const items = await getSchemaItems(schemaName);
-        const filteredItems = items.filter(filterFn);
-        return filteredItems.length === 1 ? filteredItems[0] : filteredItems;
-    }catch (error) {
-        console.log("The datasets could not be filtered.")
+    const items = await getSchemaItems(schemaName);
+    const filteredItems = items.filter(filterFn);
+    const result = filteredItems.length === 1 ? filteredItems[0] : filteredItems;
+    if (result === undefined){
+        throw new Error("The datasets could not be filtered.")
     }
+    return result;
 }
 async function getDatasetByTitleName(datasetTitle) {
     return await filterSchemaItems("dataset", item => item.title.toUpperCase() === datasetTitle.toUpperCase());
@@ -84,27 +84,27 @@ async function getDistributionById(distributionId){
 }
 
 async function convertDatasetToDistributionId(datasetId) {
-    try{
-        let dataset = await getDatasetById(datasetId);
-        let downloadLink = parseDownloadLink(dataset);
-        let distribution = await getDistributionByDownloadUrl(downloadLink);
-        let adjustedDistribution = Array.isArray(distribution) ? distribution : [distribution];
-        return (adjustedDistribution)[0].identifier;
-    } catch (error){
-        console.log("Could not convert the id.");
+    let dataset = await getDatasetById(datasetId);
+    let downloadLink = parseDownloadLink(dataset);
+    let distribution = await getDistributionByDownloadUrl(downloadLink);
+    let adjustedDistribution = Array.isArray(distribution) ? distribution : [distribution];
+    const result = (adjustedDistribution)[0].identifier;
+    if (result === undefined){
+        throw new Error("The dataset Id could not be converted.")
     }
+    return result;
 }
 
 async function convertDistributionToDatasetId(distributionId){
-    try{
-        let distribution = await getDistributionById(distributionId);
-        let downloadLink = distribution.data["downloadURL"]
-        let dataset = await getDatasetByDownloadUrl(downloadLink);
-        let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
-        return (adjustedDataset)[0].identifier
-    } catch (error){
-        console.log("Could not convert the id.")
+    let distribution = await getDistributionById(distributionId);
+    let downloadLink = distribution.data["downloadURL"]
+    let dataset = await getDatasetByDownloadUrl(downloadLink);
+    let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
+    const result = (adjustedDataset)[0].identifier
+    if (result === undefined){
+        throw new Error("The distribution Id could not be converted");
     }
+    return result;
 }
 
 export {

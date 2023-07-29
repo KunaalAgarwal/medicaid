@@ -1,7 +1,6 @@
 import localforage from 'https://cdn.skypack.dev/localforage';
 let updateCount = 0;
 const dbName = "localforage"
-
 localforage.config({
     driver: [
         localforage.INDEXEDDB,
@@ -21,63 +20,55 @@ let timestore = localforage.createInstance({
 })
 
 async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
-    try {
-        updateCache();
-        const timeStamp = Date.now();
-        const cachedData = await endpointStore.getItem(endpoint);
-        if (cachedData !== null) {
-            timestore.setItem(endpoint, timeStamp);
-            return cachedData;
-        }
-        const response = await fetch(`${baseUrl}${endpoint}`);
-        if (!response.ok){
-            throw new Error("An error occurred in the API get Request");
-        }
-        let responseData;
-        if (downloadFlag) {
-            responseData = await response.blob();
-        } else {
-            responseData = await response.json();
-        }
-        endpointStore.setItem(endpoint, responseData);
+    updateCache();
+    const timeStamp = Date.now();
+    const cachedData = await endpointStore.getItem(endpoint);
+    if (cachedData !== null) {
         timestore.setItem(endpoint, timeStamp);
-        return responseData;
-    } catch (error) {
-        console.log(error);
+        return cachedData;
+        }
+    const response = await fetch(`${baseUrl}${endpoint}`);
+    if (!response.ok){
+        throw new Error("An error occurred in the API get Request");
     }
+    let responseData;
+    if (downloadFlag) {
+        responseData = await response.blob();
+    } else {
+        responseData = await response.json();
+    }
+    endpointStore.setItem(endpoint, responseData);
+    timestore.setItem(endpoint, timeStamp);
+    return responseData;
 }
 
 
 async function postItem(endpoint, payload, headerContent, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
-    try {
-        const options = {
-            method: 'POST',
-            headers: headerContent,
-            body: JSON.stringify(payload)
-        };
-        updateCache();
-        const timeStamp = Date.now();
-        const cachedData = await endpointStore.getItem(options.body);
-        if (cachedData !== null) {
-            timestore.setItem(options.body, timeStamp);
-            return cachedData;
-        }
-        const response = await fetch(`${baseUrl}${endpoint}`, options);
-        if (!response.ok){
-            throw new Error("An error occurred in the API post request.")
-        }
-        let responseData;
-        if (downloadFlag) {
-            responseData = await response.blob();
-        } else {
-            responseData = await response.json();
-        }
-        endpointStore.setItem(options.body, responseData);
+    const options = {
+        method: 'POST',
+        headers: headerContent,
+        body: JSON.stringify(payload)
+    };
+    updateCache();
+    const timeStamp = Date.now();
+    const cachedData = await endpointStore.getItem(options.body);
+    if (cachedData !== null) {
         timestore.setItem(options.body, timeStamp);
-        return responseData;
-    } catch (error) {
-        console.log(error);
+        return cachedData;
     }
+    const response = await fetch(`${baseUrl}${endpoint}`, options);
+    if (!response.ok){
+        throw new Error("An error occurred in the API post request.")
+    }
+    let responseData;
+    if (downloadFlag) {
+        responseData = await response.blob();
+    } else {
+        responseData = await response.json();
+    }
+    endpointStore.setItem(options.body, responseData);
+    timestore.setItem(options.body, timeStamp);
+    return responseData;
 }
 
 function updateCache() {

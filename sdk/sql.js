@@ -2,18 +2,20 @@ import {getItems} from "./httpMethods.js";
 
 async function getDatastoreQuerySql(sqlQuery) {
     //handles all sql query GET requests
-    try {
-        let limit= parseLimit(sqlQuery)
-        if (!limit){
-            return await sqlNoLimit(sqlQuery);
-        }
-        if (limit <= 10000){
-            return await getItems(`datastore/sql?query=${sqlQuery}&show_db_columns=false`);
-        }
-        return await sqlHighLimit(sqlQuery);
-    } catch (Error) {
-        console.log("The request could not be fulfilled");
+    let result;
+    let limit= parseLimit(sqlQuery)
+    if (!limit){
+        result = await sqlNoLimit(sqlQuery);
     }
+    else if (limit <= 10000){
+        result = await getItems(`datastore/sql?query=${sqlQuery}&show_db_columns=false`);
+    } else {
+        result = await sqlHighLimit(sqlQuery);
+    }
+    if (result === undefined){
+        throw new Error("The SQL query could not be executed.")
+    }
+    return result;
 }
 
 function parseOffset(query) {

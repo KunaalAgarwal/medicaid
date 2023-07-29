@@ -107,25 +107,17 @@ async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, o
 }
 
 async function getDatastoreQueryDistributionId(distributionId, limit = null, offset = 0){
-    try {
-        if (limit !== null) {
-            return await datastoreQueryWithLimit(distributionId, limit, offset)
-        }
-        return await datastoreQueryNoLimit(distributionId, offset);
-    } catch (error) {
-        console.log("The request could not be fulfilled.", error);
+    if (limit !== null) {
+        return await datastoreQueryWithLimit(distributionId, limit, offset)
     }
+    return await datastoreQueryNoLimit(distributionId, offset);
 }
 
 async function getDatastoreQueryDatasetId(datasetId, limit = null, offset = 0) {
-    try {
-        if (limit !== null) {
-            return await datastoreQueryWithLimit(`${datasetId}/0`, limit, offset)
-        }
-        return await datastoreQueryNoLimit(`${datasetId}/0`, offset);
-    } catch (error) {
-        console.log("The request could not be fulfilled.", error);
+    if (limit !== null) {
+        return await datastoreQueryWithLimit(`${datasetId}/0`, limit, offset)
     }
+    return await datastoreQueryNoLimit(`${datasetId}/0`, offset);
 }
 
 async function datastoreQueryWithLimit(schemaId, limit, offset) {
@@ -141,7 +133,11 @@ async function datastoreQueryWithLimit(schemaId, limit, offset) {
         limit -= currentLimit;
     }
     const responses = await Promise.all(fetchPromises);
-    return responses.flatMap(response => response["results"]);
+    const result = responses.flatMap(response => response["results"]);
+    if (result === undefined){
+        throw new Error("The datastore could not be queried.")
+    }
+    return result;
 }
 
 async function datastoreQueryNoLimit(schemaId, offset){
