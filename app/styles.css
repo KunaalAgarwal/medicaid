@@ -112,14 +112,14 @@ main {
     text-align: center;
 }
 
-.core-header {
+h2 {
     font-size: 36px;
     margin-bottom: 20px;
     color: #444;
     font-weight: 400;
 }
 
-.core-text {
+p {
     margin: 0 auto 30px;
     max-width: 800px;
     line-height: 1.6;
@@ -241,30 +241,34 @@ p {
     cursor: pointer;
 }
 
-pre {
-    margin: 0;
+.installation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 100px;
+    text-align: center;
+}
+
+img {
+    width: 50%;
+}
+
+
+code {
     background-color: #f5f5f5;
-    padding: 10px;
-    font-size: 16px;
-    font-family: Consolas, monospace;
-    overflow-x: auto;
+    color: inherit;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: 500;
     border-radius: 5px;
 }
 
-code {
-    font-family: Consolas, monospace;
-}
-
-/* Footer Styles */
 footer {
     background-color: #706e6e;
     padding: 10px;
     text-align: center;
     color: #e3e2e2;
 }
-
-/* Responsive Styles */
-
 
 /* Responsive Styles */
 @media (max-width: 1200px) {
