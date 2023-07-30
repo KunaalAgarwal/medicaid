@@ -104,7 +104,7 @@ h1 {
 }
 
 main {
-    padding: 10px;
+    padding-top: 10px;
 }
 
 .core-capabilities {
@@ -253,7 +253,6 @@ img {
     width: 50%;
 }
 
-
 code {
     background-color: #f5f5f5;
     color: inherit;
@@ -261,6 +260,72 @@ code {
     font-size: 18px;
     font-weight: 500;
     border-radius: 5px;
+}
+
+.contact {
+    padding: 50px 100px;
+    text-align: center;
+    background-color: #f5f5f5;
+    margin: 0 auto;
+}
+
+.contact-header {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #444;
+    font-weight: 400;
+}
+
+.contact p {
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 30px;
+}
+
+.contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+button[type="submit"] {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    background-color: #4c6ef5;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #344aa1;
 }
 
 footer {
@@ -319,4 +384,38 @@ footer {
     .prev, .next {
         font-size: 14px;
     }
+}
+
+@media (max-width: 768px) {
+    .contact {
+        padding: 30px 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact {
+        padding: 20px;
+    }
+
+    .contact-form {
+        max-width: 100%;
+    }
+}
+
+/*new queries*/
+
+@media (max-width: 1200px) {
+    /* Update styles for smaller screens (tablets, landscape phones, etc.) */
+
+    /* Example: Reduce the hero title font size for smaller screens */
+    .hero-title {
+        font-size: 42px;
+    }
+
+    /* Example: Reduce the padding in the hero headings */
+    .hero-headings {
+        padding: 20vh 50px;
+    }
+
+    /* Add any other responsive styles as needed */
 }
