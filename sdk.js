@@ -70,7 +70,8 @@ import {
     plotDrugUtilBar,
     getDrugUtilDataBar,
     removedOutliers,
-    getMaximum
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX
 } from "./sdk/plot/drugUtilization.js"
 
 import {
@@ -138,7 +139,9 @@ export {
     plotDrugUtilBar,
     plot,
     Plotly,
-    choroplethMap
+    choroplethMap,
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX
 }
 
 

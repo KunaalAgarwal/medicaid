@@ -102,17 +102,6 @@ async function removedOutliers(ndc, yAxis, year) {
     return res;
 }
 
-// Get maximum of data with or without outliers
-async function getMaximum(outliers = 'true', ndc = '00536105556', yAxis, year) {
-    let data;
-    if(outliers === 'true')  {
-        data = await getDrugUtilDataBar(ndc, yAxis, year);
-    } else {
-        data = await removedOutliers(ndc, yAxis, year);
-    }
-    return Math.max.apply(Math, data['y']);
-}
-
 async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
     let data;
     if(outliers === 'true') {
@@ -138,7 +127,7 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
       z: data['y'],
       //text: data['x'],
       zmin: 0,
-      zmax: getMaximum(outliers),
+      zmax: Math.max.apply(Math, data['y']),
       colorscale: [
         [0, 'rgb(211, 211, 211)'], 
         [0.001, 'rgb(242,240,247)'],
@@ -174,14 +163,45 @@ async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year
     return div;
 }
 
+async function getDrugUtilDataXX(ndc, yAxis) {
+    let range = 2022-2014+1;
+    let allYears = [...Array(range).keys()].map(o => 2014+o);
+    let res;
+    res = Promise.all(allYears.map(async (year,i) => {
+        let data = await sdk.getDrugUtilDataBar(ndc, yAxis, year);
+        return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
+    })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
+    return res
+}
+
+async function plotDrugUtilDataXX(ndc, yAxis) { //
+    let res = {};
+    let data = await getDrugUtilDataXX(ndc, yAxis);
+    res['x'] = data.map(o => o.year);
+    res['y'] = data.map(o => o.xx)
+    let layout = ({
+      title: {
+          text: "Total Amount Reimbursed for Aggregated States (XX)" ,
+      },
+      yaxis: {
+          title: {
+              text: 'Total Amount Reimbursed',
+          }
+      },
+      width: 1150
+    })
+    return sdk.plot([res], layout);
+}
+
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
     removedOutliers,
-    getMaximum,
     choroplethMap,
+    getDrugUtilDataXX,
     //plotting
     plotDrugUtil,
-    plotDrugUtilBar
+    plotDrugUtilBar,
+    plotDrugUtilDataXX
 }
