@@ -6,10 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="app/styles.css">
+    <script type="module" src="https://cdn.skypack.dev/localforage"></script>
+    <script type="module" src="app/index.js"></script>
 </head>
 <body>
     <header>
-        <h1 class="nav-title">RxTracker</h1>
+        <h1>RxTracker</h1>
         <div class="navContainer">
             <a href ='https://github.com/KunaalAgarwal/medicaid' class="navElement">Github</a>
             <a href ='https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk' class="navElement">Documentation</a>
@@ -38,6 +40,11 @@
                 both the state and national levels, drug pricing over time, and even contains
                 large repositories of social metrics and healthcare quality data.
             </p>
+            <div class="graph-slideshow-container">
+                <a class="prev" id="prev" aria-label="Previous">&#10094; Back</a>
+                <div id="graph" class="graph"></div>
+                <a class="next" id="next" aria-label="Next">Next &#10095;</a>
+            </div>
         </section>
         <section class="apis">
             <div class="apis-container">
@@ -45,7 +52,7 @@
                     <div class="api-logo fda-logo"></div>
                     <div class="api-text">
                         <a href="https://open.fda.gov/apis/drug/ndc/" class="api-header">FDA APIs</a>
-                        <p>RxTracker allows developers to programmatically access the FDA API to gain insight
+                        <p>RxTracker allows developers to programmatically utilize the FDA API to gain insight
                             on drug efficacy, history, and purpose.</p>
                     </div>
                 </div>
@@ -63,7 +70,7 @@
                     <div class="api-logo rxNorm-logo"></div>
                     <div class="api-text">
                         <a href="https://lhncbc.nlm.nih.gov/RxNav/APIs/RxNormAPIs.html" class="api-header">RxNorm APIs</a>
-                        <p>Instead of foraging through NDC or IDC codes RxTracker permits users
+                        <p>Instead of foraging through NDC or ICD codes RxTracker permits users
                             to search for specific drugs based on singular ingredients, disease classes, or generic
                             names.
                         </p>
@@ -71,50 +78,37 @@
                 </div>
             </div>
         </section>
-
-
-<!--        <section id="installation">-->
-<!--            <div class="Documentation">-->
-<!--                <a href="https://data.medicaid.gov/api" class="navElement">Medicaid API Documentation</a>-->
-<!--            </div>-->
-<!--            <h2>Installation</h2>-->
-<!--            <pre><code></code>MedicaidSDK = await import ("https://kunaalagarwal.github.io/medicaid/sdk.js");</pre>-->
-<!--            <p>Include the SDK in your project by installing it via ES6 imports.</p>-->
-<!--            <div class="observable-button">-->
-<!--                <a href="https://observablehq.com/@medicaidsdk/overview" class="navElement">Try it Yourself</a>-->
-<!--            </div>-->
-<!--        </section>-->
-
-
-<!--        <section id="examples">-->
-<!--            <h2>Examples</h2>-->
-<!--            <p>-->
-<!--                Explore the examples directory to find sample applications and code snippets demonstrating how to integrate the Medicaid SDK into different scenarios. These examples serve as a starting point for your development process and showcase various use cases.-->
-<!--            </p>-->
-<!--            <p>Here's an example usage:</p>-->
-<!--            <pre><code>-->
-<!--    // Get the filtered data from distribution-->
-<!--    sdk.getDatastoreQueryDistributionId('11196f15-1a77-5b80-97f3-c46c0ce19894', 10000);-->
-
-<!--    // Get all the data from a distribution or dataset-->
-<!--    sdk.getAllDataFromDistribution('11196f15-1a77-5b80-97f3-c46c0ce19894')-->
-
-<!--    // Execute a SQL query using the Medicaid SDK-->
-<!--    let sql = '[SELECT * FROM 11196f15-1a77-5b80-97f3-c46c0ce19894][WHERE state = "Iowa"]';-->
-<!--    sdk.getDatastoreQuerySql(sql);-->
-<!--    </code></pre>-->
-<!--        </section>-->
-
-<!--        <section id="support">-->
-<!--            <h2>Support</h2>-->
-<!--            <p>-->
-<!--                If you encounter any issues or have questions related to the Medicaid SDK, please reach out to our support team at <a href="mailto:kunaal.agarwal1@gmail.com">kunaal.agarwal1@gmail.com</a>. We are here to assist you and ensure a smooth integration process.-->
-<!--            </p>-->
-<!--        </section>-->
+        <section class="installation">
+            <h2 class="installation-header">Installation</h2>
+            <p>Installing RxTracker can be performed with a single line of code
+            following the ES6 conventions. Run the following command in your browser
+            or IDE of choice to import the module. To learn more about the specific
+                functions the module contains visit the <a href="https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk">documentation.</a></p>
+            <img src="https://wd.imgix.net/image/NJdAV9UgKuN8AhoaPBquL7giZQo1/bkh79zEFaByczisr3lD5.png?auto=format" alt="">
+            <code>MedicaidSDK = await import ("https://kunaalagarwal.github.io/medicaid/sdk.js");</code>
+        </section>
+        <section class="contact">
+            <h2 class="contact-header">Reach Out</h2>
+            <p>If you have any questions or inquiries, please feel free to get in touch with us using the form below.</p>
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </section>
     </main>
     <footer>
         <p>&copy; 2023 NCI-DCEG. All rights reserved.</p>
-        <p>Contact: Kunaal Agarwal (kunaal.agarwal@nih.gov)</p>
     </footer>
 </body>
 </html>

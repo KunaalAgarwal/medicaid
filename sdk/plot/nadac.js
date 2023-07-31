@@ -3,12 +3,12 @@ import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
 
-//pre import retrieval
 let updateDay = Date.now();
-let nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}))
+let nadacDatasets;
+let nadacDistributions;
 
 async function getAllNdcObjs() {
+    await updatePreImport();
     const ndcs = new Map();
     for (let i = 0; i < nadacDistributions.length; i += 4){
         if (i >= nadacDistributions.length){
@@ -76,7 +76,11 @@ async function plotNadacMed(ndcs, layout, div, axis) {
 
 async function updatePreImport(){
     try {
-        if (Date.now() - updateDay <  18000000){// 5 hours in ms
+        if (nadacDatasets === undefined || nadacDistributions === undefined){
+            nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
+            nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+        }
+        if (Date.now() - updateDay <  18000000){
             return;
         }
         endpointStore.removeItem("metastore/schemas/dataset/items");
@@ -90,6 +94,7 @@ async function updatePreImport(){
         console.log("Update unsuccessful, clear cache if update still needed." + error);
     }
 }
+
 function parseSelectedMeds(meds, map){
     let medObjArray = [];
     meds.forEach(med => {
