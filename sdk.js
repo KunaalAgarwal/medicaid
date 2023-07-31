@@ -79,6 +79,10 @@ import {
     Plotly
 } from "./sdk/plot/plot.js"
 
+import {
+    getAllDiseases,
+    diseaseToDrugs
+} from "./sdk/rxNorm.js"
 
 export {
     localforage,
@@ -139,5 +143,8 @@ export {
     plotDrugUtilBar,
     plot,
     Plotly,
-    plotDrugUtilMap
+    plotDrugUtilMap,
+    //rxNorm
+    getAllDiseases,
+    diseaseToDrugs
 }

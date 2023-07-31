@@ -59,6 +59,20 @@ h1 {
     padding: 34vh 100px;
     max-width: 800px;
     margin: 0 auto;
+    opacity: 1;
+    transform: translateY(20px);
+    transition: opacity 1s, transform 1s;
+}
+
+.hero-headings {
+    opacity: 0;
+    animation: fadeInAnimation 2s forwards;
+}
+
+@keyframes fadeInAnimation {
+    to {
+        opacity: 1;
+    }
 }
 
 .hero-title {

@@ -130,3 +130,4 @@ prevButton.addEventListener("click", prev);
 nextButton.addEventListener("click", next);
 
 showCurrentGraph();
+
