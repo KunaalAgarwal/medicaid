@@ -148,3 +148,4 @@ export {
     getAllDiseases,
     diseaseToDrugs
 }
+
