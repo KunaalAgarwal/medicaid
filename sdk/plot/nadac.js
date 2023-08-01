@@ -80,7 +80,7 @@ async function updatePreImport(){
             nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
             nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
         }
-        if (Date.now() - updateDay <  18000000){
+        if (Date.now() - updateDay <  3600000){ // updates every hour
             return;
         }
         endpointStore.removeItem("metastore/schemas/dataset/items");
