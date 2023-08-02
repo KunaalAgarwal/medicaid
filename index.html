@@ -11,30 +11,30 @@
 </head>
 <body>
     <header>
-        <h1>RxTracker</h1>
+        <h1>Medicaid.js</h1>
         <div class="navContainer">
-            <a href ='https://github.com/KunaalAgarwal/medicaid' class="navElement">Github</a>
-            <a href ='https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk' class="navElement">Documentation</a>
-            <a href ='https://observablehq.com/@medicaidsdk/overview' class="navElement">Observable Notebook</a>
+            <a href ='https://github.com/KunaalAgarwal/medicaid' target="_blank" class="navElement">Github</a>
+            <a href ='https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk' target="_blank" class="navElement">Documentation</a>
+            <a href ='https://observablehq.com/@medicaidsdk/overview' target="_blank" class="navElement">Observable Notebook</a>
         </div>
     </header>
     <div class="hero-image">
         <div class="hero-headings">
-            <h1 class="hero-title">Welcome to RxTracker</h1>
+            <h1 class="hero-title">Welcome to Medicaid.js</h1>
             <p>
-                RxTracker leverages the MedicaidSDK to interact with the vast amount
+                Medicaid.js is a software development kit (SDK) that interacts with the vast amount
                 of data contained within the Medicaid, FDA, and rxNorm datastores.
                 The SDK is a lightweight, portable, and easy-to-use JavaScript library
                 requiring no downloads or installations.
             </p>
-            <a href="https://observablehq.com/@medicaidsdk/medicaidsdk" class="hero-button">Get Started</a>
+            <a href="#core-capabilities" class="hero-button" id="hero-button">Get Started</a> <!-- Updated href with the ID of the Core Capabilities section -->
         </div>
     </div>
     <main>
-        <section class="core-capabilities">
-            <h2 class="core-header">Core Capabilities</h2>
+        <section class="core-capabilities" id="core-capabilities">
+            <h2 class="core-header" id="core_">Core Capabilities</h2>
             <p class="core-text">
-                Performing realtime drug analytics is easy with RxTracker.
+                Performing realtime drug analytics is easy with Medicaid.js.
                 Simply select diseases or drugs of interest in order to begin
                 the visualization process. The SDK contains data regarding drug utilization at
                 both the state and national levels, drug pricing over time, and even contains
@@ -52,16 +52,16 @@
                 <div class="api-entity">
                     <div class="api-logo fda-logo"></div>
                     <div class="api-text">
-                        <a href="https://open.fda.gov/apis/drug/ndc/" class="api-header">FDA APIs</a>
-                        <p>RxTracker allows developers to programmatically utilize the FDA API to gain insight
+                        <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" class="api-header">FDA APIs</a>
+                        <p>Medicaid.js allows developers to programmatically utilize the FDA API to gain insight
                             on drug efficacy, history, and purpose.</p>
                     </div>
                 </div>
                 <div class="api-entity">
                     <div class="api-logo medicaid-logo"></div>
                     <div class="api-text">
-                        <a href="https://data.medicaid.gov/api" class="api-header">Medicaid APIs</a>
-                        <p>RxTracker allows for seamless access to the largest Medicaid Datasets
+                        <a href="https://data.medicaid.gov/api" target="_blank" class="api-header">Medicaid APIs</a>
+                        <p>Medicaid.js allows for seamless access to the largest Medicaid Datasets
                             including NADAC (National Average Drug and Acquisition Cost) and
                             State Drug Utilization.
                         </p>
@@ -70,8 +70,8 @@
                 <div class="api-entity">
                     <div class="api-logo rxNorm-logo"></div>
                     <div class="api-text">
-                        <a href="https://lhncbc.nlm.nih.gov/RxNav/APIs/RxNormAPIs.html" class="api-header">RxNorm APIs</a>
-                        <p>Instead of foraging through NDC or ICD codes RxTracker permits users
+                        <a href="https://lhncbc.nlm.nih.gov/RxNav/APIs/RxNormAPIs.html" target="_blank" class="api-header">RxNorm APIs</a>
+                        <p>Instead of foraging through NDC or ICD codes Medicaid.js permits users
                             to search for specific drugs based on singular ingredients, disease classes, or generic
                             names.
                         </p>
@@ -81,10 +81,10 @@
         </section>
         <section class="installation">
             <h2 class="installation-header">Installation</h2>
-            <p>Installing RxTracker can be performed with a single line of code
+            <p>Installing Medicaid.js can be performed with a single line of code
             following the ES6 conventions. Run the following command in your browser
             or IDE of choice to import the module. To learn more about the specific
-                functions the module contains visit the <a href="https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk">documentation.</a></p>
+                functions the module contains visit the <a href="https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk" target="_blank">documentation.</a></p>
             <code>MedicaidSDK = await import ("https://kunaalagarwal.github.io/medicaid/sdk.js");</code>
             <img src="https://wd.imgix.net/image/NJdAV9UgKuN8AhoaPBquL7giZQo1/bkh79zEFaByczisr3lD5.png?auto=format" alt="">
         </section>
