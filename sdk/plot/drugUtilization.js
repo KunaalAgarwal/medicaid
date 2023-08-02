@@ -2,14 +2,11 @@ import {getAllData, plot} from "./plot.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 
-let drugUtilDatasets;
-let drugUtilIds;
+//pre import retrieval
+const drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22); //only need datasets from 2013 onwards
+const drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 
 async function rawDrugUtil(ndcs, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
-    if (drugUtilIds === undefined || drugUtilDatasets === undefined){
-        drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);//only need datasets from 2013 onwards
-        drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
-    }
     const adjustedNdcsList = Array.isArray(ndcs) ? ndcs : [ndcs];
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
@@ -41,7 +38,7 @@ async function getDrugUtilDataPlot(ndcs, axis= {x: "year", y: "total_amount_reim
         return acc;
     }, {xData: [], yData: [], y2Data: []});
     result.xData.sort()
-    return [{x: result.xData, y: result.yData, name: axis.y}, {x: result.xData, y: result.y2Data, yaxis:'y2', name: axis.y2}]
+    return [{x: result.xData, y: result.yData, name: ndcs[0] + axis.y}, {x: result.xData, y: result.y2Data, yaxis:'y2', name: ndcs[0] + axis.y2}]
 }
 
 async function plotDrugUtil(ndcs, layout, div, axis) {
@@ -53,8 +50,9 @@ async function plotDrugUtil(ndcs, layout, div, axis) {
     return plot(data.flat(), layout, "line", div);
 }
 
+
 async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed", year = '2022') {
-    const drugUtil = await getDatasetByTitleName(`State Drug Utilization Data ${year}`);
+    const drugUtil = await getDatasetByTitleName("State Drug Utilization Data " + year);
     const drugUtilId = await convertDatasetToDistributionId(drugUtil.identifier);
     const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtilId}][WHERE ndc = "${ndc}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
@@ -82,85 +80,128 @@ async function plotDrugUtilBar(ndc, layout, div, yAxis){
     return plot(data, layout, "bar", div);
 }
 
-async function removedOutliers(data) {
-    const yValues = data.y.slice();
-    yValues.sort((a, b) => a - b);
+// Remove outliers from getDrugUtilDataBar
+async function removedOutliers(ndc, yAxis, year) {
+    let data = await getDrugUtilDataBar(ndc, yAxis, year);
+    let refinedData = data['x'].map((o,i) => {return {x: o, y: data['y'][i]}})
+    refinedData.sort( function(a, b) {return a.y - b.y;});
+    let yValues = refinedData.map(o => o.y);
 
-    // Calculate the quartiles and IQR
-    const q1 = yValues[Math.floor(yValues.length * 0.25)];
-    const q3 = yValues[Math.ceil(yValues.length * 0.75)];
-    const iqr = q3 - q1;
-    const maxValue = q3 + iqr * 1.5;
-    const minValue = q1 - iqr * 1.5;
+    let q1 = yValues[Math.floor((yValues.length / 4))];
+    let q3 = yValues[Math.ceil((yValues.length * (3 / 4)))];
+    let iqr = q3 - q1;
+    let maxValue = q3 + iqr*1.5;
+    let minValue = q1 - iqr*1.5;
 
-    return {
-        x: data.x.filter((_, i) => data.y[i] >= minValue && data.y[i] <= maxValue),
-        y: data.y.filter((y) => y >= minValue && y <= maxValue)
-    }
+    let nonOutlierPos = yValues.map((o,i) => {if((yValues[i] <= maxValue) && (yValues[i] >= minValue)) {return i}});
+    let nonOutliers = refinedData.filter((o,i) => nonOutlierPos.includes(i));
+
+    let res = {};
+    res['x'] = nonOutliers.map(o => o.x);
+    res['y'] = nonOutliers.map(o => o.y);
+    return res;
 }
 
-async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
-    let data =  await getDrugUtilDataBar(ndc, yAxis, year);
-    if (outliers) { data = await removedOutliers(data) }
-    const allStates = new Set(['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID',
-        'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
-        'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']);
-
-    for (const state of allStates) {
-        if (!data.x.includes(state)) {
-            data.x.push(state);
-            data.y.push(-1);
-        }
+async function choroplethMap(outliers = 'true', ndc = '00536105556', yAxis, year) {
+    let data;
+    if(outliers === 'true') {
+    data = await getDrugUtilDataBar(ndc, yAxis, year)
+    } else {
+    data = await removedOutliers(ndc, yAxis, year);
     }
-
-    let choroplethData = [{
-        type: 'choropleth',
-        locationmode: 'USA-states',
-        locations: data.x,
-        z: data.y,
-        zmin: 0,
-        zmax: Math.max(...data.y),
-        colorscale: [
-            [0, 'rgb(211, 211, 211)'],
-            [0.001, 'rgb(242,240,247)'],
-            [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
-            [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
-            [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
-        ],
-        colorbar: {
-            title: 'Total Amount Reimbursed',
-            x: 1,
-            y: 0.6
-        },
-        marker: {
-            line: {
-                color: 'rgb(255,255,255)',
-                width: 2
-            }
-        }
+    
+    // Add missing states
+    let refinedData = {x: data['x'], y: data['y']};
+    let allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
+    allStates.forEach(s => {
+    if(!(data['x'].includes(s))) {
+      refinedData['x'].push(s);
+      refinedData['y'].push(-1);
+    }
+    })
+    
+    var choroplethData = [{
+      type: 'choropleth',
+      locationmode: 'USA-states',
+      locations: data['x'],
+      z: data['y'],
+      //text: data['x'],
+      zmin: 0,
+      zmax: Math.max.apply(Math, data['y']),
+      colorscale: [
+        [0, 'rgb(211, 211, 211)'], 
+        [0.001, 'rgb(242,240,247)'],
+        [0.01, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+        [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+        [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+      ],
+    colorbar: {
+      title: 'Total Amount Reimbursed',
+      x: 1,
+      y: 0.6
+    },
+    marker: {
+      line:{
+        color: 'rgb(255,255,255)',
+        width: 2
+      }
+    }
     }];
-
-    let layout = {
-        title: '2022 US Total Amount Reimbursed by State',
-        geo: {
-            scope: 'usa',
-            showlakes: true,
-            lakecolor: 'rgb(255,255,255)'
-        },
-        width: 800,
-        height: 600
+    
+    var layout = {
+    title: '2022 US Total Amount Reimbursed by State',
+    geo:{
+      scope: 'usa',
+      showlakes: true,
+      lakecolor: 'rgb(255,255,255)'
+    },
+    width: 1000, height: 600
     };
-    return plot(choroplethData, layout, "choropleth", div);
+
+    const div = DOM.element("div");
+    Plotly.newPlot(div, choroplethData, layout);
+    return div;
 }
 
+async function getDrugUtilDataXX(ndc, yAxis) {
+    let range = 2022-2014+1;
+    let allYears = [...Array(range).keys()].map(o => 2014+o);
+    let res;
+    res = Promise.all(allYears.map(async (year,i) => {
+        let data = await sdk.getDrugUtilDataBar(ndc, yAxis, year);
+        return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
+    })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
+    return res
+}
 
+async function plotDrugUtilDataXX(ndc, yAxis) { //
+    let res = {};
+    let data = await getDrugUtilDataXX(ndc, yAxis);
+    res['x'] = data.map(o => o.year);
+    res['y'] = data.map(o => o.xx)
+    let layout = ({
+      title: {
+          text: "Total Amount Reimbursed for Aggregated States (XX)" ,
+      },
+      yaxis: {
+          title: {
+              text: 'Total Amount Reimbursed',
+          }
+      },
+      width: 1150
+    })
+    return sdk.plot([res], layout);
+}
 
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
-    plotDrugUtilMap,
+    removedOutliers,
+    choroplethMap,
+    getDrugUtilDataXX,
     //plotting
     plotDrugUtil,
-    plotDrugUtilBar
+    plotDrugUtilBar,
+    plotDrugUtilDataXX
 }
