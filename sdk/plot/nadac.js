@@ -26,7 +26,7 @@ async function getAllNdcObjs() {
 
 async function getNadacMeds(){
     const ndcObjs = await getAllNdcObjs();
-    return [...ndcObjs.keys()]
+    return [...ndcObjs.keys()].sort()
 }
 
 function getNdcFromMed(med, medToNdcMap){
