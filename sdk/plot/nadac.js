@@ -90,6 +90,7 @@ async function updatePreImport(){
         endpointStore.removeItem("metastore/schemas/distribution/items");
         nadacDatasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"));
         nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+        console.log("Pre Import was updated" + nadac2023id);
     } catch (error){
         console.log("Update unsuccessful, clear cache if update still needed." + error);
     }
