@@ -6,6 +6,9 @@ let drugUtilDatasets;
 let drugUtilIds;
 
 async function rawDrugUtil(ndcs, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
+    if (ndcs === undefined){
+        throw new Error("Please provide valid NDCs.");
+    }
     if (drugUtilIds === undefined || drugUtilDatasets === undefined){
         drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);//only need datasets from 2013 onwards
         drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
@@ -158,29 +161,18 @@ async function getDrugUtilDataXX(ndc, yAxis) {
     let allYears = [...Array(range).keys()].map(o => 2014+o);
     let res;
     res = Promise.all(allYears.map(async (year,i) => {
-        let data = await sdk.getDrugUtilDataBar(ndc, yAxis, year);
+        let data = await getDrugUtilDataBar(ndc, yAxis, year);
         return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
     })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
-    return res
+    return res;
 }
 
-async function plotDrugUtilDataXX(ndc, yAxis) { //
+async function plotDrugUtilDataXX(ndc, div, layout, yAxis) {
     let res = {};
     let data = await getDrugUtilDataXX(ndc, yAxis);
     res['x'] = data.map(o => o.year);
     res['y'] = data.map(o => o.xx)
-    let layout = ({
-      title: {
-          text: "Total Amount Reimbursed for Aggregated States (XX)" ,
-      },
-      yaxis: {
-          title: {
-              text: 'Total Amount Reimbursed',
-          }
-      },
-      width: 1150
-    })
-    return sdk.plot([res], layout);
+    return plot([res], layout, "line", div);
 }
 
 export {
