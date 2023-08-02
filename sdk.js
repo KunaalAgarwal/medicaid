@@ -144,6 +144,8 @@ export {
     plotDrugUtil,
     plotDrugUtilBar,
     plot,
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX,
     Plotly,
     plotDrugUtilMap,
     //rxNorm
