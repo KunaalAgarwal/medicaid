@@ -153,14 +153,44 @@ async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
     return plot(choroplethData, layout, "choropleth", div);
 }
 
+async function getDrugUtilDataXX(ndc, yAxis) {
+    let range = 2022-2014+1;
+    let allYears = [...Array(range).keys()].map(o => 2014+o);
+    let res;
+    res = Promise.all(allYears.map(async (year,i) => {
+        let data = await sdk.getDrugUtilDataBar(ndc, yAxis, year);
+        return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
+    })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
+    return res
+}
 
+async function plotDrugUtilDataXX(ndc, yAxis) { //
+    let res = {};
+    let data = await getDrugUtilDataXX(ndc, yAxis);
+    res['x'] = data.map(o => o.year);
+    res['y'] = data.map(o => o.xx)
+    let layout = ({
+      title: {
+          text: "Total Amount Reimbursed for Aggregated States (XX)" ,
+      },
+      yaxis: {
+          title: {
+              text: 'Total Amount Reimbursed',
+          }
+      },
+      width: 1150
+    })
+    return sdk.plot([res], layout);
+}
 
 export {
     //data retrieval
     getDrugUtilData,
     getDrugUtilDataBar,
     plotDrugUtilMap,
+    getDrugUtilDataXX,
     //plotting
     plotDrugUtil,
-    plotDrugUtilBar
+    plotDrugUtilBar,
+    plotDrugUtilDataXX
 }
