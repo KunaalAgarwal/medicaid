@@ -42,7 +42,8 @@ import {
 
 import {
     getItems,
-    clearCache
+    clearCache,
+    localforage
 } from "./sdk/httpMethods.js"
 
 import {
@@ -69,9 +70,7 @@ import {
     plotDrugUtil,
     plotDrugUtilBar,
     getDrugUtilDataBar,
-    removedOutliers,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX
+    plotDrugUtilMap
 } from "./sdk/plot/drugUtilization.js"
 
 import {
@@ -80,8 +79,13 @@ import {
     Plotly
 } from "./sdk/plot/plot.js"
 
+import {
+    getAllDiseases,
+    diseaseToDrugs
+} from "./sdk/rxNorm.js"
 
 export {
+    localforage,
     getItems,
     clearCache,
     //metastore
@@ -139,11 +143,9 @@ export {
     plotDrugUtilBar,
     plot,
     Plotly,
-    choroplethMap,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX
+    plotDrugUtilMap,
+    //rxNorm
+    getAllDiseases,
+    diseaseToDrugs
 }
-
-
-
 
