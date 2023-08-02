@@ -2,9 +2,8 @@ import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
 
-let nadacDatasets = (await getDatasetByKeyword("nadac")).
-                filter(r => r.title.includes("(National Average Drug Acquisition Cost)")).
-                filter(dataset => dataset.title !== "NADAC (National Average Drug Acquisition Cost) 2023");
+let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+let nadacDatasets =  datasets.sort((a, b) => a.title.localeCompare(b.title)).slice(0, datasets.length - 1);
 let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
 
 async function getAllNdcObjs() {
