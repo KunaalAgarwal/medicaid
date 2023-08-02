@@ -2,11 +2,12 @@ import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
 
-let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-let nadacDatasets =  datasets.sort((a, b) => a.title.localeCompare(b.title)).slice(0, datasets.length - 1);
-let nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+let nadacDistributions;
 
 async function getAllNdcObjs() {
+    if (nadacDistributions === undefined){
+        await preImport();
+    }
     const ndcs = new Map();
     for (let i = 0; i < nadacDistributions.length; i += 4){
         if (i >= nadacDistributions.length){
@@ -42,6 +43,9 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
+    if (nadacDistributions === undefined){
+        await preImport();
+    }
     const rawData = await getAllData(ndcs, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
@@ -94,6 +98,11 @@ function filterSelectedMeds(medList) {
     }, {}));
 }
 
+async function preImport(){
+    let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+    let nadacDatasets = datasets.sort((a, b) => a.title.localeCompare(b.title)).slice(0, datasets.length - 1);
+    nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+}
 
 
 export {
