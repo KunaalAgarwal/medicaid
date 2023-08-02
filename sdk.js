@@ -70,7 +70,9 @@ import {
     plotDrugUtil,
     plotDrugUtilBar,
     getDrugUtilDataBar,
-    plotDrugUtilMap
+    plotDrugUtilMap,
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX
 } from "./sdk/plot/drugUtilization.js"
 
 import {
