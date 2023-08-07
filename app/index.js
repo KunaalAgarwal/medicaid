@@ -1,7 +1,5 @@
 import { plotNadacMed } from "../sdk/plot/nadac.js";
 import {plotDrugUtil, plotDrugUtilBar, plotDrugUtilMap} from "../sdk/plot/drugUtilization.js";
-import {localforage} from "../sdk/httpMethods.js"
-import {getSchemas} from "../sdk/metastore.js";
 
 //setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
@@ -73,12 +71,9 @@ const nextButton = document.getElementById("next")
 
 const graphDivs = [];
 const graphDiv = document.getElementById("graph");
+let currentGraphIndex = 0;
 async function generateGraphs() {
     try {
-        localforage.ready().then(async() => {
-            await getSchemas();
-            console.log("Local Forage Ready");
-        })
         graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
         graphDivs.push(await plotDrugUtilMap("00536105556"));
         graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
@@ -86,10 +81,6 @@ async function generateGraphs() {
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);
         })
-        if (graphDivs.includes(undefined) || graphDivs.length === 0){
-            console.log("graph divs problem");
-            location.reload();
-        }
     } catch (error){
         location.reload();
     }
@@ -98,7 +89,6 @@ async function generateGraphs() {
 await generateGraphs();
 console.log(graphDivs);
 
-let currentGraphIndex = 0;
 function showCurrentGraph() {
     // Hide all graph divs
     graphDivs.forEach((div, index) => {
