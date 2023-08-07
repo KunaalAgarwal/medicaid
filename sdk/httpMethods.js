@@ -14,6 +14,7 @@ let endpointStore = localforage.createInstance({
     name: dbName,
     storeName: "endpointStore"
 })
+
 let timestore = localforage.createInstance({
     name: dbName,
     storeName: "timestore"

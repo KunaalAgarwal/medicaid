@@ -3,6 +3,7 @@ import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
 
 let nadacDistributions;
+let ndcObjMap;
 
 async function getAllNdcObjs() {
     if (nadacDistributions === undefined){
@@ -21,17 +22,21 @@ async function getAllNdcObjs() {
             ndcs.get(ndcObj["ndc_description"]).add(ndcObj["ndc"]);
         })
     }
+    ndcObjMap = ndcs;
     return ndcs;
 }
 
 async function getNadacMeds(){
-    const ndcObjs = await getAllNdcObjs();
-    return [...ndcObjs.keys()].sort()
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
+    return [...ndcObjMap.keys()].sort()
 }
 
-function getNdcFromMed(med, medToNdcMap){
-    if (medToNdcMap.has(med)){
-        return Array.from(medToNdcMap.get(med));
+async function getNdcFromMed(med){
+
+    if (ndcObjMap.has(med)){
+        return Array.from(ndcObjMap.get(med));
     }
     throw new Error("Please provide a medicine that is included in the medicaid dataset.");
 }
