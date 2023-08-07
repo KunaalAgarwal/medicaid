@@ -153,3 +153,5 @@ export {
     diseaseToDrugs
 }
 
+//initialize localforage
+getSchemas().then();

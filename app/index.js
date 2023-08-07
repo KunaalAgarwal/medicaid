@@ -1,6 +1,6 @@
 import { plotNadacMed } from "../sdk/plot/nadac.js";
 import {plotDrugUtil, plotDrugUtilBar, plotDrugUtilMap} from "../sdk/plot/drugUtilization.js";
-
+import * as sdk from "../sdk.js"
 //setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
     title: {
@@ -74,10 +74,10 @@ const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
 async function generateGraphs() {
     try {
-        graphDivs.push(await plotNadacMed(["24385005452"], drugTimeLayout));
-        graphDivs.push(await plotDrugUtilMap("00536105556"));
-        graphDivs.push(await plotDrugUtil(["24385005452"], drugUtilTime));
-        graphDivs.push(await plotDrugUtilBar("00536105556", drugUtilState));
+        graphDivs.push(await sdk.plotNadacMed(["24385005452"], drugTimeLayout));
+        graphDivs.push(await sdk.plotDrugUtilMap("00536105556"));
+        graphDivs.push(await sdk.plotDrugUtil(["24385005452"], drugUtilTime));
+        graphDivs.push(await sdk.plotDrugUtilBar("00536105556", drugUtilState));
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);
         })
