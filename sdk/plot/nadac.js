@@ -34,7 +34,9 @@ async function getNadacMeds(){
 }
 
 async function getNdcFromMed(med){
-
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
     if (ndcObjMap.has(med)){
         return Array.from(ndcObjMap.get(med));
     }
