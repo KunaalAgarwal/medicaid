@@ -22,7 +22,6 @@ async function getAllNdcObjs() {
             ndcs.get(ndcObj["ndc_description"]).add(ndcObj["ndc"]);
         })
     }
-    ndcObjMap = ndcs;
     return ndcs;
 }
 
@@ -82,10 +81,10 @@ async function plotNadacMed(ndcs, layout, div, axis) {
     return plot(data, layout, "line", div);
 }
 
-function parseSelectedMeds(meds, map){
+function parseSelectedMeds(meds){
     let medObjArray = [];
     meds.forEach(med => {
-        const medNdcs = getNdcFromMed(med, map);
+        const medNdcs = getNdcFromMed(med);
         medNdcs.forEach(ndc => {
             medObjArray.push({medName: med, ndc: ndc})
         })

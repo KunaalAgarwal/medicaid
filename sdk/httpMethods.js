@@ -1,4 +1,5 @@
 import localforage from 'https://cdn.skypack.dev/localforage';
+import {getSchemas} from "./metastore.js";
 let updateCount = 0;
 const dbName = "localforage"
 localforage.config({
@@ -19,6 +20,9 @@ let timestore = localforage.createInstance({
     name: dbName,
     storeName: "timestore"
 })
+
+//initialize localforage
+getSchemas().then();
 
 async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     updateCache();
