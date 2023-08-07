@@ -81,14 +81,14 @@ async function plotNadacMed(ndcs, layout, div, axis) {
     return plot(data, layout, "line", div);
 }
 
-function parseSelectedMeds(meds){
+async function parseSelectedMeds(meds){
     let medObjArray = [];
-    meds.forEach(med => {
-        const medNdcs = getNdcFromMed(med);
+    for (const med of meds) {
+        const medNdcs = await getNdcFromMed(med);
         medNdcs.forEach(ndc => {
             medObjArray.push({medName: med, ndc: ndc})
         })
-    })
+    }
     return medObjArray;
 }
 
