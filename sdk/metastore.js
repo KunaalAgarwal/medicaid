@@ -7,9 +7,12 @@ async function getSchemas(){
     }
     return response;
 }
-
+const schemas = Object.keys(await getSchemas());
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
+    if (schemaName === undefined || !schemas.includes(schemaName.toLowerCase())){
+        throw new Error ("Please enter a valid schema.");
+    }
     const response = await getItems(`metastore/schemas/${schemaName.toLowerCase()}`);
     if (response === undefined){
         throw new Error("Failed to retrieve datasets from the API.");
@@ -19,6 +22,9 @@ async function getSpecificSchema(schemaName){
 
 //ENDPOINT: "metastore/schemas/{schema}/items"
 async function getSchemaItems(schemaName){
+    if (schemaName === undefined || !schemas.includes(schemaName.toLowerCase())){
+        throw new Error ("Please enter a valid schema.");
+    }
     let schemaItems = await getItems(`metastore/schemas/${schemaName.toLowerCase()}/items`);
     if (schemaItems === undefined){
         throw new Error("Failed to retrieve schema items from the API.");
@@ -32,11 +38,12 @@ async function getAllDatasetUrls(){
 }
 
 function parseDownloadLink(dataset){
-    if (dataset === undefined){
-        throw new Error("The dataset has not been defined and cannot be parsed.")
+    if (dataset === undefined || dataset["@type"] !== "dcat:Dataset" ){
+        throw new Error("Please enter a valid dataset to retrieve the parsed download link.")
     }
     return (dataset["distribution"][0])["downloadURL"];
 }
+
 async function filterSchemaItems(schemaName, filterFn){
     const items = await getSchemaItems(schemaName);
     const filteredItems = items.filter(filterFn);

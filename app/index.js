@@ -1,5 +1,3 @@
-import { plotNadacMed } from "../sdk/plot/nadac.js";
-import {plotDrugUtil, plotDrugUtilBar, plotDrugUtilMap} from "../sdk/plot/drugUtilization.js";
 import * as sdk from "../sdk.js"
 //setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {

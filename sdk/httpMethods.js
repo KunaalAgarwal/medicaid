@@ -27,7 +27,7 @@ async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.
     if (cachedData !== null) {
         timestore.setItem(endpoint, timeStamp);
         return cachedData;
-        }
+    }
     const response = await fetch(`${baseUrl}${endpoint}`);
     if (!response.ok){
         throw new Error("An error occurred in the API get Request");

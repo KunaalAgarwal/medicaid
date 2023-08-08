@@ -123,6 +123,5 @@ export {
     getMedData,
     //plotting
     plotNadacMed
-
 }
 
