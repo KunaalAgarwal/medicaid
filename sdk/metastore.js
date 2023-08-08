@@ -34,11 +34,11 @@ async function getSchemaItems(schemaName){
 
 async function getAllDatasetUrls(){
     const datasets = await getSchemaItems('dataset');
-    return Object.values(datasets).map(dataset => parseDownloadLink(dataset));
+    return datasets.map(dataset => parseDownloadLink(dataset));
 }
 
 function parseDownloadLink(dataset){
-    if (dataset === undefined || dataset["@type"] !== "dcat:Dataset" ){
+    if (dataset === undefined){
         throw new Error("Please enter a valid dataset to retrieve the parsed download link.")
     }
     return (dataset["distribution"][0])["downloadURL"];
