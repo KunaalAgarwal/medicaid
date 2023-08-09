@@ -36,34 +36,6 @@ async function postDatastoreQuery(distributionId, columnName, columnValue, opera
     }
     return response["results"];
 }
-async function postDatastoreQueryDownload(distributionId, columnName, columnValue, operator = "=", limit = 0){
-    let headers = {'Content-Type': 'text/csv'}
-    if (limit > 10000){limit = 10000}
-    let requestBody = {
-        "conditions": [
-            {
-                "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
-            }
-        ],
-        "limit": limit,
-        "resources": [
-            {
-                "id": `${distributionId}`,
-                "alias": "t"
-            }
-        ],
-        "format": "csv"
-    }
-    let response = await postItem('datastore/query/download', requestBody, headers, true);
-    if (response === undefined){
-        throw new Error("An error occurred in the distribution post query.")
-    }
-    return response;
-}
-
 async function postDatastoreQueryDistributionId(distributionId, columnName, columnValue, operator = "=", limit = 0){
     let headers = {'Content-Type': 'application/json'}
     if (limit > 10000){limit = 10000}
@@ -167,15 +139,55 @@ async function getAllDataFromDataset(datasetId) {
     return await getDatastoreQueryDatasetId(datasetId);
 }
 
-async function getDownloadByDistributionId(distributionId, format = "csv"){
-    return await getItems(`datastore/query/${distributionId}/download?format=${format}`, true);
+async function getDownloadByDistributionId(distributionId, downloadParams = {convertBlob: true, filename: "filename.ext", textContent: "Download File"}){
+    const response = await getItems(`datastore/query/${distributionId}/download?format=csv`, true);
+    if (downloadParams.convertBlob){
+        return createDownloadLink(response, downloadParams.filename, downloadParams.textContent);
+    }
+    return response;
 }
 
-async function getDownloadByDatasetId(datasetId, format = "csv"){
-    return await getItems(`datastore/query/${datasetId}/0/download?format=${format}`, true);
+async function getDownloadByDatasetId(datasetId, downloadParams = {convertBlob: true, filename: "filename.ext", textContent: "Download File"}){
+    const response = await getItems(`datastore/query/${datasetId}/0/download?format=csv`, true);
+    if (downloadParams.convertBlob){
+        return createDownloadLink(response, downloadParams.filename, downloadParams.textContent);
+    }
+    return response;
 }
 
-function createDownloadLink(blob, filename = 'filename.ext', textContent = 'Download file') {
+async function postDatastoreQueryDownload(distributionId, columnName, columnValue, operator = "=", limit = 0, convertBlob = true){
+    let headers = {'Content-Type': 'text/csv'}
+    if (limit > 10000){limit = 10000}
+    let requestBody = {
+        "conditions": [
+            {
+                "resource": "t",
+                "property": columnName,
+                "value": columnValue,
+                "operator": operator
+            }
+        ],
+        "limit": limit,
+        "resources": [
+            {
+                "id": `${distributionId}`,
+                "alias": "t"
+            }
+        ],
+        "format": "csv"
+    }
+    let response = await postItem('datastore/query/download', requestBody, headers, true);
+    if (response === undefined){
+        throw new Error("An error occurred in the distribution post query.")
+    }
+    if (convertBlob){
+        return createDownloadLink(response);
+    }
+    return response;
+}
+
+
+function createDownloadLink(blob, filename, textContent) {
     try {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -186,12 +198,9 @@ function createDownloadLink(blob, filename = 'filename.ext', textContent = 'Down
             URL.revokeObjectURL(url);
             link.remove();
         };
-
         link.addEventListener('click', () => {
             setTimeout(cleanupLink, 1000);
         });
-
-        setTimeout(cleanupLink, 15000);
         return link;
     } catch (error) {
         console.log('The downloadable link could not be created.');
@@ -210,6 +219,5 @@ export{
     getAllDataFromDataset,
     getAllDataFromDistribution,
     getDownloadByDistributionId,
-    getDownloadByDatasetId,
-    createDownloadLink
+    getDownloadByDatasetId
 }

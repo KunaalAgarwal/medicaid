@@ -20,7 +20,7 @@ let timestore = localforage.createInstance({
     storeName: "timestore"
 })
 
-async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
+async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     updateCache();
     const timeStamp = Date.now();
     const cachedData = await endpointStore.getItem(endpoint);
@@ -33,7 +33,7 @@ async function getItems(endpoint, downloadFlag = false, baseUrl = 'https://data.
         throw new Error("An error occurred in the API get Request");
     }
     let responseData;
-    if (downloadFlag) {
+    if (blobFlag) {
         responseData = await response.blob();
     } else {
         responseData = await response.json();
@@ -103,6 +103,5 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache,
-    localforage
+    clearCache
 }
