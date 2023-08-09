@@ -27,8 +27,7 @@ import {
     getAllDataFromDataset,
     getAllDataFromDistribution,
     getDownloadByDistributionId,
-    getDownloadByDatasetId,
-    createDownloadLink
+    getDownloadByDatasetId
 } from './sdk/datastore.js';
 
 import {
@@ -116,7 +115,6 @@ export {
     getAllDataFromDistribution,
     getDownloadByDistributionId,
     getDownloadByDatasetId,
-    createDownloadLink,
     //sql
     getDatastoreQuerySql,
     //search
