@@ -44,7 +44,7 @@ async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medi
 }
 
 
-async function postItem(endpoint, payload, headerContent, downloadFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
+async function postItem(endpoint, payload, headerContent, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     const options = {
         method: 'POST',
         headers: headerContent,
@@ -62,7 +62,7 @@ async function postItem(endpoint, payload, headerContent, downloadFlag = false, 
         throw new Error("An error occurred in the API post request.")
     }
     let responseData;
-    if (downloadFlag) {
+    if (blobFlag) {
         responseData = await response.blob();
     } else {
         responseData = await response.json();

@@ -34,10 +34,10 @@ async function getSchemaItems(schemaName){
 
 async function getAllDatasetUrls(){
     const datasets = await getSchemaItems('dataset');
-    return datasets.map(dataset => parseDownloadLink(dataset));
+    return datasets.map(dataset => parseDatasetUrl(dataset));
 }
 
-function parseDownloadLink(dataset){
+function parseDatasetUrl(dataset){
     if (dataset === undefined){
         throw new Error("Please enter a valid dataset to retrieve the parsed download link.")
     }
@@ -66,7 +66,7 @@ async function getDatasetByDescription(datasetDescription) {
 }
 
 async function getDatasetByDownloadUrl(url){
-    return await filterSchemaItems("dataset", item => parseDownloadLink(item) === url);
+    return await filterSchemaItems("dataset", item => parseDatasetUrl(item) === url);
 }
 
 async function getDistributionByDownloadUrl(url){
@@ -92,7 +92,7 @@ async function getDistributionById(distributionId){
 
 async function convertDatasetToDistributionId(datasetId) {
     let dataset = await getDatasetById(datasetId);
-    let downloadLink = parseDownloadLink(dataset);
+    let downloadLink = parseDatasetUrl(dataset);
     let distribution = await getDistributionByDownloadUrl(downloadLink);
     let adjustedDistribution = Array.isArray(distribution) ? distribution : [distribution];
     const result = (adjustedDistribution)[0].identifier;
@@ -125,7 +125,7 @@ export {
     getSchemaItemById,
     getDatasetById,
     getDatasetByDownloadUrl,
-    parseDownloadLink,
+    parseDatasetUrl,
     convertDatasetToDistributionId,
     convertDistributionToDatasetId,
     getDistributionByDownloadUrl,
