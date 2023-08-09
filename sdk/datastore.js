@@ -10,19 +10,19 @@ async function getDatastoreImport(distributionId){
 }
 
 //datastore: query
-async function postDatastoreQuery(distributionId, columnName, columnValue, operator = "=", limit = 0) {
+async function postDatastoreQuery(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}) {
     let headers = {'Content-Type': 'application/json'}
-    if (limit > 10000){limit = 10000}
+    if (queryParams.limit > 10000){queryParams.limit = 10000}
     let requestBody = {
         "conditions": [
             {
                 "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
+                "property": queryParams.columnName,
+                "value": queryParams.columnValue,
+                "operator": queryParams.operator
             }
         ],
-        "limit": limit,
+        "limit": queryParams.limit,
         "resources": [
             {
                 "id": `${distributionId}`,
@@ -36,19 +36,20 @@ async function postDatastoreQuery(distributionId, columnName, columnValue, opera
     }
     return response["results"];
 }
-async function postDatastoreQueryDistributionId(distributionId, columnName, columnValue, operator = "=", limit = 0){
+
+async function postDatastoreQueryDistributionId(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}){
     let headers = {'Content-Type': 'application/json'}
-    if (limit > 10000){limit = 10000}
+    if (queryParams.limit > 10000){queryParams.limit = 10000}
     let requestBody = {
         "conditions": [
             {
                 "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
+                "property": queryParams.columnName,
+                "value": queryParams.columnValue,
+                "operator": queryParams.operator
             }
         ],
-        "limit": limit
+        "limit": queryParams.limit
     }
     let response = await postItem(`datastore/query/${distributionId}`, requestBody, headers);
     if (response === undefined){
@@ -57,19 +58,19 @@ async function postDatastoreQueryDistributionId(distributionId, columnName, colu
     return response["results"];
 }
 
-async function postDatastoreQueryDatasetId(datasetId, columnName, columnValue, operator = "=", limit = 0){
+async function postDatastoreQueryDatasetId(datasetId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}){
     let headers = {'Content-Type': 'application/json'}
-    if (limit > 10000){limit = 10000}
+    if (queryParams.limit > 10000){queryParams.limit = 10000}
     let requestBody = {
         "conditions": [
             {
                 "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
+                "property": queryParams.columnName,
+                "value": queryParams.columnValue,
+                "operator": queryParams.operator
             }
         ],
-        "limit": limit
+        "limit": queryParams.limit
     }
     let response = await postItem(`datastore/query/${datasetId}/0`, requestBody, headers);
     if (response === undefined){
@@ -155,26 +156,25 @@ async function getDownloadByDatasetId(datasetId, downloadParams = {convertBlob: 
     return response;
 }
 
-async function postDatastoreQueryDownload(distributionId, columnName, columnValue, operator = "=", limit = 0, convertBlob = true){
-    let headers = {'Content-Type': 'text/csv'}
-    if (limit > 10000){limit = 10000}
+async function postDatastoreQueryDownload(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}, convertBlob = true){
+    let headers = {'Content-Type': 'application/json'}
+    if (queryParams.limit > 10000){queryParams.limit = 10000}
     let requestBody = {
         "conditions": [
             {
                 "resource": "t",
-                "property": columnName,
-                "value": columnValue,
-                "operator": operator
+                "property": queryParams.columnName,
+                "value": queryParams.columnValue,
+                "operator": queryParams.operator
             }
         ],
-        "limit": limit,
+        "limit": queryParams.limit,
         "resources": [
             {
                 "id": `${distributionId}`,
                 "alias": "t"
-            }
-        ],
-        "format": "csv"
+            },
+        ]
     }
     let response = await postItem('datastore/query/download', requestBody, headers, true);
     if (response === undefined){
