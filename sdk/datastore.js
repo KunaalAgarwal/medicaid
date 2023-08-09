@@ -156,7 +156,7 @@ async function getDownloadByDatasetId(datasetId, downloadParams = {convertBlob: 
     return response;
 }
 
-async function postDatastoreQueryDownload(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}, convertBlob = true){
+async function postDatastoreQueryDownload(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}, downloadParams = {convertBlob: true, filename: "filename.ext", textContent: "Download File"}){
     let headers = {'Content-Type': 'application/json'}
     if (queryParams.limit > 10000){queryParams.limit = 10000}
     let requestBody = {
@@ -180,7 +180,7 @@ async function postDatastoreQueryDownload(distributionId, queryParams = {columnN
     if (response === undefined){
         throw new Error("An error occurred in the distribution post query.")
     }
-    if (convertBlob){
+    if (downloadParams.convertBlob){
         return createDownloadLink(response);
     }
     return response;
