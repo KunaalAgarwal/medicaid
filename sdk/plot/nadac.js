@@ -4,11 +4,9 @@ import {getAllData, plot} from "./plot.js";
 
 let nadacDistributions;
 let ndcObjMap;
+await preImport();
 
 async function getAllNdcObjs() {
-    if (nadacDistributions === undefined){
-        await preImport();
-    }
     const ndcs = new Map();
     for (let i = 0; i < nadacDistributions.length; i += 4){
         if (i >= nadacDistributions.length){
@@ -49,9 +47,6 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    if (nadacDistributions === undefined){
-        await preImport();
-    }
     const rawData = await getAllData(items, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
