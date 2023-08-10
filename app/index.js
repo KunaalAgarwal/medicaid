@@ -72,9 +72,9 @@ const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
 async function generateGraphs() {
     try {
-        graphDivs.push(await sdk.plotNadacNdc(["24385005452"], drugTimeLayout));
-        graphDivs.push(await sdk.plotDrugUtilMap("00536105556"));
-        graphDivs.push(await sdk.plotDrugUtil(["24385005452"], drugUtilTime));
+        graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
+        graphDivs.push(await sdk.plotUtilMap("00536105556"));
+        graphDivs.push(await sdk.plotUtilTimeSeries(["24385005452"], drugUtilTime));
         graphDivs.push(await sdk.plotDrugUtilBar("00536105556", drugUtilState));
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);

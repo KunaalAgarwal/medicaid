@@ -64,13 +64,13 @@ import {
 } from "./sdk/plot/healthcareMeasures.js"
 
 import {
-    getDrugUtilData,
-    plotDrugUtil,
+    getUtilData,
+    plotUtilTimeSeries,
     plotDrugUtilBar,
     getDrugUtilDataBar,
-    plotDrugUtilMap,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX
+    plotUtilMap,
+    // getDrugUtilDataXX,
+    // plotDrugUtilDataXX
 } from "./sdk/plot/drugUtilization.js"
 
 import {
@@ -138,15 +138,15 @@ export {
     getRateDefinitions,
     getStates,
     //drug utilization
-    getDrugUtilData,
+    getUtilData,
     getDrugUtilDataBar,
     plotRateBar,
     plotRateTimeSeries,
-    plotDrugUtil,
+    plotUtilTimeSeries,
     plotDrugUtilBar,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX,
-    plotDrugUtilMap,
+    // getDrugUtilDataXX,
+    // plotDrugUtilDataXX,
+    plotUtilMap,
     //rxNorm
     getAllDiseases,
     diseaseToDrugs

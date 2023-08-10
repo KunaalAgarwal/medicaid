@@ -1,6 +1,6 @@
 import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
-import {getAllData, plot} from "./plot.js"
+import {getAllData, plot, averageValues} from "./plot.js"
 
 async function getHealthcareQualityData(qualityMeasure){
     let dataset = await getDatasetByTitleName("2020 Child and Adult Health Care Quality Measures Quality");
@@ -66,26 +66,6 @@ async function plotRateTimeSeries(stateList, layout, rateDef, div) {
         }
     }));
     return plot(data, layout, "line", div);
-}
-
-function averageValues(data) {
-    const averagedData = data.reduce((result, obj) => {
-        const key = Object.keys(obj)[0];
-        const value = parseFloat(obj[key]);
-        if (!isNaN(value)) {
-            if (!result[key]) {
-                result[key] = { sum: value, count: 1 };
-            } else {
-                result[key].sum += value;
-                result[key].count++;
-            }
-        }
-        return result;
-    }, {});
-    Object.keys(averagedData).forEach((key) => {
-        averagedData[key] = averagedData[key].sum / averagedData[key].count;
-    });
-    return averagedData;
 }
 
 export {

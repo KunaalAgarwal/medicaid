@@ -40,9 +40,43 @@ async function getAllData(items, filter, distributions, dataVariables){
     return result;
 }
 
+function plotifyData(data, axis) {
+    return Object.values(axis).reduce(
+        (result, field) => {
+            result[field] = data.map(obj => obj[field]);
+            result[field].sort();
+            return result;
+        },
+        {}
+    );
+}
+
+function averageValues(data) {
+    const averagedData = data.reduce((result, obj) => {
+        const key = Object.keys(obj)[0];
+        const value = parseFloat(obj[key]);
+        if (!isNaN(value)) {
+            if (!result[key]) {
+                result[key] = { sum: value, count: 1 };
+            } else {
+                result[key].sum += value;
+                result[key].count++;
+            }
+        }
+        return result;
+    }, {});
+    Object.keys(averagedData).forEach((key) => {
+        averagedData[key] = averagedData[key].sum / averagedData[key].count;
+    });
+    return averagedData;
+}
+
+
 export {
     getUniqueValues,
     plot,
     getAllData,
+    plotifyData,
+    averageValues,
     Plotly
 }
