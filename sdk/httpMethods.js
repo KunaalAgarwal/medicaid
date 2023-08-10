@@ -15,18 +15,12 @@ let endpointStore = localforage.createInstance({
     storeName: "endpointStore"
 })
 
-let timestore = localforage.createInstance({
-    name: dbName,
-    storeName: "timestore"
-})
-
 async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
-    updateCache();
-    const timeStamp = Date.now();
+    await updateCache();
     const cachedData = await endpointStore.getItem(endpoint);
     if (cachedData !== null) {
-        timestore.setItem(endpoint, timeStamp);
-        return cachedData;
+        endpointStore.setItem(endpoint, {response: cachedData.response, time: Date.now()});
+        return cachedData.response;
     }
     const response = await fetch(`${baseUrl}${endpoint}`);
     if (!response.ok){
@@ -38,25 +32,20 @@ async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medi
     } else {
         responseData = await response.json();
     }
-    endpointStore.setItem(endpoint, responseData);
-    timestore.setItem(endpoint, timeStamp);
-    console.log(updateCount);
+    endpointStore.setItem(endpoint, {response: responseData, time: Date.now()});
     return responseData;
 }
-
-
 async function postItem(endpoint, payload, headerContent, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
     const options = {
         method: 'POST',
         headers: headerContent,
         body: JSON.stringify(payload)
     };
-    updateCache();
-    const timeStamp = Date.now();
+    //await  updateCache();
     const cachedData = await endpointStore.getItem(options.body);
     if (cachedData !== null) {
-        timestore.setItem(options.body, timeStamp);
-        return cachedData;
+        endpointStore.setItem(options.body, {response: cachedData.response, time: Date.now()})
+        return cachedData.response;
     }
     const response = await fetch(`${baseUrl}${endpoint}`, options);
     if (!response.ok){
@@ -68,44 +57,31 @@ async function postItem(endpoint, payload, headerContent, blobFlag = false, base
     } else {
         responseData = await response.json();
     }
-    endpointStore.setItem(options.body, responseData);
-    timestore.setItem(options.body, timeStamp);
+    endpointStore.setItem(options.body, {response: responseData, time: Date.now()});
     return responseData;
 }
 
-function updateCache() {
-    try {
-        if (updateCount < 10000) {
-            updateCount++;
-            return;
-        }
-        console.log("cache is being updated")
-        const timeStamp = Date.now();
-        timestore.keys().then(keys => {
-            keys.forEach(key => {
-                timestore.getItem(key).then(value => {
-                    if (timeStamp - value > 86400000) { // 24 hours in ms
-                        timestore.removeItem(key);
-                        endpointStore.removeItem(key);
-                    }
-                });
-            });
-        });
-        updateCount = 0;
-    } catch (error) {
-        console.log("The cache could not be updated");
+async function updateCache() {
+    if (updateCount < 10000){
+        updateCount++;
+        return;
     }
+    console.log("Cache is being updated")
+    for (const key of await endpointStore.keys()) {
+        const value = await endpointStore.getItem(key);
+        if (Date.now() - value.time > 86400000){
+            endpointStore.removeItem(key);
+        }
+    }
+    updateCount = 0;
 }
 
 function clearCache(){
     endpointStore.clear();
-    timestore.clear();
 }
 
 export{
     getItems,
     postItem,
-    clearCache,
-    timestore,
-    endpointStore
+    clearCache
 }
