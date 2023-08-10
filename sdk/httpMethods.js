@@ -40,6 +40,7 @@ async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medi
     }
     endpointStore.setItem(endpoint, responseData);
     timestore.setItem(endpoint, timeStamp);
+    console.log(updateCount);
     return responseData;
 }
 
@@ -78,6 +79,7 @@ function updateCache() {
             updateCount++;
             return;
         }
+        console.log("cache is being updated")
         const timeStamp = Date.now();
         timestore.keys().then(keys => {
             keys.forEach(key => {
@@ -103,5 +105,7 @@ function clearCache(){
 export{
     getItems,
     postItem,
-    clearCache
+    clearCache,
+    timestore,
+    endpointStore
 }
