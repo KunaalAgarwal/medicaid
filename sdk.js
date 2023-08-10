@@ -65,9 +65,11 @@ import {
 
 import {
     getUtilData,
+    getUtilDataTimeSeries,
+    getDrugUtilDataBar,
+    getUtilMapData,
     plotUtilTimeSeries,
     plotDrugUtilBar,
-    getDrugUtilDataBar,
     plotUtilMap,
     // getDrugUtilDataXX,
     // plotDrugUtilDataXX
@@ -137,16 +139,18 @@ export {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    //drug utilization
-    getUtilData,
-    getDrugUtilDataBar,
     plotRateBar,
     plotRateTimeSeries,
+    //drug utilization
+    getUtilData,
+    getUtilDataTimeSeries,
+    getDrugUtilDataBar,
+    getUtilMapData,
     plotUtilTimeSeries,
     plotDrugUtilBar,
+    plotUtilMap,
     // getDrugUtilDataXX,
     // plotDrugUtilDataXX,
-    plotUtilMap,
     //rxNorm
     getAllDiseases,
     diseaseToDrugs

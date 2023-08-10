@@ -26,8 +26,8 @@ async function getUtilData(items, filter, dataVariables) {
     return results;
 }
 
-async function getUtilDataTimeSeries(items, filter, axis= {yAxis: "total_amount_reimbursed", y2: "number_of_prescriptions"}){
-    const data = await getRawUtilData(items, filter);
+async function getUtilDataTimeSeries(items, axis= {yAxis: "total_amount_reimbursed", y2: "number_of_prescriptions", filter: "ndc"}){
+    const data = await getRawUtilData(items, axis.filter);
     const result = data.reduce((acc, dataset) => {
         const filteredData = dataset.filter(x => x["suppression_used"] === "false");
         if (filteredData.length > 0) {
@@ -41,9 +41,9 @@ async function getUtilDataTimeSeries(items, filter, axis= {yAxis: "total_amount_
     return [{x: result.xData, y: result.yData, name: axis.yAxis}, {x: result.xData, y: result.y2Data, yaxis:'y2', name: axis.y2}]
 }
 
-async function plotUtilTimeSeries(ndcs, layout, div, axis) {
-    if (ndcs === undefined) return;
-    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
+async function plotUtilTimeSeries(items, layout, div, axis) {
+    if (items === undefined) return;
+    const medList = Array.isArray(items) ? items : [items];
     const data = await Promise.all(medList.map(med => getUtilDataTimeSeries(med, axis)))
     return plot(data.flat(), layout, "line", div);
 }
@@ -56,9 +56,9 @@ async function getDrugUtilDataBar(item, dataParams = {yAxis: "total_amount_reimb
     return {x: Object.keys(av), y: Object.values(av)}
 }
 
-async function plotDrugUtilBar(ndc, layout, div, yAxis){
-    if (ndc === undefined) return;
-    const data = await getDrugUtilDataBar(ndc, yAxis)
+async function plotDrugUtilBar(item, layout, div, dataParams){
+    if (item === undefined) return;
+    const data = await getDrugUtilDataBar(item, dataParams)
     return plot(data, layout, "bar", div);
 }
 
@@ -152,13 +152,13 @@ async function plotUtilMap(item, dataParams, div) {
 // }
 
 export {
-    //data retrieval
     getUtilData,
+    getUtilDataTimeSeries,
     getDrugUtilDataBar,
-    plotUtilMap,
+    getUtilMapData,
     // getDrugUtilDataXX,
-    //plotting
     plotUtilTimeSeries,
     plotDrugUtilBar,
+    plotUtilMap,
     // plotDrugUtilDataXX
 }
