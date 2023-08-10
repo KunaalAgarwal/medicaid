@@ -160,7 +160,7 @@ async function getDrugUtilDataXX(ndc, yAxis) {
     let range = 2022-2014+1;
     let allYears = [...Array(range).keys()].map(o => 2014+o);
     let res;
-    res = Promise.all(allYears.map(async (year,i) => {
+    res = Promise.all(allYears.map(async (year) => {
         let data = await getDrugUtilDataBar(ndc, yAxis, year);
         return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
     })).then(refinedData => refinedData.filter(o => o.xx !== undefined));

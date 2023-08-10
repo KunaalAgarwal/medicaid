@@ -48,18 +48,16 @@ async function getMedNames(medicine){
     return medList.filter(med => med.split(' ')[0] === `${baseMedName.toUpperCase()}`)
 }
 
-async function getMedData(ndcs, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
+async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
     if (nadacDistributions === undefined){
         await preImport();
     }
-    const rawData = await getAllData(ndcs, filter, nadacDistributions, dataVariables);
+    const rawData = await getAllData(items, filter, nadacDistributions, dataVariables);
     return rawData.flat()
 }
 
-async function getMedDataPlot(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc"}){
-    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const medData = await getMedData(medList, axis.filter, Object.values(axis));
-    const result = medData.reduce(
+function plotifyData(data, axis){
+    const result = data.reduce(
         (result, obj) => {
             result.x.push(obj[axis.xAxis])
             result.y.push(obj[axis.yAxis])
@@ -68,16 +66,40 @@ async function getMedDataPlot(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_p
         {x: [], y: []}
     );
     result["x"].sort();
+    return result;
+}
+
+async function getMedPlotData(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc_description"}){
+    const medList = Array.isArray(meds) ? meds : [meds];
+    const medData = await getMedData(medList, axis.filter, Object.values(axis));
+    const result = plotifyData(medData, axis);
     result["name"] = medList[0];
     return result;
 }
 
-async function plotNadacMed(ndcs, layout, div, axis) {
+async function getNdcPlotData(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc"}){
+    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
+    const medData = await getMedData(medList, axis.filter, Object.values(axis));
+    const result = plotifyData(medData, axis);
+    result["name"] = medList[0];
+    return result;
+}
+
+async function plotNadacNdc(ndcs, layout, div, axis) {
     if (ndcs === undefined){
         return;
     }
     const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const data = await Promise.all(medList.map(med => getMedDataPlot(med, axis)))
+    const data = await Promise.all(medList.map(med => getNdcPlotData(med, axis)))
+    return plot(data, layout, "line", div);
+}
+
+async function plotNadacMed(meds, layout, div, axis){
+    if (meds === undefined){
+        return;
+    }
+    const medList = Array.isArray(meds) ? meds : [meds];
+    const data = await Promise.all(medList.map(med => getMedPlotData(med, axis)))
     return plot(data, layout, "line", div);
 }
 
@@ -122,6 +144,7 @@ export {
     //data collection
     getMedData,
     //plotting
+    plotNadacNdc,
     plotNadacMed
 }
 
