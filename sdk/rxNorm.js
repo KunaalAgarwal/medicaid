@@ -1,3 +1,5 @@
+import {getItems} from './httpMethods.js';
+
 async function getAllDiseases(){
     return (await (await fetch(`https://rxnav.nlm.nih.gov/REST/rxclass/allClasses.json?classTypes=DISEASE`)).json()).rxclassMinConceptList.rxclassMinConcept.sort((a,b) => (a.className > b.className) ? 1 : ((b.className > a.className) ? -1 : 0)).map(row =>row.className)
 }
@@ -39,7 +41,7 @@ async function diseaseToDrugs(ndcMap, disease){
 }
 
 async function getDrugRxCui(drugName) {
-    let data = (await sdk.getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
+    let data = (await getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
     let drugs = data.map(o => {
         let res = {tty: o.tty};
         if(Object.values(o).length > 1) {
@@ -50,15 +52,8 @@ async function getDrugRxCui(drugName) {
 }
 
 async function convertRxcuiToNdcs(rxcui) {
-    return (await sdk.getItems(rxcui + '/ndcs.json', false, 'https://rxnav.nlm.nih.gov/REST/rxcui/')).ndcGroup.ndcList.ndc
+    return (await getItems(rxcui + '/ndcs.json', false, 'https://rxnav.nlm.nih.gov/REST/rxcui/')).ndcGroup.ndcList.ndc
 }
-
-
-// Get list of delivery types for a nadac drug matched with rxnorm by ndc
-
-
-// Filter list of drugs by delivery type, generic or branded, 
-
 
 export {
     getAllDiseases,
