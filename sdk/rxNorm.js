@@ -38,7 +38,31 @@ async function diseaseToDrugs(ndcMap, disease){
     return results
 }
 
+async function getDrugRxCui(drugName) {
+    let data = (await sdk.getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
+    let drugs = data.map(o => {
+        let res = {tty: o.tty};
+        if(Object.values(o).length > 1) {
+            res['rxcui'] = o.conceptProperties.map(p => p.rxcui);
+        }
+        return res})
+    return drugs;
+}
+
+async function convertRxcuiToNdcs(rxcui) {
+    return (await sdk.getItems(rxcui + '/ndcs.json', false, 'https://rxnav.nlm.nih.gov/REST/rxcui/')).ndcGroup.ndcList.ndc
+}
+
+
+// Get list of delivery types for a nadac drug matched with rxnorm by ndc
+
+
+// Filter list of drugs by delivery type, generic or branded, 
+
+
 export {
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxCui,
+    convertRxcuiToNdcs
 }

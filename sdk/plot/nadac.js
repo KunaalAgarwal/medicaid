@@ -1,4 +1,4 @@
-import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
+import {getDatasetByTitleName, getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
@@ -118,6 +118,11 @@ async function updateNadac(){
         await endpointStore.setItem("NadacUpdate", Date.now());
         await preImport();
     }
+
+async function getNadacVars(datasetTitle) {
+    let dataset = await getDatasetByTitleName(datasetTitle);
+    let nadacDistribution = await convertDatasetToDistributionId(dataset.identifier);
+    return Object.keys((await sdk.getDatastoreQuerySql(`[SELECT * FROM ${nadacDistribution}][LIMIT 1]`))['0']);
 }
 
 export {
@@ -126,6 +131,9 @@ export {
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,
+    parseSelectedMeds,
+    filterSelectedMeds,
+    getNadacVars,
     //data collection
     getMedData,
     //plotting

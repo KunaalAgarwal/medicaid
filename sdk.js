@@ -52,7 +52,8 @@ import {
     getMedNames,
     getMedData,
     plotNadacNdc,
-    plotNadacMed
+    plotNadacMed,
+    getNadacVars
 } from "./sdk/plot/nadac.js"
 
 import {
@@ -81,7 +82,9 @@ import {
 
 import {
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxCui,
+    convertRxcuiToNdcs
 } from "./sdk/rxNorm.js"
 
 export {
@@ -147,9 +150,12 @@ export {
     getDrugUtilDataXX,
     plotDrugUtilDataXX,
     plotDrugUtilMap,
+    getNadacVars,
     //rxNorm
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxCui,
+    convertRxcuiToNdcs
 }
 
 //initialize localforage
