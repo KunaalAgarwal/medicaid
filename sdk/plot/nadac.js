@@ -103,29 +103,6 @@ async function plotNadacMed(meds, layout, div, axis){
     return plot(data, layout, "line", div);
 }
 
-async function parseSelectedMeds(meds){
-    let medObjArray = [];
-    for (const med of meds) {
-        const medNdcs = await getNdcFromMed(med);
-        medNdcs.forEach(ndc => {
-            medObjArray.push({medName: med, ndc: ndc})
-        })
-    }
-    return medObjArray;
-}
-
-function filterSelectedMeds(medList) {
-    return Object.values(medList.reduce((result, obj) => {
-        const {medName, ndc} = obj;
-        if (medName in result) {
-            result[medName].push(ndc);
-        } else {
-            result[medName] = [ndc];
-        }
-        return result;
-    }, {}));
-}
-
 async function preImport(){
     let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
     let nadacDatasets = datasets.sort((a, b) => a.title.localeCompare(b.title)).slice(0, datasets.length - 1);
@@ -139,8 +116,6 @@ export {
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,
-    parseSelectedMeds,
-    filterSelectedMeds,
     //data collection
     getMedData,
     //plotting

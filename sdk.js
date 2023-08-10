@@ -50,8 +50,6 @@ import {
     getNdcFromMed,
     getMedNames,
     getMedData,
-    parseSelectedMeds,
-    filterSelectedMeds,
     plotNadacNdc,
     plotNadacMed
 } from "./sdk/plot/nadac.js"
@@ -122,29 +120,30 @@ export {
     getSearchFacets,
     getSearch,
     //plot
+    Plotly,
+    plot,
     getUniqueValues,
+    //Nadac
     getAllNdcObjs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
-    parseSelectedMeds,
-    filterSelectedMeds,
+    plotNadacNdc,
+    plotNadacMed,
+    getMedData,
+    //healthcare quality
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    getMedData,
+    //drug utilization
     getDrugUtilData,
     getDrugUtilDataBar,
-    plotNadacNdc,
-    plotNadacMed,
     plotRateBar,
     plotRateTimeSeries,
     plotDrugUtil,
     plotDrugUtilBar,
-    plot,
     getDrugUtilDataXX,
     plotDrugUtilDataXX,
-    Plotly,
     plotDrugUtilMap,
     //rxNorm
     getAllDiseases,
