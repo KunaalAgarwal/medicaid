@@ -40,6 +40,7 @@ import {
 } from "./sdk/sql.js"
 
 import {
+    endpointStore,
     getItems,
     clearCache
 } from "./sdk/httpMethods.js"
@@ -84,6 +85,7 @@ import {
 } from "./sdk/rxNorm.js"
 
 export {
+    endpointStore,
     getItems,
     clearCache,
     //metastore
