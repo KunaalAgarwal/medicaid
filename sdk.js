@@ -83,7 +83,9 @@ import {
 
 import {
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxcui,
+    convertRxcuiToNdcs
 } from "./sdk/rxNorm.js"
 
 export {
@@ -153,7 +155,9 @@ export {
     // plotDrugUtilDataXX,
     //rxNorm
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxcui,
+    convertRxcuiToNdcs
 }
 
 //initialize localforage

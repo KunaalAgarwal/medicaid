@@ -1,3 +1,5 @@
+import {getItems} from './httpMethods.js';
+
 async function getAllDiseases(){
     return (await (await fetch(`https://rxnav.nlm.nih.gov/REST/rxclass/allClasses.json?classTypes=DISEASE`)).json()).rxclassMinConceptList.rxclassMinConcept.sort((a,b) => (a.className > b.className) ? 1 : ((b.className > a.className) ? -1 : 0)).map(row =>row.className)
 }
@@ -38,7 +40,24 @@ async function diseaseToDrugs(ndcMap, disease){
     return results
 }
 
+async function getDrugRxcui(drugName) {
+    let data = (await getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
+    let drugs = data.map(o => {
+        let res = {tty: o.tty};
+        if(Object.values(o).length > 1) {
+            res['rxcui'] = o.conceptProperties.map(p => p.rxcui);
+        }
+        return res})
+    return drugs;
+}
+
+async function convertRxcuiToNdcs(rxcui) {
+    return (await getItems(rxcui + '/ndcs.json', false, 'https://rxnav.nlm.nih.gov/REST/rxcui/')).ndcGroup.ndcList.ndc
+}
+
 export {
     getAllDiseases,
-    diseaseToDrugs
+    diseaseToDrugs,
+    getDrugRxcui,
+    convertRxcuiToNdcs
 }
