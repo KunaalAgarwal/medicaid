@@ -64,18 +64,35 @@ const drugUtilState = {
         }
     },
 }
+const healthcareQualityBarLayout = {
+    title: {
+        text: "Percentage with Preventative Dental Insurance",
+        font: {
+            size: 13
+        }
+    },
+    yaxis: {
+        title: {
+            text: "Percent of Population (2020)"
+        }
+    },
+}
 const prevButton = document.getElementById("prev")
 const nextButton = document.getElementById("next")
 
 const graphDivs = [];
 const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
+
+graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
+showCurrentGraph();
 async function generateGraphs() {
     try {
-        graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
         graphDivs.push(await sdk.plotUtilMap("00536105556"));
         graphDivs.push(await sdk.plotUtilTimeSeries(["24385005452"], drugUtilTime));
         graphDivs.push(await sdk.plotDrugUtilBar("00536105556", drugUtilState));
+        graphDivs.push(await sdk.plotRateBar("Percentage Enrolled in Medicaid or Medicaid Expansion CHIP Programs for at least 90 Continuous Days with at Least 1 Preventive Dental Service: Ages 1 to 20"
+            , "Percentage of Eligibles Who Received Preventive Dental Services: Ages 1 to 20", healthcareQualityBarLayout))
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);
         })
