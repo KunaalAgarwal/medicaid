@@ -1,6 +1,6 @@
 import {getDatasetByTitleName, getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
-import {getAllData, plot} from "./plot.js";
+import {getAllData, plot, plotifyData} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
@@ -56,33 +56,11 @@ async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", 
     return rawData.flat()
 }
 
-function plotifyData(data, axis){
-    const result = data.reduce(
-        (result, obj) => {
-            result.x.push(obj[axis.xAxis])
-            result.y.push(obj[axis.yAxis])
-            return result
-        },
-        {x: [], y: []}
-    );
-    result["x"].sort();
-    return result;
-}
-
-async function getMedPlotData(meds, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc_description"}){
+async function getMedPlotData(meds, filter, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
     const medList = Array.isArray(meds) ? meds : [meds];
-    const medData = await getMedData(medList, axis.filter, Object.values(axis));
-    const result = plotifyData(medData, axis);
-    result["name"] = medList[0];
-    return result;
-}
-
-async function getNdcPlotData(ndcs, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit", filter: "ndc"}){
-    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const medData = await getMedData(medList, axis.filter, Object.values(axis));
-    const result = plotifyData(medData, axis);
-    result["name"] = medList[0];
-    return result;
+    const medData = await getMedData(medList, filter, Object.values(axis));
+    const plotData = plotifyData(medData, axis);
+    return {x: plotData[axis.xAxis], y: plotData[axis.yAxis], name: medList[0]}
 }
 
 async function plotNadacNdc(ndcs, layout, div, axis) {
@@ -90,16 +68,15 @@ async function plotNadacNdc(ndcs, layout, div, axis) {
         return;
     }
     const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const data = await Promise.all(medList.map(med => getNdcPlotData(med, axis)))
+    const data = await Promise.all(medList.map(med => getMedPlotData(med, "ndc", axis)))
     return plot(data, layout, "line", div);
 }
-
 async function plotNadacMed(meds, layout, div, axis){
     if (meds === undefined){
         return;
     }
     const medList = Array.isArray(meds) ? meds : [meds];
-    const data = await Promise.all(medList.map(med => getMedPlotData(med, axis)))
+    const data = await Promise.all(medList.map(med => getMedPlotData(med, "ndc_description", axis)))
     return plot(data, layout, "line", div);
 }
 

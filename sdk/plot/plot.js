@@ -1,7 +1,6 @@
 import {getDatastoreQuerySql} from "../sql.js";
 import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
-// Format names for drop-down selection (ex: states, medicines)
 async function getUniqueValues(variable, distribution) {
     // Use State Utilization Data 2014
     let all_values = await getDatastoreQuerySql(`[SELECT ${variable} FROM ${distribution}]`);
@@ -12,7 +11,7 @@ async function getUniqueValues(variable, distribution) {
 function plot(data, layout, type = "line", divElement = null){
     const adjustedData = Array.isArray(data) ? data : [data];
     const div = divElement || document.createElement('div');
-    for (let trace of adjustedData){trace.type = type}
+    adjustedData.forEach(trace => {trace.type = type})
     Plotly.newPlot(div, adjustedData, layout);
     return div;
 }
@@ -40,9 +39,43 @@ async function getAllData(items, filter, distributions, dataVariables){
     return result;
 }
 
+function plotifyData(data, axis) {
+    return Object.values(axis).reduce(
+        (result, field) => {
+            result[field] = data.map(obj => obj[field]);
+            result[field].sort();
+            return result;
+        },
+        {}
+    );
+}
+
+function averageValues(data) {
+    const averagedData = data.reduce((result, obj) => {
+        const key = Object.keys(obj)[0];
+        const value = parseFloat(obj[key]);
+        if (!isNaN(value)) {
+            if (!result[key]) {
+                result[key] = { sum: value, count: 1 };
+            } else {
+                result[key].sum += value;
+                result[key].count++;
+            }
+        }
+        return result;
+    }, {});
+    Object.keys(averagedData).forEach((key) => {
+        averagedData[key] = averagedData[key].sum / averagedData[key].count;
+    });
+    return averagedData;
+}
+
+
 export {
     getUniqueValues,
     plot,
     getAllData,
+    plotifyData,
+    averageValues,
     Plotly
 }

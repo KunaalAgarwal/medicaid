@@ -107,6 +107,8 @@ h1 {
 
 .hero-button:hover {
     background-color: #344aa1;
+    text-decoration: none;
+    color: #fff;
 }
 
 main {
@@ -130,6 +132,27 @@ p {
     max-width: 800px;
     line-height: 1.6;
 }
+
+.core-button {
+    border: none;
+    padding: 15px 30px;
+    margin-top: 20px;
+    background-color: #848796;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.core-button:hover {
+    background-color: #9ca3c0;
+    text-decoration: none;
+    color: #fff;
+}
+
 
 .graph-slideshow-container {
     padding: 30px;

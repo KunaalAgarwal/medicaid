@@ -1,23 +1,21 @@
-import {getAllData, plot} from "./plot.js";
-import {convertDatasetToDistributionId, getDatasetByKeyword, getDatasetByTitleName} from "../metastore.js";
+import {getAllData, plot, averageValues} from "./plot.js";
+import {convertDatasetToDistributionId, getDatasetByKeyword} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 
 let drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);
 let drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 
-async function rawDrugUtil(ndcs, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
-    if (ndcs === undefined){
-        throw new Error("Please provide valid NDCs.");
-    }
-    const adjustedNdcsList = Array.isArray(ndcs) ? ndcs : [ndcs];
+async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
+    if (items === undefined) throw new Error("Please provide valid NDCs.");
+    const adjustedNdcsList = Array.isArray(items) ? items : [items];
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
     }
     return await getAllData(adjustedNdcsList, filter, drugUtilIds, dataVariables);
 }
 
-async function getDrugUtilData(ndcs, filter, dataVariables) {
-    const rawData = await rawDrugUtil(ndcs, filter, dataVariables);
+async function getUtilData(items, filter, dataVariables) {
+    const rawData = await getRawUtilData(items, filter, dataVariables);
     const results = [];
     for (const datapoint of rawData.flat()) {
         const { suppression_used, ...rest } = datapoint;
@@ -28,64 +26,45 @@ async function getDrugUtilData(ndcs, filter, dataVariables) {
     return results;
 }
 
-async function getDrugUtilDataPlot(ndcs, axis= {x: "year", y: "total_amount_reimbursed", y2: "number_of_prescriptions"}){
-    const data = await rawDrugUtil(ndcs);
+async function getUtilDataTimeSeries(items, axis= {yAxis: "total_amount_reimbursed", y2: "number_of_prescriptions", filter: "ndc"}){
+    const data = await getRawUtilData(items, axis.filter);
     const result = data.reduce((acc, dataset) => {
         const filteredData = dataset.filter(x => x["suppression_used"] === "false");
         if (filteredData.length > 0) {
-            acc.xData.push(filteredData[0][axis.x]);
-            acc.yData.push(filteredData.reduce((total, datapoint) => total + parseFloat(datapoint[axis.y]), 0));
+            acc.xData.push(filteredData[0]["year"]);
+            acc.yData.push(filteredData.reduce((total, datapoint) => total + parseFloat(datapoint[axis.yAxis]), 0));
             acc.y2Data.push(filteredData.reduce((total, datapoint) => total + parseFloat(datapoint[axis.y2]), 0));
         }
         return acc;
     }, {xData: [], yData: [], y2Data: []});
     result.xData.sort()
-    return [{x: result.xData, y: result.yData, name: axis.y}, {x: result.xData, y: result.y2Data, yaxis:'y2', name: axis.y2}]
+    return [{x: result.xData, y: result.yData, name: axis.yAxis}, {x: result.xData, y: result.y2Data, yaxis:'y2', name: axis.y2}]
 }
 
-async function plotDrugUtil(ndcs, layout, div, axis) {
-    if (ndcs === undefined){
-        return;
-    }
-    const medList = Array.isArray(ndcs) ? ndcs : [ndcs];
-    const data = await Promise.all(medList.map(med => getDrugUtilDataPlot(med, axis)))
+async function plotUtilTimeSeries(items, layout, div, axis) {
+    if (items === undefined) return;
+    const medList = Array.isArray(items) ? items : [items];
+    const data = await Promise.all(medList.map(med => getUtilDataTimeSeries(med, axis)))
     return plot(data.flat(), layout, "line", div);
 }
 
-async function getDrugUtilDataBar(ndc, yAxis = "total_amount_reimbursed", year = '2022') {
-    const drugUtil = await getDatasetByTitleName(`State Drug Utilization Data ${year}`);
-    const drugUtilId = await convertDatasetToDistributionId(drugUtil.identifier);
-    const response = await getDatastoreQuerySql(`[SELECT state,${yAxis},suppression_used FROM ${drugUtilId}][WHERE ndc = "${ndc}"]`);
+async function getDrugUtilDataBar(item, dataParams = {yAxis: "total_amount_reimbursed", year: '2022', filter: "ndc"}) {
+    const datasetId = drugUtilDatasets.indexOf(drugUtilDatasets.filter(dataset => dataset["title"].includes(dataParams.year))[0]);
+    const response = await getDatastoreQuerySql(`[SELECT state,${dataParams.yAxis},suppression_used FROM ${drugUtilIds[datasetId]}][WHERE ${dataParams.filter} = "${item}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
-    const states = filteredData.reduce((stateTotals, obj) => {
-        if (!stateTotals[obj["state"]]) {
-            stateTotals[obj["state"]] = {sum: parseFloat(obj[yAxis]), count: 1};
-        } else {
-            stateTotals[obj["state"]].sum += parseFloat(obj[yAxis]);
-            stateTotals[obj["state"]].count += 1;
-        }
-        return stateTotals
-    }, {});
-    const yVals = Object.values(states).reduce((result, obj) => {
-        result.push(obj["sum"]/obj["count"]);
-        return result;
-    }, [])
-    return {x: Object.keys(states), y: yVals};
+    const av = averageValues(filteredData.map(x => ({[x.state]: x[dataParams.yAxis]})));
+    return {x: Object.keys(av), y: Object.values(av)}
 }
 
-async function plotDrugUtilBar(ndc, layout, div, yAxis){
-    if (ndc === undefined){
-        return;
-    }
-    const data = await getDrugUtilDataBar(ndc, yAxis)
+async function plotDrugUtilBar(item, layout, div, dataParams){
+    if (item === undefined) return;
+    const data = await getDrugUtilDataBar(item, dataParams)
     return plot(data, layout, "bar", div);
 }
 
 async function removedOutliers(data) {
     const yValues = data.y.slice();
     yValues.sort((a, b) => a - b);
-
-    // Calculate the quartiles and IQR
     const q1 = yValues[Math.floor(yValues.length * 0.25)];
     const q3 = yValues[Math.ceil(yValues.length * 0.75)];
     const iqr = q3 - q1;
@@ -98,21 +77,19 @@ async function removedOutliers(data) {
     }
 }
 
-async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
-    let data =  await getDrugUtilDataBar(ndc, yAxis, year);
-    if (outliers) { data = await removedOutliers(data) }
-    const allStates = new Set(['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID',
+async function getUtilMapData(item, dataParams = {outliers: true, filter: "ndc", yAxis: "total_amount_reimbursed", year: "2022"}){
+    let data =  await getDrugUtilDataBar(item, dataParams);
+    if (dataParams.outliers) data = await removedOutliers(data);
+    const allStates = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID',
         'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
-        'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']);
-
-    for (const state of allStates) {
-        if (!data.x.includes(state)) {
+        'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'];
+    allStates.forEach(state => {
+        if (!data.x.includes(state)){
             data.x.push(state);
             data.y.push(-1);
         }
-    }
-
-    let choroplethData = [{
+    })
+    return [{
         type: 'choropleth',
         locationmode: 'USA-states',
         locations: data.x,
@@ -138,8 +115,10 @@ async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
             }
         }
     }];
+}
 
-    let layout = {
+async function plotUtilMap(item, dataParams, div) {
+    const layout = {
         title: '2022 US Total Amount Reimbursed by State',
         geo: {
             scope: 'usa',
@@ -149,36 +128,37 @@ async function plotDrugUtilMap(ndc, outliers = true, div, yAxis, year) {
         width: 800,
         height: 600
     };
-    return plot(choroplethData, layout, "choropleth", div);
+    return plot(await getUtilMapData(item, dataParams), layout, "choropleth", div);
 }
 
-async function getDrugUtilDataXX(ndc, yAxis) {
-    let range = 2022-2014+1;
-    let allYears = [...Array(range).keys()].map(o => 2014+o);
-    let res;
-    res = Promise.all(allYears.map(async (year) => {
-        let data = await getDrugUtilDataBar(ndc, yAxis, year);
-        return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
-    })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
-    return res;
-}
-
-async function plotDrugUtilDataXX(ndc, div, layout, yAxis) {
-    let res = {};
-    let data = await getDrugUtilDataXX(ndc, yAxis);
-    res['x'] = data.map(o => o.year);
-    res['y'] = data.map(o => o.xx)
-    return plot([res], layout, "line", div);
-}
+//will add back later
+// async function getDrugUtilDataXX(item, filter, yAxis) {
+//     let range = 2022-2014+1;
+//     let allYears = [...Array(range).keys()].map(o => 2014+o);
+//     let res;
+//     res = Promise.all(allYears.map(async (year) => {
+//         let data = await getDrugUtilDataBar(item, {filter: filter, yAxis: yAxis, year: });
+//         return {year: year, xx: data['y'][data['x'].indexOf('XX')]};
+//     })).then(refinedData => refinedData.filter(o => o.xx !== undefined));
+//     return res;
+// }
+//
+// async function plotDrugUtilDataXX(ndc, div, layout, yAxis) {
+//     let res = {};
+//     let data = await getDrugUtilDataXX(ndc, yAxis);
+//     res['x'] = data.map(o => o.year);
+//     res['y'] = data.map(o => o.xx)
+//     return plot([res], layout, "line", div);
+// }
 
 export {
-    //data retrieval
-    getDrugUtilData,
+    getUtilData,
+    getUtilDataTimeSeries,
     getDrugUtilDataBar,
-    plotDrugUtilMap,
-    getDrugUtilDataXX,
-    //plotting
-    plotDrugUtil,
+    getUtilMapData,
+    // getDrugUtilDataXX,
+    plotUtilTimeSeries,
     plotDrugUtilBar,
-    plotDrugUtilDataXX
+    plotUtilMap,
+    // plotDrugUtilDataXX
 }

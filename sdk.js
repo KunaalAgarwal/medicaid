@@ -52,8 +52,7 @@ import {
     getMedNames,
     getMedData,
     plotNadacNdc,
-    plotNadacMed,
-    getNadacVars
+    plotNadacMed
 } from "./sdk/plot/nadac.js"
 
 import {
@@ -65,13 +64,15 @@ import {
 } from "./sdk/plot/healthcareMeasures.js"
 
 import {
-    getDrugUtilData,
-    plotDrugUtil,
-    plotDrugUtilBar,
+    getUtilData,
+    getUtilDataTimeSeries,
     getDrugUtilDataBar,
-    plotDrugUtilMap,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX
+    getUtilMapData,
+    plotUtilTimeSeries,
+    plotDrugUtilBar,
+    plotUtilMap,
+    // getDrugUtilDataXX,
+    // plotDrugUtilDataXX
 } from "./sdk/plot/drugUtilization.js"
 
 import {
@@ -82,9 +83,7 @@ import {
 
 import {
     getAllDiseases,
-    diseaseToDrugs,
-    getDrugRxCui,
-    convertRxcuiToNdcs
+    diseaseToDrugs
 } from "./sdk/rxNorm.js"
 
 export {
@@ -140,22 +139,21 @@ export {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
-    //drug utilization
-    getDrugUtilData,
-    getDrugUtilDataBar,
     plotRateBar,
     plotRateTimeSeries,
-    plotDrugUtil,
+    //drug utilization
+    getUtilData,
+    getUtilDataTimeSeries,
+    getDrugUtilDataBar,
+    getUtilMapData,
+    plotUtilTimeSeries,
     plotDrugUtilBar,
-    getDrugUtilDataXX,
-    plotDrugUtilDataXX,
-    plotDrugUtilMap,
-    getNadacVars,
+    plotUtilMap,
+    // getDrugUtilDataXX,
+    // plotDrugUtilDataXX,
     //rxNorm
     getAllDiseases,
-    diseaseToDrugs,
-    getDrugRxCui,
-    convertRxcuiToNdcs
+    diseaseToDrugs
 }
 
 //initialize localforage
