@@ -1,4 +1,4 @@
-import {getDatasetByTitleName, getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
+import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot, plotifyData} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
@@ -86,20 +86,15 @@ async function preImport(){
     nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
 }
 
-async function updateNadac(){
-    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000){
-        const latestNadacId  = nadacDatasets[0].identifier;
+async function updateNadac() {
+    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
+        const latestNadacId = nadacDatasets[0].identifier;
         await endpointStore.removeItem(`metastore/schemas/dataset/items/${latestNadacId}`)
         await endpointStore.removeItem("metastore/schemas/dataset/items");
         await endpointStore.removeItem("metastore/schemas/distribution/items");
         await endpointStore.setItem("NadacUpdate", Date.now());
         await preImport();
     }
-
-async function getNadacVars(datasetTitle) {
-    let dataset = await getDatasetByTitleName(datasetTitle);
-    let nadacDistribution = await convertDatasetToDistributionId(dataset.identifier);
-    return Object.keys((await sdk.getDatastoreQuerySql(`[SELECT * FROM ${nadacDistribution}][LIMIT 1]`))['0']);
 }
 
 export {
@@ -108,9 +103,6 @@ export {
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,
-    parseSelectedMeds,
-    filterSelectedMeds,
-    getNadacVars,
     //data collection
     getMedData,
     //plotting

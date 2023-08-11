@@ -86,6 +86,17 @@ let currentGraphIndex = 0;
 
 graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
 showCurrentGraph();
+
+function showCurrentGraph() {
+    // Hide all graph divs
+    graphDivs.forEach((div, index) => {
+        if (index === currentGraphIndex) {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
+    });
+}
 async function generateGraphs() {
     try {
         graphDivs.push(await sdk.plotUtilMap("00536105556"));
@@ -103,17 +114,6 @@ async function generateGraphs() {
 
 await generateGraphs();
 console.log(graphDivs);
-
-function showCurrentGraph() {
-    // Hide all graph divs
-    graphDivs.forEach((div, index) => {
-        if (index === currentGraphIndex) {
-            div.style.display = "block";
-        } else {
-            div.style.display = "none";
-        }
-    });
-}
 
 async function next() {
     currentGraphIndex++;
