@@ -40,7 +40,7 @@ async function diseaseToDrugs(ndcMap, disease){
     return results
 }
 
-async function getDrugRxCui(drugName) {
+async function getDrugRxcui(drugName) {
     let data = (await getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
     let drugs = data.map(o => {
         let res = {tty: o.tty};
@@ -58,6 +58,6 @@ async function convertRxcuiToNdcs(rxcui) {
 export {
     getAllDiseases,
     diseaseToDrugs,
-    getDrugRxCui,
+    getDrugRxcui,
     convertRxcuiToNdcs
 }
