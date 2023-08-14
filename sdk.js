@@ -74,8 +74,8 @@ import {
     plotUtilTimeSeries,
     plotDrugUtilBar,
     plotUtilMap,
-    // getDrugUtilDataXX,
-    // plotDrugUtilDataXX
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX
 } from "./sdk/plot/drugUtilization.js"
 
 import {
@@ -157,8 +157,8 @@ export {
     plotUtilTimeSeries,
     plotDrugUtilBar,
     plotUtilMap,
-    // getDrugUtilDataXX,
-    // plotDrugUtilDataXX,
+    getDrugUtilDataXX,
+    plotDrugUtilDataXX,
     //rxNorm
     getAllDiseases,
     diseaseToDrugs,
