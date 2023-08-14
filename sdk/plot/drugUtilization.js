@@ -1,9 +1,11 @@
 import {getAllData, plot, averageValues} from "./plot.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
+import {getDatastoreImport} from "../datastore.js";
 
-let drugUtilDatasets = (await getDatasetByKeyword("drug utilization")).slice(22);
-let drugUtilIds = await Promise.all(drugUtilDatasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+let datasets;
+let distributions;
+await preImport();
 
 async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
     if (items === undefined) throw new Error("Please provide valid NDCs.");
@@ -11,7 +13,7 @@ async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "t
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
     }
-    return await getAllData(adjustedNdcsList, filter, drugUtilIds, dataVariables);
+    return await getAllData(adjustedNdcsList, filter, distributions, dataVariables);
 }
 
 async function getUtilData(items, filter, dataVariables) {
@@ -49,8 +51,8 @@ async function plotUtilTimeSeries(items, layout, div, axis) {
 }
 
 async function getDrugUtilDataBar(item, dataParams = {yAxis: "total_amount_reimbursed", year: '2022', filter: "ndc"}) {
-    const datasetId = drugUtilDatasets.indexOf(drugUtilDatasets.filter(dataset => dataset["title"].includes(dataParams.year))[0]);
-    const response = await getDatastoreQuerySql(`[SELECT state,${dataParams.yAxis},suppression_used FROM ${drugUtilIds[datasetId]}][WHERE ${dataParams.filter} = "${item}"]`);
+    const datasetId = datasets.indexOf(datasets.filter(dataset => dataset["title"].includes(dataParams.year))[0]);
+    const response = await getDatastoreQuerySql(`[SELECT state,${dataParams.yAxis},suppression_used FROM ${distributions[datasetId]}][WHERE ${dataParams.filter} = "${item}"]`);
     const filteredData = response.filter(x => x["suppression_used"] === "false");
     const av = averageValues(filteredData.map(x => ({[x.state]: x[dataParams.yAxis]})));
     return {x: Object.keys(av), y: Object.values(av)}
@@ -131,6 +133,10 @@ async function plotUtilMap(item, dataParams, div) {
     return plot(await getUtilMapData(item, dataParams), layout, "choropleth", div);
 }
 
+async function getUtilInfo(){
+    return getDatastoreImport(distributions[distributions.length - 1]);
+}
+
 //will add back later
 // async function getDrugUtilDataXX(item, filter, yAxis) {
 //     let range = 2022-2014+1;
@@ -151,11 +157,17 @@ async function plotUtilMap(item, dataParams, div) {
 //     return plot([res], layout, "line", div);
 // }
 
+async function preImport(){
+    datasets = (await getDatasetByKeyword("drug utilization")).slice(22);
+    distributions = await Promise.all(datasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
+}
+
 export {
     getUtilData,
     getUtilDataTimeSeries,
     getDrugUtilDataBar,
     getUtilMapData,
+    getUtilInfo,
     // getDrugUtilDataXX,
     plotUtilTimeSeries,
     plotDrugUtilBar,

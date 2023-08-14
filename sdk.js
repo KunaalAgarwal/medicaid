@@ -51,6 +51,7 @@ import {
     getNdcFromMed,
     getMedNames,
     getMedData,
+    getNadacInfo,
     plotNadacNdc,
     plotNadacMed
 } from "./sdk/plot/nadac.js"
@@ -59,6 +60,7 @@ import {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
+    getHealthcareMeasuresInfo,
     plotRateBar,
     plotRateTimeSeries
 } from "./sdk/plot/healthcareMeasures.js"
@@ -68,6 +70,7 @@ import {
     getUtilDataTimeSeries,
     getDrugUtilDataBar,
     getUtilMapData,
+    getUtilInfo,
     plotUtilTimeSeries,
     plotDrugUtilBar,
     plotUtilMap,
@@ -134,6 +137,7 @@ export {
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
+    getNadacInfo,
     plotNadacNdc,
     plotNadacMed,
     getMedData,
@@ -141,6 +145,7 @@ export {
     getQualityMeasures,
     getRateDefinitions,
     getStates,
+    getHealthcareMeasuresInfo,
     plotRateBar,
     plotRateTimeSeries,
     //drug utilization
@@ -148,6 +153,7 @@ export {
     getUtilDataTimeSeries,
     getDrugUtilDataBar,
     getUtilMapData,
+    getUtilInfo,
     plotUtilTimeSeries,
     plotDrugUtilBar,
     plotUtilMap,

@@ -1,6 +1,7 @@
 import {convertDatasetToDistributionId, getDatasetByKeyword} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot, averageValues} from "./plot.js"
+import {getDatastoreImport} from "../datastore.js";
 
 let distributions;
 await preImport();
@@ -47,6 +48,10 @@ async function plotRateTimeSeries(stateList, layout, rateDef, div) {
     return plot(data, layout, "line", div);
 }
 
+async function getHealthcareMeasuresInfo(){
+    return getDatastoreImport(distributions[distributions.length - 1]);
+}
+
 async function preImport(){
     let datasets = await getDatasetByKeyword("performance rates");
     datasets.sort((a, b) => a.title.localeCompare(b.title));
@@ -54,12 +59,12 @@ async function preImport(){
     distributions = ids.slice(2, ids.length)
 }
 
-
 export {
     //general
     getQualityMeasures,
     getRateDefinitions,
     getStates,
+    getHealthcareMeasuresInfo,
     //plotting
     plotRateBar,
     plotRateTimeSeries

@@ -2,20 +2,21 @@ import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot, plotifyData} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
+import {getDatastoreImport} from "../datastore.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
-let nadacDatasets;
-let nadacDistributions;
+let datasets;
+let distributions;
 let ndcObjMap;
 await preImport();
 
 async function getAllNdcObjs() {
     const ndcs = new Map();
-    for (let i = 0; i < nadacDistributions.length; i += 4){
-        if (i >= nadacDistributions.length){
+    for (let i = 0; i < distributions.length; i += 4){
+        if (i >= distributions.length){
             break;
         }
-        const response = await getDatastoreQuerySql(`[SELECT ndc,ndc_description FROM ${nadacDistributions[i]}]`);
+        const response = await getDatastoreQuerySql(`[SELECT ndc,ndc_description FROM ${distributions[i]}]`);
         response.forEach(ndcObj => {
             if (!ndcs.has(ndcObj["ndc_description"])){
                 ndcs.set(ndcObj["ndc_description"], new Set());
@@ -51,7 +52,7 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    const rawData = await getAllData(items, filter, nadacDistributions, dataVariables);
+    const rawData = await getAllData(items, filter, distributions, dataVariables);
     await updateNadac();
     return rawData.flat()
 }
@@ -80,15 +81,19 @@ async function plotNadacMed(meds, layout, div, axis){
     return plot(data, layout, "line", div);
 }
 
+async function getNadacInfo(){
+    return getDatastoreImport(distributions[distributions.length - 1]);
+}
+
 async function preImport(){
     let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
-    nadacDatasets = datasets.sort((a, b) => a.title.localeCompare(b.title))
-    nadacDistributions = await Promise.all(nadacDatasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+    datasets = datasets.sort((a, b) => a.title.localeCompare(b.title))
+    distributions = await Promise.all(datasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
 }
 
 async function updateNadac() {
     if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
-        const latestNadacId = nadacDatasets[0].identifier;
+        const latestNadacId = datasets[0].identifier;
         await endpointStore.removeItem(`metastore/schemas/dataset/items/${latestNadacId}`)
         await endpointStore.removeItem("metastore/schemas/dataset/items");
         await endpointStore.removeItem("metastore/schemas/distribution/items");
@@ -103,6 +108,7 @@ export {
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,
+    getNadacInfo,
     //data collection
     getMedData,
     //plotting
