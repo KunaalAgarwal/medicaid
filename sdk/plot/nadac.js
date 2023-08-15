@@ -1,7 +1,7 @@
 import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot, plotifyData} from "./plot.js";
-import {endpointStore} from "../httpMethods.js";
+import {clearCache, endpointStore} from "../httpMethods.js";
 import {getDatastoreImport} from "../datastore.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
@@ -93,11 +93,7 @@ async function preImport(){
 
 async function updateNadac() {
     if (Date.now() - await endpointStore.getItem("NadacUpdate") > 1000) {
-        const latestNadacId = datasets[0].identifier;
-        await endpointStore.removeItem(`metastore/schemas/dataset/items/${latestNadacId}`)
-        await endpointStore.removeItem("metastore/schemas/dataset/items");
-        await endpointStore.removeItem("metastore/schemas/distribution/items");
-        await endpointStore.setItem("NadacUpdate", Date.now());
+        await clearCache();
         await preImport();
     }
 }
