@@ -92,7 +92,7 @@ async function preImport(){
 }
 
 async function updateNadac() {
-    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
+    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 1000) {
         const latestNadacId = datasets[0].identifier;
         await endpointStore.removeItem(`metastore/schemas/dataset/items/${latestNadacId}`)
         await endpointStore.removeItem("metastore/schemas/dataset/items");
