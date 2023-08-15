@@ -1,4 +1,5 @@
 import {getItems} from './httpMethods.js';
+
 //endpoint: "metastore/schemas/";
 async function getSchemas(){
     const response = await getItems("metastore/schemas");
@@ -94,24 +95,18 @@ async function convertDatasetToDistributionId(datasetId) {
     let dataset = await getDatasetById(datasetId);
     let downloadLink = parseDatasetUrl(dataset);
     let distribution = await getDistributionByDownloadUrl(downloadLink);
+    if (distribution === undefined) throw new Error("The dataset Id could not be converted.");
     let adjustedDistribution = Array.isArray(distribution) ? distribution : [distribution];
-    const result = (adjustedDistribution)[0].identifier;
-    if (result === undefined){
-        throw new Error("The dataset Id could not be converted.")
-    }
-    return result;
+    return (adjustedDistribution)[0].identifier;
 }
 
 async function convertDistributionToDatasetId(distributionId){
     let distribution = await getDistributionById(distributionId);
     let downloadLink = distribution.data["downloadURL"]
     let dataset = await getDatasetByDownloadUrl(downloadLink);
+    if (dataset === undefined) throw new Error("The distribution Id could not be converted");
     let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
-    const result = (adjustedDataset)[0].identifier
-    if (result === undefined){
-        throw new Error("The distribution Id could not be converted");
-    }
-    return result;
+    return (adjustedDataset)[0].identifier;
 }
 
 export {

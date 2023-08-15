@@ -1,11 +1,10 @@
 import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getAllData, plot, plotifyData} from "./plot.js";
-import {clearCache, endpointStore} from "../httpMethods.js";
+import {endpointStore} from "../httpMethods.js";
 import {getDatastoreImport} from "../datastore.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
-let datasets;
 let distributions;
 let ndcObjMap;
 await preImport();
@@ -89,11 +88,13 @@ async function preImport(){
     let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
     datasets = datasets.sort((a, b) => a.title.localeCompare(b.title))
     distributions = await Promise.all(datasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
+    await endpointStore.removeItem(`metastore/schemas/dataset/items/${datasets[datasets.length - 1].identifier}`)
+    await endpointStore.removeItem("metastore/schemas/distribution/items");
 }
 
 async function updateNadac() {
-    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 1000) {
-        await clearCache();
+    if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
+        await endpointStore.setItem("NadacUpdate", Date.now());
         await preImport();
     }
 }
@@ -111,4 +112,3 @@ export {
     plotNadacNdc,
     plotNadacMed
 }
-
