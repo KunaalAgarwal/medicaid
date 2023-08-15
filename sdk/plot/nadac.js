@@ -11,6 +11,7 @@ let ndcObjMap;
 await preImport();
 
 async function getAllNdcObjs() {
+    await updateNadac();
     const ndcs = new Map();
     for (let i = 0; i < distributions.length; i += 4){
         if (i >= distributions.length){
@@ -24,7 +25,6 @@ async function getAllNdcObjs() {
             ndcs.get(ndcObj["ndc_description"]).add(ndcObj["ndc"]);
         })
     }
-    await updateNadac();
     return ndcs;
 }
 
@@ -52,8 +52,8 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    const rawData = await getAllData(items, filter, distributions, dataVariables);
     await updateNadac();
+    const rawData = await getAllData(items, filter, distributions, dataVariables);
     return rawData.flat()
 }
 
