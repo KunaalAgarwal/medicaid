@@ -5,6 +5,7 @@ async function getDrugContext(rxcui){
         if (response === undefined) throw new Error("Drug context isn't available for this drug");
         const result = Array.isArray(response["results"]) ? response["results"] : [response["results"]];
         if (result.length === 1) return result[0];
+        result["source"] = "FDA-API"
         return result;
     } catch (error) {
         console.log("Drug context isn't available for this drug")

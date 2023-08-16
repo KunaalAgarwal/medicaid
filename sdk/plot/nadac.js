@@ -7,6 +7,7 @@ import {getDatastoreImport} from "../datastore.js";
 endpointStore.setItem("NadacUpdate", Date.now());
 let distributions;
 let ndcObjMap;
+let ndcs;
 await preImport();
 
 async function getAllNdcObjs() {
@@ -34,6 +35,13 @@ async function getNadacMeds(){
     return [...ndcObjMap.keys()].sort()
 }
 
+async function getNadacNdcs(){
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
+    return new Set([...ndcObjMap.values()].flatMap(x => Array.from(x)))
+}
+
 async function getNdcFromMed(med){
     if (ndcObjMap === undefined){
         ndcObjMap = await getAllNdcObjs();
@@ -51,6 +59,11 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
+    if (ndcs === undefined) ndcs = await getNadacNdcs();
+    if (items === undefined) throw new Error("Please provide valid items.");
+    if (filter === "ndc"){
+        items.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
+    }
     await updateNadac();
     const rawData = await getAllData(items, filter, distributions, dataVariables);
     return rawData.flat()
@@ -102,6 +115,7 @@ async function updateNadac() {
 export {
     //general
     getNadacMeds,
+    getNadacNdcs,
     getNdcFromMed,
     getMedNames,
     getAllNdcObjs,

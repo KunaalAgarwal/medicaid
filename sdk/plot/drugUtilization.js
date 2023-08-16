@@ -2,13 +2,19 @@ import {getAllData, plot, averageValues} from "./plot.js";
 import {convertDatasetToDistributionId, getDatasetByKeyword} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
 import {getDatastoreImport} from "../datastore.js";
+import {getNadacNdcs} from "./nadac.js";
 
 let datasets;
 let distributions;
+let ndcs;
 await preImport();
 
 async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
-    if (items === undefined) throw new Error("Please provide valid NDCs.");
+    if (ndcs === undefined) ndcs = await getNadacNdcs();
+    if (items === undefined) throw new Error("Please provide valid items.");
+    if (filter === "ndc"){
+        items.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
+    }
     const adjustedNdcsList = Array.isArray(items) ? items : [items];
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
