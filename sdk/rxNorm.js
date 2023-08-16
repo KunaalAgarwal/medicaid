@@ -1,63 +1,60 @@
 import {getItems} from './httpMethods.js';
-
-async function getAllDiseases(){
-    return (await (await fetch(`https://rxnav.nlm.nih.gov/REST/rxclass/allClasses.json?classTypes=DISEASE`)).json()).rxclassMinConceptList.rxclassMinConcept.sort((a,b) => (a.className > b.className) ? 1 : ((b.className > a.className) ? -1 : 0)).map(row =>row.className)
+async function getAllDiseases(diseaseIdMap){
+    return [...diseaseIdMap.keys()]
+}
+async function getRxcuiFromNdc(ndc){
+    const response = await getItems(`/REST/rxcui.json?idtype=NDC&id=${ndc}&allsrc=0`,false,"https://rxnav.nlm.nih.gov")
+    if (response === undefined) throw new Error("The NDC could not be converted to a Rxcui");
+    const result = Array.isArray(response["idGroup"]["rxnormId"]) ? response["idGroup"]["rxnormId"] : [response["idGroup"]["rxnormId"]];
+    if (result.length === 1) return result[0];
+    return result;
 }
 
-async function diseaseToDrugs(ndcMap, disease){
-    var relaSource = "MEDRT"
-    var relas = "may_treat"
-    var classType = "DISEASE"
-    var results={}
-
-    var classIds =  (Object.values(Object.values(await (await fetch(`https://rxnav.nlm.nih.gov/REST/rxclass/allClasses.json?classTypes=${classType}`)).json())[0])[0]).sort((a,b) => (a.className > b.className) ? 1 : ((b.className > a.className) ? -1 : 0))
-
-    results.disease = disease
-
-    var rxnormDrugs =  (await (await fetch(`https://rxnav.nlm.nih.gov/REST/rxclass/classMembers.json?classId=${classIds.filter(row => row.className.includes(disease))[0].classId} &relaSource=${relaSource}&rela=${relas}`)).json()).drugMemberGroup.drugMember.map(el => el.minConcept).sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)).map(row =>row.name)
-
-    results.rxnormDrugs = rxnormDrugs
-
-    var nadacDrugs = rxnormDrugs.map(rxnormDrug => Array.from(ndcMap.keys()).filter(key => {if(key.indexOf(rxnormDrug.toUpperCase()) >= 0) {return key}}) )
-
-// connect rxnorm drugs to nadac drugs by name (nadac drug names that match rxnorm names)
-    results.matches = []
-    for(let i=0; i < rxnormDrugs.length ; i++){
-        var obj = {}
-        obj[rxnormDrugs[i]] = nadacDrugs[i];results.matches.push(obj)}
-
-    var nadacNdcsFull = nadacDrugs.map(drugNames => drugNames.map(drugName => Array.from(new Map([...ndcMap].filter(([k,v]) => k==drugName)).values())[0]))
-
-    results.nadacDrugNamesNdcs=[]
-    for(let i=0; i < nadacNdcsFull.length ; i++){
-        let obj = {}
-        for(let j=0; j < nadacNdcsFull[i].length ; j++){
-            obj[nadacDrugs[i][j]] =  nadacNdcsFull[i][j]
-        }
-        results.nadacDrugNamesNdcs.push(obj)
-    }
-
-    return results
+async function getNDCsFromRxcui(rxcui){
+    const response = await getItems(`/REST/rxcui/${rxcui}/ndcs.json`,false,"https://rxnav.nlm.nih.gov");
+    const result = Array.isArray(response["ndcGroup"]["ndcList"]["ndc"]) ? response["ndcGroup"]["ndcList"]["ndc"] : [response["ndcGroup"]["ndcList"]["ndc"]];
+    if (result.length === 1) return result[0];
+    return result
 }
 
-async function getDrugRxcui(drugName) {
-    let data = (await getItems(`drugs.json?name=` + drugName, false, 'https://rxnav.nlm.nih.gov/REST/')).drugGroup.conceptGroup;
-    let drugs = data.map(o => {
-        let res = {tty: o.tty};
-        if(Object.values(o).length > 1) {
-            res['rxcui'] = o.conceptProperties.map(p => p.rxcui);
-        }
-        return res})
-    return drugs;
+async function getRxcuiProperties(rxcui){
+    const response = await getItems(`/REST/rxcui/${rxcui}/allProperties.json?prop=names`,false,"https://rxnav.nlm.nih.gov");
+    return response["propConceptGroup"]["propConcept"][0]["propValue"].toUpperCase();
 }
 
-async function convertRxcuiToNdcs(rxcui) {
-    return (await getItems(rxcui + '/ndcs.json', false, 'https://rxnav.nlm.nih.gov/REST/rxcui/')).ndcGroup.ndcList.ndc
+async function getDiseaseIdMap(){
+    const response = await getItems("/REST/rxclass/allClasses.json?classTypes=DISEASE",false, "https://rxnav.nlm.nih.gov");
+    const classes = response["rxclassMinConceptList"]["rxclassMinConcept"];
+    return classes.reduce((map, obj) => {
+        map.set(obj["className"],obj["classId"]);
+        return map;
+    }, new Map());
+}
+
+async function getRxcuiMembers(classId){
+    const response = await getItems(`/REST/rxclass/classMembers.json?classId=${classId}&relaSource=MEDRT&rela=may_treat`,false, "https://rxnav.nlm.nih.gov");
+    if (Object.keys(response).length === 0) throw new Error("Could not find any associated drugs for this disease.")
+    const drugs = response["drugMemberGroup"]["drugMember"];
+    return drugs.map(drug => drug["minConcept"]["rxcui"]);
+}
+
+async function getDrugsFromDisease(disease, diseaseIdMap) {
+    const diseaseId = diseaseIdMap.get(disease);
+    const rxcuis = await getRxcuiMembers(diseaseId);
+    return await Promise.all(rxcuis.flatMap(rxcui => getRxcuiProperties(rxcui)));
+}
+
+async function getNdcsFromDisease(disease, diseaseIdMap){
+    const diseaseId = diseaseIdMap.get(disease);
+    const rxcuis = await getRxcuiMembers(diseaseId);
+    return await Promise.all(rxcuis.flatMap(rxcui => getNDCsFromRxcui(rxcui)));
 }
 
 export {
     getAllDiseases,
-    diseaseToDrugs,
-    getDrugRxcui,
-    convertRxcuiToNdcs
+    getNDCsFromRxcui,
+    getRxcuiFromNdc,
+    getDiseaseIdMap,
+    getDrugsFromDisease,
+    getNdcsFromDisease
 }

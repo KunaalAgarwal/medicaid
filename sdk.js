@@ -86,10 +86,16 @@ import {
 
 import {
     getAllDiseases,
-    diseaseToDrugs,
-    getDrugRxcui,
-    convertRxcuiToNdcs
+    getNDCsFromRxcui,
+    getRxcuiFromNdc,
+    getDiseaseIdMap,
+    getDrugsFromDisease,
+    getNdcsFromDisease
 } from "./sdk/rxNorm.js"
+
+import {
+    getDrugContext
+} from "./sdk/fda.js";
 
 export {
     endpointStore,
@@ -161,9 +167,13 @@ export {
     plotDrugUtilDataXX,
     //rxNorm
     getAllDiseases,
-    diseaseToDrugs,
-    getDrugRxcui,
-    convertRxcuiToNdcs
+    getNDCsFromRxcui,
+    getRxcuiFromNdc,
+    getDiseaseIdMap,
+    getDrugsFromDisease,
+    getNdcsFromDisease,
+    //fda
+    getDrugContext
 }
 
 //initialize localforage
