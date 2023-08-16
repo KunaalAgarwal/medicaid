@@ -11,11 +11,11 @@ await preImport();
 
 async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
     if (ndcs === undefined) ndcs = await getNadacNdcs();
-    if (items === undefined) throw new Error("Please provide valid items.");
-    if (filter === "ndc"){
-        items.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
-    }
     const adjustedNdcsList = Array.isArray(items) ? items : [items];
+    if (adjustedNdcsList === undefined) throw new Error("Please provide valid items.");
+    if (filter === "ndc"){
+        adjustedNdcsList.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
+    }
     if (!dataVariables.includes("suppression_used")) {
         dataVariables.push("suppression_used");
     }
