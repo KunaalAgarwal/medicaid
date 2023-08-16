@@ -1,5 +1,6 @@
 import {getItems} from './httpMethods.js';
-async function getAllDiseases(diseaseIdMap){
+let diseaseIdMap = getDiseaseIdMap();
+async function getAllDiseases(){
     return [...diseaseIdMap.keys()]
 }
 async function getRxcuiFromNdc(ndc){
@@ -38,18 +39,18 @@ async function getRxcuiMembers(classId){
     return drugs.map(drug => drug["minConcept"]["rxcui"]);
 }
 
-async function getRxcuiFromDisease(disease, diseaseIdMap){
+async function getRxcuiFromDisease(disease){
     const diseaseId = diseaseIdMap.get(disease);
     return await getRxcuiMembers(diseaseId);
 }
 
-async function getDrugsFromDisease(disease, diseaseIdMap) {
+async function getDrugsFromDisease(disease, ) {
     const diseaseId = diseaseIdMap.get(disease);
     const rxcuis = await getRxcuiMembers(diseaseId);
     return await Promise.all(rxcuis.flatMap(rxcui => getRxcuiProperties(rxcui)));
 }
 
-async function getNdcsFromDisease(disease, diseaseIdMap){
+async function getNdcsFromDisease(disease){
     const diseaseId = diseaseIdMap.get(disease);
     const rxcuis = await getRxcuiMembers(diseaseId);
     return await Promise.all(rxcuis.flatMap(rxcui => getNDCsFromRxcui(rxcui)));
@@ -62,5 +63,6 @@ export {
     getDiseaseIdMap,
     getRxcuiFromDisease,
     getDrugsFromDisease,
-    getNdcsFromDisease
+    getNdcsFromDisease,
+    getRxcuiProperties
 }
