@@ -1,5 +1,5 @@
 import {getItems} from './httpMethods.js';
-let diseaseIdMap = getDiseaseIdMap();
+let diseaseIdMap = await getDiseaseIdMap();
 async function getAllDiseases(){
     return [...diseaseIdMap.keys()]
 }
