@@ -6,11 +6,10 @@ import {getNadacNdcs} from "./nadac.js";
 
 let datasets;
 let distributions;
-let ndcs;
 await preImport();
 
 async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "total_amount_reimbursed", "number_of_prescriptions", "suppression_used"]){
-    if (ndcs === undefined) ndcs = await getNadacNdcs();
+    const ndcs = await getNadacNdcs();
     const adjustedNdcsList = Array.isArray(items) ? items : [items];
     if (adjustedNdcsList === undefined) throw new Error("Please provide valid items.");
     if (filter === "ndc"){
