@@ -47,6 +47,7 @@ import {
 
 import {
     getAllNdcObjs,
+    getNadacNdcs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
@@ -142,6 +143,7 @@ export {
     getUniqueValues,
     //Nadac
     getAllNdcObjs,
+    getNadacNdcs,
     getNadacMeds,
     getNdcFromMed,
     getMedNames,
