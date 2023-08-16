@@ -89,6 +89,7 @@ import {
     getNDCsFromRxcui,
     getRxcuiFromNdc,
     getDiseaseIdMap,
+    getRxcuiFromDisease,
     getDrugsFromDisease,
     getNdcsFromDisease
 } from "./sdk/rxNorm.js"
@@ -170,6 +171,7 @@ export {
     getNDCsFromRxcui,
     getRxcuiFromNdc,
     getDiseaseIdMap,
+    getRxcuiFromDisease,
     getDrugsFromDisease,
     getNdcsFromDisease,
     //fda

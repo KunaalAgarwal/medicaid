@@ -38,6 +38,11 @@ async function getRxcuiMembers(classId){
     return drugs.map(drug => drug["minConcept"]["rxcui"]);
 }
 
+async function getRxcuiFromDisease(disease, diseaseIdMap){
+    const diseaseId = diseaseIdMap.get(disease);
+    return await getRxcuiMembers(diseaseId);
+}
+
 async function getDrugsFromDisease(disease, diseaseIdMap) {
     const diseaseId = diseaseIdMap.get(disease);
     const rxcuis = await getRxcuiMembers(diseaseId);
@@ -55,6 +60,7 @@ export {
     getNDCsFromRxcui,
     getRxcuiFromNdc,
     getDiseaseIdMap,
+    getRxcuiFromDisease,
     getDrugsFromDisease,
     getNdcsFromDisease
 }
