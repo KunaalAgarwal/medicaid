@@ -6,11 +6,12 @@ import {getDatastoreImport} from "../datastore.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
 let distributions;
+let ndcObjMap;
+let ndcs;
 await preImport();
 
 async function getAllNdcObjs() {
     await updateNadac();
-    if (endpointStore.getItem("nadacObjs") !== null) return endpointStore.getItem("nadacObjs");
     const ndcs = new Map();
     for (let i = 0; i < distributions.length; i += 4){
         if (i >= distributions.length){
@@ -24,23 +25,30 @@ async function getAllNdcObjs() {
             ndcs.get(ndcObj["ndc_description"]).add(ndcObj["ndc"]);
         })
     }
-    endpointStore.setItem("nadacObjs", ndcs);
     return ndcs;
 }
 
 async function getNadacMeds(){
-    const ndcObjMap = await getAllNdcObjs();
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
     return [...ndcObjMap.keys()].sort()
 }
 
 async function getNadacNdcs(){
-    const ndcObjMap = await getAllNdcObjs();
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
     return new Set([...ndcObjMap.values()].flatMap(x => Array.from(x)))
 }
 
 async function getNdcFromMed(med){
-    const ndcObjMap = await getAllNdcObjs();
-    if (ndcObjMap.has(med)) return Array.from(ndcObjMap.get(med));
+    if (ndcObjMap === undefined){
+        ndcObjMap = await getAllNdcObjs();
+    }
+    if (ndcObjMap.has(med)){
+        return Array.from(ndcObjMap.get(med));
+    }
     throw new Error("Please provide a medicine that is included in the medicaid dataset.");
 }
 
@@ -51,7 +59,7 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    const ndcs = await getNadacNdcs();
+    if (ndcs === undefined) ndcs = await getNadacNdcs();
     if (items === undefined) throw new Error("Please provide valid items.");
     if (filter === "ndc"){
         items.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
@@ -99,7 +107,6 @@ async function preImport(){
 
 async function updateNadac() {
     if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
-        await endpointStore.removeItem("nadacObjs");
         await endpointStore.setItem("NadacUpdate", Date.now());
         await preImport();
     }
