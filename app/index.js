@@ -84,7 +84,9 @@ const graphDivs = [];
 const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
 
-graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
+const initGraph = await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout);
+graphDiv.appendChild(initGraph);
+graphDivs.push(initGraph);
 showCurrentGraph();
 
 function showCurrentGraph() {
@@ -118,7 +120,7 @@ console.log(graphDivs);
 async function next() {
     currentGraphIndex++;
     if (currentGraphIndex >= graphDivs.length) {
-        currentGraphIndex = 0; // Reset to the first graph if at the end
+        currentGraphIndex = 0;
     }
     await showCurrentGraph();
 }
