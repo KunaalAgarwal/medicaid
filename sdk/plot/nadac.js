@@ -97,12 +97,12 @@ async function preImport(){
     distributions = await Promise.all(datasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
     await endpointStore.removeItem(`metastore/schemas/dataset/items/${datasets[datasets.length - 1].identifier}`)
     await endpointStore.removeItem("metastore/schemas/distribution/items");
-    await endpointStore.removeItem("ndcObjMap");
 }
 
 async function updateNadac() {
     if (Date.now() - await endpointStore.getItem("NadacUpdate") > 3600000) {
         await endpointStore.setItem("NadacUpdate", Date.now());
+        await endpointStore.removeItem("NdcObjMap");
         await preImport();
     }
 }
