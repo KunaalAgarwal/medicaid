@@ -5,18 +5,17 @@ import {endpointStore} from "../httpMethods.js";
 import {getDatastoreImport} from "../datastore.js";
 
 endpointStore.setItem("NadacUpdate", Date.now());
-let distributions;
-let ndcObjMap;
 let ndcs;
+let distributions;
 await preImport();
 
 async function getAllNdcObjs() {
     await updateNadac();
     const ndcs = new Map();
+    const cacheObj = await endpointStore.getItem("ndcObjMap")
+    if (cacheObj !== null) {return cacheObj.response}
     for (let i = 0; i < distributions.length; i += 4){
-        if (i >= distributions.length){
-            break;
-        }
+        if (i >= distributions.length) break;
         const response = await getDatastoreQuerySql(`[SELECT ndc,ndc_description FROM ${distributions[i]}]`);
         response.forEach(ndcObj => {
             if (!ndcs.has(ndcObj["ndc_description"])){
@@ -25,27 +24,22 @@ async function getAllNdcObjs() {
             ndcs.get(ndcObj["ndc_description"]).add(ndcObj["ndc"]);
         })
     }
+    endpointStore.setItem("ndcObjMap", {response: ndcs, time: Date.now()});
     return ndcs;
 }
 
 async function getNadacMeds(){
-    if (ndcObjMap === undefined){
-        ndcObjMap = await getAllNdcObjs();
-    }
+    let ndcObjMap = await getAllNdcObjs();
     return [...ndcObjMap.keys()].sort()
 }
 
 async function getNadacNdcs(){
-    if (ndcObjMap === undefined){
-        ndcObjMap = await getAllNdcObjs();
-    }
+    let ndcObjMap = await getAllNdcObjs();
     return new Set([...ndcObjMap.values()].flatMap(x => Array.from(x)))
 }
 
 async function getNdcFromMed(med){
-    if (ndcObjMap === undefined){
-        ndcObjMap = await getAllNdcObjs();
-    }
+    let ndcObjMap = await getAllNdcObjs();
     if (ndcObjMap.has(med)){
         return Array.from(ndcObjMap.get(med));
     }
@@ -103,6 +97,7 @@ async function preImport(){
     distributions = await Promise.all(datasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
     await endpointStore.removeItem(`metastore/schemas/dataset/items/${datasets[datasets.length - 1].identifier}`)
     await endpointStore.removeItem("metastore/schemas/distribution/items");
+    await endpointStore.removeItem("ndcObjMap");
 }
 
 async function updateNadac() {
