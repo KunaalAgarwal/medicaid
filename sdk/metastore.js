@@ -95,7 +95,8 @@ async function convertDatasetToDistributionId(datasetId) {
     let dataset = await getDatasetById(datasetId);
     let downloadLink = parseDatasetUrl(dataset);
     let distribution = await getDistributionByDownloadUrl(downloadLink);
-    if (distribution === undefined) throw new Error("The dataset Id could not be converted.");
+    if (distribution === undefined || null) throw new Error("The dataset Id could not be converted.");
+    console.log(distribution);
     let adjustedDistribution = Array.isArray(distribution) ? distribution : [distribution];
     return (adjustedDistribution)[0].identifier;
 }
