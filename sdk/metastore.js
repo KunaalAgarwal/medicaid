@@ -8,6 +8,7 @@ async function getSchemas(){
     }
     return response;
 }
+
 const schemas = Object.keys(await getSchemas());
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
@@ -104,7 +105,6 @@ async function convertDistributionToDatasetId(distributionId){
     let distribution = await getDistributionById(distributionId);
     let downloadLink = distribution.data["downloadURL"]
     let dataset = await getDatasetByDownloadUrl(downloadLink);
-    console.log(dataset);
     if (dataset === undefined || dataset === []) throw new Error("The distribution Id could not be converted");
     let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
     return (adjustedDataset)[0].identifier;
