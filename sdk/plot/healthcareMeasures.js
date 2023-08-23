@@ -53,7 +53,7 @@ async function getHealthcareMeasuresInfo(){
 }
 
 async function preImport(){
-    let datasets = await getDatasetByKeyword("performance rates");
+    let datasets = await getDatasetByKeyword("performance rates", false);
     datasets.sort((a, b) => a.title.localeCompare(b.title));
     let ids = await Promise.all(datasets.map(d => convertDatasetToDistributionId(d.identifier)))
     distributions = ids.slice(2, ids.length)

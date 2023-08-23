@@ -162,7 +162,7 @@ async function plotDrugUtilDataXX(ndc, div, layout, yAxis) {
 }
 
 async function preImport(){
-    datasets = (await getDatasetByKeyword("drug utilization")).slice(22);
+    datasets = (await getDatasetByKeyword("drug utilization", false)).slice(22);
     distributions = await Promise.all(datasets.map(async dataset => await convertDatasetToDistributionId(dataset.identifier)));
 }
 

@@ -1,4 +1,3 @@
-//https://data.medicaid.gov/api/1/datastore/imports/ {distribution id}
 import {getItems, postItem} from './httpMethods.js';
 
 async function getDatastoreImport(distributionId){
@@ -141,7 +140,7 @@ async function getAllDataFromDataset(datasetId) {
 }
 
 async function getDownloadByDistributionId(distributionId, downloadParams = {convertBlob: true, filename: "filename.ext", textContent: "Download File"}){
-    const response = await getItems(`datastore/query/${distributionId}/download?format=csv`, true);
+    const response = await getItems(`datastore/query/${distributionId}/download?format=csv`, {blobFlag: true, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'});
     if (downloadParams.convertBlob){
         return createDownloadLink(response, downloadParams.filename, downloadParams.textContent);
     }
@@ -149,7 +148,7 @@ async function getDownloadByDistributionId(distributionId, downloadParams = {con
 }
 
 async function getDownloadByDatasetId(datasetId, downloadParams = {convertBlob: true, filename: "filename.ext", textContent: "Download File"}){
-    const response = await getItems(`datastore/query/${datasetId}/0/download?format=csv`, true);
+    const response = await getItems(`datastore/query/${datasetId}/0/download?format=csv`, {blobFlag: true, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'});
     if (downloadParams.convertBlob){
         return createDownloadLink(response, downloadParams.filename, downloadParams.textContent);
     }
@@ -177,7 +176,7 @@ async function postDatastoreQueryDownload(distributionId, queryParams = {columnN
         ],
         "format": "csv"
     }
-    let response = await postItem('datastore/query/download', requestBody, headers, true);
+    let response = await postItem('datastore/query/download', requestBody, headers, {blobFlag: true, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'});
     if (response === undefined){
         throw new Error("An error occurred in the distribution post query.")
     }

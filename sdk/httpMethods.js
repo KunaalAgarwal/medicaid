@@ -14,50 +14,50 @@ let endpointStore = localforage.createInstance({
     name: dbName,
     storeName: "endpointStore"
 })
-
-async function getItems(endpoint, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
+async function getItems(endpoint, requestParams = {blobFlag: false, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'}) {
     await updateCache();
     const cachedData = await endpointStore.getItem(endpoint);
     if (cachedData !== null) {
         endpointStore.setItem(endpoint, {response: cachedData.response, time: Date.now()});
         return cachedData.response;
     }
-    const response = await fetch(`${baseUrl}${endpoint}`);
+    const response = await fetch(`${requestParams.baseUrl}${endpoint}`);
     if (!response.ok){
         throw new Error("An error occurred in the API get Request");
     }
     let responseData;
-    if (blobFlag) {
+    if (requestParams.blobFlag) {
         responseData = await response.blob();
     } else {
         responseData = await response.json();
     }
-    endpointStore.setItem(endpoint, {response: responseData, time: Date.now()});
+    if (requestParams.cacheFlag) endpointStore.setItem(endpoint, {response: responseData, time: Date.now()});
     return responseData;
 }
-async function postItem(endpoint, payload, headerContent, blobFlag = false, baseUrl = 'https://data.medicaid.gov/api/1/') {
+
+async function postItem(endpoint, payload, headerContent, requestParams = {blobFlag: false, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'}) {
     const options = {
         method: 'POST',
         headers: headerContent,
         body: JSON.stringify(payload)
     };
-    //await  updateCache();
+    await  updateCache();
     const cachedData = await endpointStore.getItem(options.body);
     if (cachedData !== null) {
         endpointStore.setItem(options.body, {response: cachedData.response, time: Date.now()})
         return cachedData.response;
     }
-    const response = await fetch(`${baseUrl}${endpoint}`, options);
+    const response = await fetch(`${requestParams.baseUrl}${endpoint}`, options);
     if (!response.ok){
         throw new Error("An error occurred in the API post request.")
     }
     let responseData;
-    if (blobFlag) {
+    if (requestParams.blobFlag) {
         responseData = await response.blob();
     } else {
         responseData = await response.json();
     }
-    endpointStore.setItem(options.body, {response: responseData, time: Date.now()});
+    if (requestParams.cacheFlag) endpointStore.setItem(options.body, {response: responseData, time: Date.now()});
     return responseData;
 }
 

@@ -92,11 +92,10 @@ async function getNadacInfo(){
 }
 
 async function preImport(){
-    let datasets = (await getDatasetByKeyword("nadac")).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
+    let datasets = (await getDatasetByKeyword("nadac", false)).filter(r => r.title.includes("(National Average Drug Acquisition Cost)"))
     datasets = datasets.sort((a, b) => a.title.localeCompare(b.title))
     distributions = await Promise.all(datasets.map(r => {return convertDatasetToDistributionId(r.identifier)}));
     await endpointStore.removeItem(`metastore/schemas/dataset/items/${datasets[datasets.length - 1].identifier}`)
-    await endpointStore.removeItem("metastore/schemas/distribution/items");
 }
 
 async function updateNadac() {
