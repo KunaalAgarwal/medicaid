@@ -1,6 +1,6 @@
 # Medicaid SDK
-Live at: https://kunaalagarwal.github.io/medicaid/  
-Observable Notebook: https://observablehq.com/@medicaidsdk/overview
+[Live at](https://episphere.github.io/medicaid/)  
+[Observable Notebook](https://observablehq.com/@medicaidsdk/overview)
 
 
 
