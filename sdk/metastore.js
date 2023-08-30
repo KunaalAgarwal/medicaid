@@ -84,12 +84,12 @@ async function getSchemaItemById(schemaName, itemId, cacheFlag){
     return response;
 }
 
-async function getDatasetById(datasetId){
-    return await getSchemaItemById("dataset", datasetId);
+async function getDatasetById(datasetId, cacheFlag = false){
+    return await getSchemaItemById("dataset", datasetId, cacheFlag);
 }
 
-async function getDistributionById(distributionId){
-    return await getSchemaItemById("distribution", distributionId);
+async function getDistributionById(distributionId, cacheFlag = false){
+    return await getSchemaItemById("distribution", distributionId, cacheFlag);
 }
 
 async function convertDatasetToDistributionId(datasetId) {
