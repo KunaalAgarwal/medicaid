@@ -288,7 +288,7 @@ code {
 .contact {
     padding: 50px 100px;
     text-align: center;
-    background-color: #f5f5f5;
+    /*background-color: #f5f5f5;*/
     margin: 0 auto;
 }
 
@@ -417,3 +417,25 @@ footer {
         text-align: center;
     }
 }
+
+.tutorial {
+    background-color: #f5f5f5;
+    padding: 80px;
+    text-align: center;
+}
+
+.tutorial iframe {
+    width: 100%;
+    max-width: 800px;
+    height: 450px;
+    border: none;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .tutorial iframe {
+        height: 300px;
+    }
+}
+
