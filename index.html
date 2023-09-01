@@ -9,111 +9,112 @@
     <script type="module" src="app/index.js"></script>
 </head>
 <body>
-    <header>
-        <h1>MedicaidJS</h1>
-        <div class="navContainer">
-            <a href ='https://github.com/episphere/medicaid' target="_blank" class="navElement">Github</a>
-            <a href ='https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk' target="_blank" class="navElement">Documentation</a>
-            <a href ='https://observablehq.com/@medicaidsdk/overview' target="_blank" class="navElement">Observable Notebook</a>
-        </div>
-    </header>
-    <div class="hero-image">
-        <div class="hero-headings">
-            <h1 class="hero-title">Welcome to MedicaidJS</h1>
-            <p>
-                MedicaidJS is a software development kit (SDK) that interacts with the vast amount
-                of data contained within the Medicaid, FDA, and rxNorm datastores.
-                The SDK is a lightweight, portable, and easy-to-use JavaScript library
-                requiring no downloads or installations.
-            </p>
-            <a href="#core-capabilities" class="hero-button" id="hero-button">Get Started</a>
-        </div>
+<header>
+    <h1>MedicaidJS</h1>
+    <div class="navContainer">
+        <a href ='https://github.com/episphere/medicaid' target="_blank" class="navElement">Github</a>
+        <a href ='https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk' target="_blank" class="navElement">Documentation</a>
+        <a href ='https://observablehq.com/@medicaidsdk/overview' target="_blank" class="navElement">Observable</a>
+        <a href='https://www.youtube.com/watch?v=5ie68NFGEHs' target="_blank" class="navElement">Tutorial</a>
     </div>
-    <main>
-        <section class="core-capabilities" id="core-capabilities">
-            <h2 class="core-header" id="core_">Core Capabilities</h2>
-            <p class="core-text">
-                Performing realtime drug analytics is easy with MedicaidJS.
-                Simply select diseases or drugs of interest in order to begin
-                the visualization process. The SDK contains data regarding drug utilization at
-                both the state and national levels, drug pricing over time, and even contains
-                large repositories of social metrics and healthcare quality data.
-            </p>
-            <div class="graph-slideshow-container">
-                <a class="prev" id="prev" aria-label="Previous">&#10094; Back</a>
-                <div id="graph" class="graph"></div>
-                <a class="next" id="next" aria-label="Next">Next &#10095;</a>
-            </div>
-            <a class="hero-button" href="https://observablehq.com/@medicaidsdk/drug-visualization-medicaidsdk" target="_blank">Try it Yourself</a>
-        </section>
-        <section class="apis">
-            <div class="apis-container">
-                <div class="api-entity">
-                    <div class="api-logo fda-logo"></div>
-                    <div class="api-text">
-                        <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" class="api-header">FDA APIs</a>
-                        <p>MedicaidJS allows developers to programmatically utilize the FDA API to gain insight
-                            on drug efficacy, history, and purpose.</p>
-                    </div>
-                </div>
-                <div class="api-entity">
-                    <div class="api-logo medicaid-logo"></div>
-                    <div class="api-text">
-                        <a href="https://data.medicaid.gov/api" target="_blank" class="api-header">Medicaid APIs</a>
-                        <p>MedicaidJS allows for seamless access to the largest Medicaid Datasets
-                            including NADAC (National Average Drug and Acquisition Cost) and
-                            State Drug Utilization.
-                        </p>
-                    </div>
-                </div>
-                <div class="api-entity">
-                    <div class="api-logo rxNorm-logo"></div>
-                    <div class="api-text">
-                        <a href="https://lhncbc.nlm.nih.gov/RxNav/APIs/RxNormAPIs.html" target="_blank" class="api-header">RxNorm APIs</a>
-                        <p>Instead of foraging through NDC or ICD codes MedicaidJS permits users
-                            to search for specific drugs based on singular ingredients, disease classes, or generic
-                            names.
-                        </p>
-                    </div>
+</header>
+<div class="hero-image">
+    <div class="hero-headings">
+        <h1 class="hero-title">Welcome to MedicaidJS</h1>
+        <p>
+            MedicaidJS is a software development kit (SDK) that interacts with the vast amount
+            of data contained within the Medicaid, FDA, and rxNorm datastores.
+            The SDK is a lightweight, portable, and easy-to-use JavaScript library
+            requiring no downloads or installations.
+        </p>
+        <a href="#core-capabilities" class="hero-button" id="hero-button">Get Started</a>
+    </div>
+</div>
+<main>
+    <section class="core-capabilities" id="core-capabilities">
+        <h2 class="core-header" id="core_">Core Capabilities</h2>
+        <p class="core-text">
+            Performing realtime drug analytics is easy with MedicaidJS.
+            Simply select diseases or drugs of interest in order to begin
+            the visualization process. The SDK contains data regarding drug utilization at
+            both the state and national levels, drug pricing over time, and even contains
+            large repositories of social metrics and healthcare quality data.
+        </p>
+        <div class="graph-slideshow-container">
+            <a class="prev" id="prev" aria-label="Previous">&#10094; Back</a>
+            <div id="graph" class="graph"></div>
+            <a class="next" id="next" aria-label="Next">Next &#10095;</a>
+        </div>
+        <a class="hero-button" href="https://observablehq.com/@medicaidsdk/drug-visualization-medicaidsdk" target="_blank">Try it Yourself</a>
+    </section>
+    <section class="apis">
+        <div class="apis-container">
+            <div class="api-entity">
+                <div class="api-logo fda-logo"></div>
+                <div class="api-text">
+                    <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" class="api-header">FDA APIs</a>
+                    <p>MedicaidJS allows developers to programmatically utilize the FDA API to gain insight
+                        on drug efficacy, history, and purpose.</p>
                 </div>
             </div>
-        </section>
-        <section class="installation">
-            <h2 class="installation-header">Installation</h2>
-            <p>Installing MedicaidJS can be performed with a single line of code
+            <div class="api-entity">
+                <div class="api-logo medicaid-logo"></div>
+                <div class="api-text">
+                    <a href="https://data.medicaid.gov/api" target="_blank" class="api-header">Medicaid APIs</a>
+                    <p>MedicaidJS allows for seamless access to the largest Medicaid Datasets
+                        including NADAC (National Average Drug and Acquisition Cost) and
+                        State Drug Utilization.
+                    </p>
+                </div>
+            </div>
+            <div class="api-entity">
+                <div class="api-logo rxNorm-logo"></div>
+                <div class="api-text">
+                    <a href="https://lhncbc.nlm.nih.gov/RxNav/APIs/RxNormAPIs.html" target="_blank" class="api-header">RxNorm APIs</a>
+                    <p>Instead of foraging through NDC or ICD codes MedicaidJS permits users
+                        to search for specific drugs based on singular ingredients, disease classes, or generic
+                        names.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="installation">
+        <h2 class="installation-header">Installation</h2>
+        <p>Installing MedicaidJS can be performed with a single line of code
             following the ES6 conventions. Run the following command in your browser
             or IDE of choice to import the module. To learn more about the specific
-                functions the module contains visit the <a href="https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk" target="_blank">documentation.</a></p>
-            <code>MedicaidSDK = await import ('https://episphere.github.io/medicaid/sdk.js');</code>
-            <img src="https://wd.imgix.net/image/NJdAV9UgKuN8AhoaPBquL7giZQo1/bkh79zEFaByczisr3lD5.png?auto=format" alt="">
-        </section>
-        <section class="tutorial">
-            <iframe width="420" height="315"
-                    src="https://www.youtube.com/embed/5ie68NFGEHs">
-            </iframe>
-        </section>
-        <section class="contact">
-            <h2 class="contact-header">Reach Out</h2>
-            <p>If you have any questions or inquiries, please feel free to get in touch with us using the form below.</p>
-            <form class="contact-form">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2023 NCI-DCEG. All rights reserved.</p>
-    </footer>
+            functions the module contains visit the <a href="https://observablehq.com/@medicaidsdk/data-apis-medicaidsdk" target="_blank">documentation.</a></p>
+        <code>MedicaidSDK = await import ('https://episphere.github.io/medicaid/sdk.js');</code>
+        <img src="https://wd.imgix.net/image/NJdAV9UgKuN8AhoaPBquL7giZQo1/bkh79zEFaByczisr3lD5.png?auto=format" alt="">
+    </section>
+    <section class="tutorial">
+        <iframe width="420" height="315"
+                src="https://www.youtube.com/embed/5ie68NFGEHs">
+        </iframe>
+    </section>
+    <section class="contact">
+        <h2 class="contact-header">Reach Out</h2>
+        <p>If you have any questions or inquiries, please feel free to get in touch with us using the form below.</p>
+        <form class="contact-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2023 NCI-DCEG. All rights reserved.</p>
+</footer>
 </body>
 </html>
