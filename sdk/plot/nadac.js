@@ -53,9 +53,9 @@ async function getMedNames(medicine){
 }
 
 async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", "nadac_per_unit"]){
-    if (ndcs === undefined) ndcs = await getNadacNdcs();
     if (items === undefined) throw new Error("Please provide valid items.");
     if (filter === "ndc"){
+        if (ndcs === undefined) ndcs = await getNadacNdcs();
         items.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
     }
     await updateNadac();

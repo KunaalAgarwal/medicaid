@@ -1,5 +1,5 @@
 import * as sdk from "../sdk.js"
-//setting up graph layouts and getting necessary button ids
+// setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
     title: {
         text: "National Average Drug Acquisition Cost" ,
@@ -84,11 +84,6 @@ const graphDivs = [];
 const graphDiv = document.getElementById("graph");
 let currentGraphIndex = 0;
 
-const initGraph = await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout);
-graphDiv.appendChild(initGraph);
-graphDivs.push(initGraph);
-showCurrentGraph();
-
 function showCurrentGraph() {
     // Hide all graph divs
     graphDivs.forEach((div, index) => {
@@ -101,9 +96,10 @@ function showCurrentGraph() {
 }
 async function generateGraphs() {
     try {
-        graphDivs.push(await sdk.plotUtilMap("00536105556"));
-        graphDivs.push(await sdk.plotUtilTimeSeries(["24385005452"], drugUtilTime));
-        graphDivs.push(await sdk.plotDrugUtilBar("00536105556", drugUtilState));
+        graphDivs.push(await sdk.plotNadacMed("CALCITRIOL 1 MCG/ML SOLUTION", drugTimeLayout));
+        graphDivs.push(await sdk.plotUtilMap("TRULICITY ", {outliers: true, filter: "product_name", yAxis: "total_amount_reimbursed", year: "2022"}));
+        graphDivs.push(await sdk.plotUtilTimeSeries("TRULICITY ", drugUtilTime, null, {yAxis: "total_amount_reimbursed", y2: "number_of_prescriptions", filter: "product_name"}));
+        graphDivs.push(await sdk.plotDrugUtilBar("TRULICITY ", drugUtilState, null, {yAxis: "total_amount_reimbursed", year: '2022', filter: "product_name"}));
         graphDivs.push(await sdk.plotRateBar("Percentage Enrolled in Medicaid or Medicaid Expansion CHIP Programs for at least 90 Continuous Days with at Least 1 Preventive Dental Service: Ages 1 to 20"
             , "Percentage of Eligibles Who Received Preventive Dental Services: Ages 1 to 20", healthcareQualityBarLayout))
         graphDivs.forEach(graph => {
