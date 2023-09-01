@@ -13,7 +13,7 @@ async function getRawUtilData(items, filter = "ndc", dataVariables = ["year", "t
     const adjustedNdcsList = Array.isArray(items) ? items : [items];
     if (adjustedNdcsList === undefined) throw new Error("Please provide valid items.");
     if (filter === "ndc"){
-        if (ndcs === null) ndcs = await getNadacNdcs();
+        if (ndcs === undefined) ndcs = await getNadacNdcs();
         adjustedNdcsList.forEach(item => {if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");})
     }
     if (!dataVariables.includes("suppression_used")) {
@@ -59,7 +59,7 @@ async function plotUtilTimeSeries(items, layout, div, axis) {
 async function getDrugUtilDataBar(item, dataParams = {yAxis: "total_amount_reimbursed", year: '2022', filter: "ndc"}) {
     if (item === undefined) throw new Error("Please provide valid items.");
     if (dataParams.filter === "ndc"){
-        if (ndcs === null) ndcs = await getNadacNdcs();
+        if (ndcs === undefined) ndcs = await getNadacNdcs();
         if (!ndcs.has(item)) throw new Error("This NDC is not contained within the Medicaid Dataset.");
     }
     const datasetId = datasets.indexOf(datasets.filter(dataset => dataset["title"].includes(dataParams.year))[0]);
