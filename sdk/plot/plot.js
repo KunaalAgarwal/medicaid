@@ -43,7 +43,6 @@ function plotifyData(data, axis) {
     return Object.values(axis).reduce(
         (result, field) => {
             result[field] = data.map(obj => obj[field]);
-            result[field].sort();
             return result;
         },
         {}
@@ -70,6 +69,9 @@ function averageValues(data) {
     return averagedData;
 }
 
+function convertDate(date){
+    return parseInt(date.split("-").join(""))
+}
 
 export {
     getUniqueValues,
@@ -77,5 +79,6 @@ export {
     getAllData,
     plotifyData,
     averageValues,
+    convertDate,
     Plotly
 }

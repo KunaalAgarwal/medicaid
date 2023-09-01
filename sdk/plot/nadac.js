@@ -1,6 +1,6 @@
 import {getDatasetByKeyword, convertDatasetToDistributionId} from "../metastore.js";
 import {getDatastoreQuerySql} from "../sql.js";
-import {getAllData, plot, plotifyData} from "./plot.js";
+import {getAllData, plot, plotifyData, convertDate} from "./plot.js";
 import {endpointStore} from "../httpMethods.js";
 import {getDatastoreImport} from "../datastore.js";
 
@@ -66,6 +66,7 @@ async function getMedData(items, filter = "ndc", dataVariables = ["as_of_date", 
 async function getMedPlotData(meds, filter, axis = {xAxis: "as_of_date", yAxis: "nadac_per_unit"}){
     const medList = Array.isArray(meds) ? meds : [meds];
     const medData = await getMedData(medList, filter, Object.values(axis));
+    medData.sort((a,b) => convertDate(a[axis.xAxis]) - convertDate(b[axis.xAxis]))
     const plotData = plotifyData(medData, axis);
     return {x: plotData[axis.xAxis], y: plotData[axis.yAxis], name: medList[0]}
 }
