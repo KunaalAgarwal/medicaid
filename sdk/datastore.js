@@ -9,33 +9,6 @@ async function getDatastoreImport(distributionId){
 }
 
 //datastore: query
-async function postDatastoreQuery(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}) {
-    let headers = {'Content-Type': 'application/json'}
-    if (queryParams.limit > 10000){queryParams.limit = 10000}
-    let requestBody = {
-        "conditions": [
-            {
-                "resource": "t",
-                "property": queryParams.columnName,
-                "value": queryParams.columnValue,
-                "operator": queryParams.operator
-            }
-        ],
-        "limit": queryParams.limit,
-        "resources": [
-            {
-                "id": `${distributionId}`,
-                "alias": "t"
-            },
-        ]
-    }
-    let response = await postItem('datastore/query', requestBody, headers);
-    if (response === undefined){
-        throw new Error("An error occurred in the distribution post query. ")
-    }
-    return response["results"];
-}
-
 async function postDatastoreQueryDistributionId(distributionId, queryParams = {columnName: "", columnValue: "", operator: "=", limit: 0}){
     let headers = {'Content-Type': 'application/json'}
     if (queryParams.limit > 10000){queryParams.limit = 10000}
@@ -209,7 +182,6 @@ function createDownloadLink(blob, filename, textContent) {
 
 export{
     getDatastoreImport,
-    postDatastoreQuery,
     postDatastoreQueryDownload,
     postDatastoreQueryDistributionId,
     postDatastoreQueryDatasetId,

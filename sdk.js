@@ -17,7 +17,6 @@ import {
 } from './sdk/metastore.js';
 
 import {
-    postDatastoreQuery,
     getDatastoreImport,
     postDatastoreQueryDownload,
     postDatastoreQueryDistributionId,
@@ -122,7 +121,6 @@ export {
     getDistributionById,
     //datastore
     getDatastoreImport,
-    postDatastoreQuery,
     postDatastoreQueryDownload,
     postDatastoreQueryDistributionId,
     postDatastoreQueryDatasetId,
