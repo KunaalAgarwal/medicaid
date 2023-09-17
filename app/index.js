@@ -100,8 +100,9 @@ async function generateGraphs() {
         graphDivs.push(await sdk.plotUtilMap("TRULICITY ", {outliers: true, filter: "product_name", yAxis: "total_amount_reimbursed", year: "2022"}));
         graphDivs.push(await sdk.plotUtilTimeSeries("TRULICITY ", drugUtilTime, null, {yAxis: "total_amount_reimbursed", y2: "number_of_prescriptions", filter: "product_name"}));
         graphDivs.push(await sdk.plotDrugUtilBar("TRULICITY ", drugUtilState, null, {yAxis: "total_amount_reimbursed", year: '2022', filter: "product_name"}));
-        graphDivs.push(await sdk.plotRateBar("Percentage Enrolled in Medicaid or Medicaid Expansion CHIP Programs for at least 90 Continuous Days with at Least 1 Preventive Dental Service: Ages 1 to 20"
-            , "Percentage of Eligibles Who Received Preventive Dental Services: Ages 1 to 20", healthcareQualityBarLayout))
+        graphDivs.push(await sdk.plotRateBar("Percentage who had a New Prescription for an Antipsychotic Medication and had Documentation of Psychosocial Care as First-Line Treatment: Ages 1 to 17"
+            , "Use of First-Line Psychosocial Care for Children and Adolescents on Antipsychotics: Ages 1 to 17"
+            , healthcareQualityBarLayout))
         graphDivs.forEach(graph => {
             graphDiv.appendChild(graph);
         })
