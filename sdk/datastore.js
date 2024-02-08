@@ -179,7 +179,6 @@ function createDownloadLink(blob, filename, textContent) {
     }
 }
 
-
 export{
     getDatastoreImport,
     postDatastoreQueryDownload,
