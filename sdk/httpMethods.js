@@ -1,19 +1,47 @@
-import localforage from 'https://cdn.skypack.dev/localforage';
-let updateCount = 0;
-const dbName = "localforage"
-localforage.config({
-    driver: [
-        localforage.INDEXEDDB,
-        localforage.LOCALSTORAGE,
-        localforage.WEBSQL
-    ],
-    name: 'localforage'
-});
+import localforage from 'localforage';
 
-let endpointStore = localforage.createInstance({
-    name: dbName,
-    storeName: "endpointStore"
-})
+let endpointStore;
+let updateCount = 0;
+
+if (typeof window !== 'undefined') {
+    const dbName = "localforage";
+    localforage.config({
+        driver: [
+            localforage.INDEXEDDB,
+            localforage.LOCALSTORAGE,
+            localforage.WEBSQL
+        ],
+        name: dbName
+    });
+    endpointStore = localforage.createInstance({
+        name: dbName,
+        storeName: "endpointStore"
+    });
+} else {
+    class NodeStorage {
+        constructor() {
+            this.storageObj = {};
+        }
+        clear() {
+            this.storageObj = {};
+        }
+        setItem(key, value) {
+            this.storageObj[key] = value;
+        }
+        getItem(key){
+            if (Object.keys(this.storageObj).includes(key)) return this.storageObj[key];
+            return null; 
+        }
+        removeItem(key){
+            delete this.storageObj[key]
+        }
+        keys() {
+            return Object.keys(this.storageObj);
+        }
+    }
+    endpointStore = new NodeStorage();
+}
+
 async function getItems(endpoint, requestParams = {blobFlag: false, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'}) {
     await updateCache();
     const cachedData = await endpointStore.getItem(endpoint);
@@ -41,7 +69,7 @@ async function postItem(endpoint, payload, headerContent, requestParams = {blobF
         headers: headerContent,
         body: JSON.stringify(payload)
     };
-    await  updateCache();
+    await updateCache();
     const cachedData = await endpointStore.getItem(options.body);
     if (cachedData !== null) {
         endpointStore.setItem(options.body, {response: cachedData.response, time: Date.now()})
