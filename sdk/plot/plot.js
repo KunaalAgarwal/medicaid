@@ -1,6 +1,11 @@
 import {getDatastoreQuerySql} from "../sql.js";
-import Plotly from 'https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm';
 
+const loadPlotly = async () => {
+    if (typeof window !== 'undefined') {
+          return import('plotly.js-dist-min');
+    } 
+}
+const Plotly = await loadPlotly();
 async function getUniqueValues(variable, distribution) {
     // Use State Utilization Data 2014
     let all_values = await getDatastoreQuerySql(`[SELECT ${variable} FROM ${distribution}]`);
