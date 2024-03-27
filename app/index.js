@@ -112,7 +112,6 @@ async function generateGraphs() {
 }
 
 await generateGraphs();
-console.log(graphDivs);
 
 async function next() {
     currentGraphIndex++;
