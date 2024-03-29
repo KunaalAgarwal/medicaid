@@ -3,7 +3,6 @@ let Plotly;
 if (typeof window !== 'undefined') {
     await import('https://cdn.jsdelivr.net/npm/plotly.js-dist/+esm').then(module => {
         Plotly = module.default;
-        console.log(Plotly);
     });
 }
 async function getUniqueValues(variable, distribution) {
@@ -84,6 +83,5 @@ export {
     getAllData,
     plotifyData,
     averageValues,
-    convertDate,
-    Plotly
+    convertDate
 }

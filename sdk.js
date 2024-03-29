@@ -1,5 +1,3 @@
-console.log('import initiated')
-
 import {
     clearCache
 } from "./sdk/httpMethods.js"
@@ -79,8 +77,7 @@ import {
 
 import {
     getUniqueValues,
-    plot,
-    Plotly
+    plot
 } from "./sdk/plot/plot.js"
 
 import {
@@ -132,7 +129,6 @@ export {
     getSearchFacets,
     getSearch,
     //plot
-    Plotly,
     plot,
     getUniqueValues,
     //Nadac
@@ -175,5 +171,3 @@ export {
     //fda
     getDrugContext
 }
-
-console.log('import was successful')
