@@ -9,8 +9,7 @@ async function getSchemas(){
     return response;
 }
 
-// console.log(c);
-// const schemas = Object.keys(await getSchemas());
+const schemas = Object.keys(await getSchemas());
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
     if (schemaName === undefined || !schemas.includes(schemaName.toLowerCase())){

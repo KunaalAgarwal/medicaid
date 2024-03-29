@@ -1,12 +1,19 @@
-let localforage;
 let endpointStore;
 let updateCount = 0;
 
 if (typeof window !== 'undefined') {
-    await import('https://cdn.skypack.dev/localforage').then(module => {
-        localforage = module;
-    });
-} else {
+    let localforage = await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
+    if (window.localforage && typeof window.localforage.createInstance === 'function') {
+        localforage = window.localforage;
+        const dbName = "localforage";
+        endpointStore = localforage.createInstance({
+            name: dbName,
+            storeName: "endpointStore"
+        });
+    } else {
+        console.error("localforage did not load correctly.");
+    }
+}else {
     class NodeStorage {
         constructor() {
             this.storageObj = {};

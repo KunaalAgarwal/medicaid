@@ -108,7 +108,8 @@ async function generateGraphs() {
             graphDiv.appendChild(graph);
         })
     } catch (error){
-        location.reload();
+        console.log(error)
+        // location.reload();
     }
 }
 
