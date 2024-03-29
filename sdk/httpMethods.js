@@ -1,5 +1,4 @@
 import localforage from 'localforage';
-
 let endpointStore;
 let updateCount = 0;
 
