@@ -1,20 +1,10 @@
-import localforage from 'localforage';
+let localforage;
 let endpointStore;
 let updateCount = 0;
 
 if (typeof window !== 'undefined') {
-    const dbName = "localforage";
-    localforage.config({
-        driver: [
-            localforage.INDEXEDDB,
-            localforage.LOCALSTORAGE,
-            localforage.WEBSQL
-        ],
-        name: dbName
-    });
-    endpointStore = localforage.createInstance({
-        name: dbName,
-        storeName: "endpointStore"
+    await import('https://cdn.skypack.dev/localforage').then(module => {
+        localforage = module;
     });
 } else {
     class NodeStorage {
@@ -29,7 +19,7 @@ if (typeof window !== 'undefined') {
         }
         getItem(key){
             if (Object.keys(this.storageObj).includes(key)) return this.storageObj[key];
-            return null; 
+            return null;
         }
         removeItem(key){
             delete this.storageObj[key]

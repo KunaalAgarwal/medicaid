@@ -1,3 +1,5 @@
+console.log('import initiated')
+
 import {
     clearCache
 } from "./sdk/httpMethods.js"
@@ -174,5 +176,4 @@ export {
     getDrugContext
 }
 
-//initialize localforage
-getSchemas().then();
+console.log('import was successful')

@@ -9,7 +9,8 @@ async function getSchemas(){
     return response;
 }
 
-const schemas = Object.keys(await getSchemas());
+// console.log(c);
+// const schemas = Object.keys(await getSchemas());
 //ENDPOINT: "metastore/schemas/{schemaType}
 async function getSpecificSchema(schemaName){
     if (schemaName === undefined || !schemas.includes(schemaName.toLowerCase())){
@@ -109,6 +110,7 @@ async function convertDistributionToDatasetId(distributionId){
     let adjustedDataset = Array.isArray(dataset) ? dataset : [dataset];
     return (adjustedDataset)[0].identifier;
 }
+
 
 export {
     getSchemas,

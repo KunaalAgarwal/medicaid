@@ -1,4 +1,5 @@
-const sdk = await import ('https://episphere.github.io/medicaid/sdk.js');
+// const sdk = await import ('https://episphere.github.io/medicaid/sdk.js');
+import * as sdk from '../sdk.js'
 // setting up graph layouts and getting necessary button ids
 const drugTimeLayout = {
     title: {
