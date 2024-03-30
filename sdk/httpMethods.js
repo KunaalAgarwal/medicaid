@@ -1,46 +1,49 @@
 let endpointStore;
 let updateCount = 0;
-await localForageConfig();
-async function localForageConfig(){
-    if (typeof window !== "undefined") {
-        endpointStore = (await cdnConfig()).createInstance({
-            name: "localforage",
-            storeName: "endpointStore"
-        });
-        return;
+class NodeStorage {
+    constructor() {
+        this.storageObj = {};
     }
-    endpointStore = new NodeStorage();
-    class NodeStorage {
-        constructor() {
-            this.storageObj = {};
-        }
-        clear() {
-            this.storageObj = {};
-        }
-        setItem(key, value) {
-            this.storageObj[key] = value;
-        }
-        getItem(key){
-            if (Object.keys(this.storageObj).includes(key)) return this.storageObj[key];
-            return null;
-        }
-        removeItem(key){
-            delete this.storageObj[key]
-        }
-        keys() {
-            return Object.keys(this.storageObj);
-        }
+    clear() {
+        return Promise.resolve(this.storageObj = {});
+    }
+    setItem(key, value) {
+        this.storageObj[key] = value;
+        return Promise.resolve();
+    }
+    getItem(key) {
+        return Promise.resolve(this.storageObj[key] || null);
+    }
+    removeItem(key) {
+        delete this.storageObj[key];
+        return Promise.resolve();
+    }
+    keys() {
+        return Promise.resolve(Object.keys(this.storageObj));
     }
 }
 
-async function cdnConfig(){
-    let localforage = await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
-    if (!window.localforage){
-        localforage = await import('https://cdn.skypack.dev/localforage');
-        return localforage;
-    }
-    return window.localforage;
+async function localForageConfig() {
+    return typeof window === undefined ? await cdnConfig() : new NodeStorage();
 }
+
+async function cdnConfig() {
+    try {
+        let localforage = await import('https://cdn.skypack.dev/localforage');
+        return localforage.createInstance({
+            name: "localforage",
+            storeName: "endpointStore"
+        });
+    } catch (error) {
+        await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
+        return window.localforage.createInstance({
+            name: "localforage",
+            storeName: "endpointStore"
+        });
+    }
+}
+
+endpointStore = await localForageConfig();
 
 async function getItems(endpoint, requestParams = {blobFlag: false, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'}) {
     await updateCache();
