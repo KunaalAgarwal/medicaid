@@ -1,6 +1,6 @@
 {
   "name": "medicaid",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Software Development Kit (SDK) to interact with the data.gov Medicaid API",
   "main": "sdk.js",
   "repository": {
