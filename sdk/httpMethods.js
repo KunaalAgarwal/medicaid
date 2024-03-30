@@ -1,19 +1,15 @@
 let endpointStore;
 let updateCount = 0;
-
-if (typeof window !== 'undefined') {
-    let localforage = await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
-    if (window.localforage && typeof window.localforage.createInstance === 'function') {
-        localforage = window.localforage;
-        const dbName = "localforage";
-        endpointStore = localforage.createInstance({
-            name: dbName,
+await localForageConfig();
+async function localForageConfig(){
+    if (typeof window !== "undefined") {
+        endpointStore = (await cdnConfig()).createInstance({
+            name: "localforage",
             storeName: "endpointStore"
         });
-    } else {
-        console.error("localforage did not load correctly.");
+        return;
     }
-}else {
+    endpointStore = new NodeStorage();
     class NodeStorage {
         constructor() {
             this.storageObj = {};
@@ -35,7 +31,15 @@ if (typeof window !== 'undefined') {
             return Object.keys(this.storageObj);
         }
     }
-    endpointStore = new NodeStorage();
+}
+
+async function cdnConfig(){
+    let localforage = await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
+    if (!window.localforage){
+        localforage = await import('https://cdn.skypack.dev/localforage');
+        return localforage;
+    }
+    return window.localforage;
 }
 
 async function getItems(endpoint, requestParams = {blobFlag: false, cacheFlag: true, baseUrl: 'https://data.medicaid.gov/api/1/'}) {
