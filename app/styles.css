@@ -273,6 +273,10 @@ p {
     text-align: center;
 }
 
+.installation-div{
+    margin: 10px
+}
+
 img {
     width: 50%;
 }

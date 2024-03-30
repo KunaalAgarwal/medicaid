@@ -1,15 +1,17 @@
 # MedicaidJS
-**MedicaidJS** is a versatile Software Development Kit (SDK) designed to facilitate seamless interaction with the [data.gov Medicaid API](https://www.medicaid.gov/). 
+**MedicaidJS** is a versatile Software Development Kit (SDK) designed to facilitate seamless interaction with the [data.gov Medicaid API](https://data.medicaid.gov/). 
 
 ## Installation
 
 ### Node.js Environment
 To integrate MedicaidJS into your Node.js project, use npm for installation:
-`npm install medicaid` or `npm ci medicaid` 
+`npm install medicaid` or `npm ci medicaid`
+
 ### Browser Environment
 For web-based projects, you can directly import MedicaidJS using ES6 module syntax:
-`const MedicaidSDK = await import('https://kunaalagarwal.github.io/medicaid/sdk.js');`
+`const MedicaidSDK = await import('https://kunaalagarwal.github.io/medicaid/sdk.js');` 
 
+Script tag loading: `<script type='module' src='https://kunaalagarwal.github.io/medicaid/sdk.js'></script>`
 ## Resources
 ###  [Availability](https://episphere.github.io/medicaid/)
 Visit the landing page to explore the capabilities and the MedicaidJS ecosystem
