@@ -13,7 +13,7 @@ For web-based projects, you can directly import MedicaidJS using ES6 module synt
 
 Script tag loading: `<script type='module' src='https://kunaalagarwal.github.io/medicaid/sdk.js'></script>`
 ## Resources
-###  [Availability](https://episphere.github.io/medicaid/)
+###  [Availability](https://kunaalagarwal.github.io/medicaid/)
 Visit the landing page to explore the capabilities and the MedicaidJS ecosystem
 ### [Publication](https://academic.oup.com/bioinformaticsadvances/article/3/1/vbad170/7455249?login=false)
 Refer to the published research article for more information about MedicaidJS.
