@@ -57,6 +57,7 @@ async function preImport(){
     datasets.sort((a, b) => a.title.localeCompare(b.title));
     let ids = await Promise.all(datasets.map(d => convertDatasetToDistributionId(d.identifier)))
     distributions = ids.slice(2, ids.length)
+    distributions.pop() //2023 dataset has new nomenclature 'ffy' -> 'core_set_year' will need to update the data retrieval methods, but this will fix for now
 }
 
 export {
