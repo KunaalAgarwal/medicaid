@@ -37,11 +37,11 @@ h1 {
 
 .navElement {
     border: none;
-    padding: clamp(5px, 1.0vw, 10px) clamp(10px, 2vw, 20px);
+    padding: clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);
     background-color: #4c6ef5;
     color: #fff;
     border-radius: 8px;
-    font-size: clamp(0.6rem, 2vw, 1.25rem); /* Adjust font size dynamically */
+    font-size: clamp(0.6rem, 2vw, 1rem); /* Adjust font size dynamically */
     font-weight: 400;
     text-decoration: none;
     transition: border-radius 0.3s ease;
@@ -62,10 +62,11 @@ h1 {
     transition: border-radius 0.5s ease;
 }
 
+
 .hero-image {
     background-image: linear-gradient(rgba(19, 19, 19, 0.5), rgba(23, 23, 23, 0.5)), url("https://files.123freevectors.com/wp-content/original/130873-abstract-blue-polygon-background.jpg");
     background-size: cover;
-    /*background-position: center;*/
+    background-position: center;
     background-repeat: no-repeat;
     width: 100%;
     z-index: 2;
@@ -73,7 +74,7 @@ h1 {
 
 .hero-headings {
     text-align: center;
-    padding: 34vh 100px;
+    padding: 25vh 100px;
     max-width: 800px;
     margin: 0 auto;
     opacity: 1;
@@ -94,25 +95,24 @@ h1 {
 
 .hero-title {
     color: #fff;
-    font-size: 65px;
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Dynamically scale font size */
     font-weight: 450;
-    margin-bottom: 25px;
-}
+    margin-bottom: clamp(1rem, 2vw, 2rem)}
 
 .hero-headings p {
     color: #fff;
-    font-size: 20px;
+    font-size: clamp(0.75rem, 2.5vw, 1.25rem);
     line-height: 1.6;
-    margin-bottom: 40px;
+    margin-bottom: clamp(1rem, 2vw, 2.5rem); /* Responsive spacing below paragraph */
 }
 
 .hero-button {
     border: none;
-    padding: 15px 30px;
+    padding: clamp(0.5rem, 1vw, 1rem) clamp(1rem, 2vw, 2rem); /* Button padding */
+    font-size: clamp(0.75rem, 2.0vw, 1.25rem); /* Responsive button text size */
     background-color: #4c6ef5;
     color: #fff;
     border-radius: 8px;
-    font-size: 18px;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
@@ -484,41 +484,11 @@ footer {
 /*    }*/
 /*}*/
 
-.hero-title {
-    font-size: clamp(2.5rem, 6vw, 4rem);
-}
-
-.hero-headings p, .core-text, p {
-    font-size: clamp(1rem, 2vw, 1.25rem);
-}
-
-h2 {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-}
-
-.api-header {
-    font-size: clamp(1.25rem, 3vw, 2rem);
-}
-
-/* Adjust margins and paddings */
-.hero-headings {
-    padding: clamp(20vh, 25%, 34vh) clamp(10px, 5%, 100px);
-}
-
-.core-capabilities, .installation, .contact {
-    padding: clamp(20px, 5%, 50px) clamp(10px, 10%, 100px);
-}
-
-.api-entity {
-    max-width: clamp(200px, 40%, 300px);
-    padding: clamp(10px, 2%, 15px);
-}
-
 /* Navigation Links */
-.navElement {
-    font-size: clamp(0.75rem, 2vw, 1rem);
-    padding: clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);
-}
+/*.navElement {*/
+/*    font-size: clamp(0.75rem, 2vw, 1rem);*/
+/*    padding: clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);*/
+/*}*/
 
 /* Media Queries for Layout Adjustments */
 /*@media (max-width: 768px) {*/
