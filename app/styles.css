@@ -6,39 +6,53 @@ html {
 body {
     font-family: 'Poppins', sans-serif;
     color: #333;
-    padding: 0;
-    overflow-x: hidden;
+    /*overflow-x: hidden;*/
 }
 
 header {
     background-color: #f5f5f5;
-    padding: 20px;
+    padding: 1.5vw;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: fixed;
+    position: sticky; top: 0; /*allows for nav bar to stay attached to the top of the screen and be present at all times*/
     width: 100%;
+    gap: clamp(1rem, 5vw, 4rem); /*maintains a gap between h1 and the navElements*/
 }
 
 h1 {
     font-weight: 300;
     margin: 0;
-    font-size: 40px;
+    font-size: clamp(1.0rem, 4vw, 2.5rem);
+}
+
+.navContainer {
+    display: flex; /* Makes navElements align in a row */
+    gap: clamp(0.5rem, 1vw, 1rem); /* Adds spacing between the buttons */
+    flex-wrap: wrap; /* Allows buttons to wrap to the next line if needed */
+    justify-content: flex-end; /* Aligns buttons to the right */
 }
 
 .navElement {
     border: none;
-    padding: 10px 20px;
+    padding: clamp(5px, 1.0vw, 10px) clamp(10px, 2vw, 20px);
     background-color: #4c6ef5;
     color: #fff;
     border-radius: 8px;
-    margin-right: 8px;
-    font-size: 15px;
+    font-size: clamp(0.6rem, 2vw, 1.25rem); /* Adjust font size dynamically */
     font-weight: 400;
     text-decoration: none;
     transition: border-radius 0.3s ease;
+    text-align: center;
+
+    max-width: clamp(50px, 20vw, 200px); /* Clamp max-width dynamically */
+
+    /*In case of text being to long for the smaller versions of the buttons*/
+    white-space: nowrap; /* Prevents text from wrapping within a button */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Handles long text gracefully */
 }
 
 .navElement:hover {
@@ -356,98 +370,6 @@ button[type="submit"]:hover {
     background-color: #344aa1;
 }
 
-footer {
-    background-color: #706e6e;
-    padding: 10px;
-    text-align: center;
-    color: #e3e2e2;
-}
-
-@media(max-width: 900px){
-    h1 {
-        font-size: 30px;
-    }
-    .navElement {
-        font-size: 12px;
-        padding: 8px 15px;
-    }
-    .api-text, p {
-        font-size: 12px;
-    }
-}
-
-@media(max-width: 600px){
-    h1 {
-        font-size: 20px;
-    }
-    .navElement {
-        font-size: 12px;
-        padding: 6px 13px;
-    }
-    .hero-title {
-        font-size: 45px;
-    }
-    .hero-headings{
-        font-size: 15px;
-    }
-    h2{
-        font-size: 30px;
-    }
-    .core-text, p, code{
-        font-size: 13px;
-    }
-    .api-text, p {
-        font-size: 10px;
-    }
-}
-
-@media(max-width: 400px){
-    h1 {
-        font-size: 17px;
-    }
-    .navElement {
-        font-size: 10px;
-        padding: 5px 10px;
-    }
-    .hero-title {
-        font-size: 35px;
-    }
-    .hero-headings{
-        font-size: 10px;
-    }
-    h2{
-        font-size: 25px;
-    }
-    .core-text, p, code{
-        font-size: 10px;
-    }
-    .api-text, p {
-        font-size: 8px;
-    }
-}
-
-@media (max-width: 768px) {
-    .api-logo {
-        width: 100px;
-        height: 100px;
-    }
-    .medicaid-logo {
-        height: 80px;
-        width: 200px;
-    }
-    .rxNorm-logo {
-        height: 90px;
-        width: 75px;
-    }
-    .api-header {
-        font-size: 20px;
-    }
-    .api-entity {
-        flex-direction: column;
-        text-align: center;
-    }
-}
-
 .tutorial {
     background-color: #f5f5f5;
     padding: 80px;
@@ -463,10 +385,183 @@ footer {
     border-radius: 8px;
 }
 
-@media (max-width: 768px) {
-    .tutorial iframe {
-        height: 300px;
-    }
+footer {
+    background-color: #706e6e;
+    padding: 10px;
+    text-align: center;
+    color: #e3e2e2;
 }
+
+
+/*@media(max-width: 900px){*/
+/*    h1 {*/
+/*        font-size: 30px;*/
+/*    }*/
+/*    .navElement {*/
+/*        font-size: 12px;*/
+/*        padding: 8px 15px;*/
+/*    }*/
+/*    .api-text, p {*/
+/*        font-size: 12px;*/
+/*    }*/
+/*}*/
+
+/*@media(max-width: 600px){*/
+/*    h1 {*/
+/*        font-size: 20px;*/
+/*    }*/
+/*    .navElement {*/
+/*        font-size: 12px;*/
+/*        padding: 6px 13px;*/
+/*    }*/
+/*    .hero-title {*/
+/*        font-size: 45px;*/
+/*    }*/
+/*    .hero-headings{*/
+/*        font-size: 15px;*/
+/*    }*/
+/*    h2{*/
+/*        font-size: 30px;*/
+/*    }*/
+/*    .core-text, p, code{*/
+/*        font-size: 13px;*/
+/*    }*/
+/*    .api-text, p {*/
+/*        font-size: 10px;*/
+/*    }*/
+/*}*/
+
+/*@media(max-width: 400px){*/
+/*    h1 {*/
+/*        font-size: 17px;*/
+/*    }*/
+/*    .navElement {*/
+/*        font-size: 10px;*/
+/*        padding: 5px 10px;*/
+/*    }*/
+/*    .hero-title {*/
+/*        font-size: 35px;*/
+/*    }*/
+/*    .hero-headings{*/
+/*        font-size: 10px;*/
+/*    }*/
+/*    h2{*/
+/*        font-size: 25px;*/
+/*    }*/
+/*    .core-text, p, code{*/
+/*        font-size: 10px;*/
+/*    }*/
+/*    .api-text, p {*/
+/*        font-size: 8px;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 768px) {*/
+/*    .api-logo {*/
+/*        width: 100px;*/
+/*        height: 100px;*/
+/*    }*/
+/*    .medicaid-logo {*/
+/*        height: 80px;*/
+/*        width: 200px;*/
+/*    }*/
+/*    .rxNorm-logo {*/
+/*        height: 90px;*/
+/*        width: 75px;*/
+/*    }*/
+/*    .api-header {*/
+/*        font-size: 20px;*/
+/*    }*/
+/*    .api-entity {*/
+/*        flex-direction: column;*/
+/*        text-align: center;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 768px) {*/
+/*    .tutorial iframe {*/
+/*        height: 300px;*/
+/*    }*/
+/*}*/
+
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+}
+
+.hero-headings p, .core-text, p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+h2 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.api-header {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* Adjust margins and paddings */
+.hero-headings {
+    padding: clamp(20vh, 25%, 34vh) clamp(10px, 5%, 100px);
+}
+
+.core-capabilities, .installation, .contact {
+    padding: clamp(20px, 5%, 50px) clamp(10px, 10%, 100px);
+}
+
+.api-entity {
+    max-width: clamp(200px, 40%, 300px);
+    padding: clamp(10px, 2%, 15px);
+}
+
+/* Navigation Links */
+.navElement {
+    font-size: clamp(0.75rem, 2vw, 1rem);
+    padding: clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);
+}
+
+/* Media Queries for Layout Adjustments */
+/*@media (max-width: 768px) {*/
+/*    .navContainer {*/
+/*        display: flex;*/
+/*        flex-direction: column;*/
+/*        align-items: center;*/
+/*    }*/
+
+/*    .hero-headings {*/
+/*        text-align: center;*/
+/*        padding: 20vh 20px;*/
+/*    }*/
+
+/*    .api-container {*/
+/*        flex-direction: column;*/
+/*        align-items: center;*/
+/*    }*/
+
+/*    .api-logo {*/
+/*        width: 80px;*/
+/*        height: 80px;*/
+/*    }*/
+
+/*    .hero-button {*/
+/*        font-size: clamp(0.8rem, 1.5vw, 1rem);*/
+/*        padding: clamp(10px, 2vw, 15px) clamp(20px, 5vw, 30px);*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 480px) {*/
+/*    .hero-headings {*/
+/*        padding: 15vh 10px;*/
+/*    }*/
+
+/*    .hero-title {*/
+/*        font-size: clamp(1.5rem, 4vw, 2rem);*/
+/*    }*/
+
+/*    .navElement {*/
+/*        margin-bottom: 8px;*/
+/*    }*/
+/*}*/
+
 
 
