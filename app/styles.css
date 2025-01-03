@@ -162,9 +162,7 @@ p {
 }
 
 .graph {
-    margin-bottom: 50px
 }
-
 
 .prev, .next {
     font-size: clamp(0.8rem, 2.0vw, 1.0rem); /* Dynamic arrow size */
