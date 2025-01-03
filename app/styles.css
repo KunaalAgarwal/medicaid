@@ -130,13 +130,13 @@ main {
 }
 
 .core-capabilities {
-    padding: 50px 20px;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 3rem);
     text-align: center;
 }
 
 h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    margin-bottom: clamp(1rem, 2vw, 2rem);
     color: #444;
     font-weight: 400;
 }
@@ -147,41 +147,30 @@ p {
     line-height: 1.6;
 }
 
-.core-button {
-    border: none;
-    padding: 15px 30px;
-    margin-top: 20px;
-    background-color: #848796;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.core-text {
+    font-size: clamp(0.75rem, 2.5vw, 1.25rem);
+    margin: 0 auto clamp(1rem, 2.0vw, 2.5rem);
+    max-width: 800px; /* Keeps the text block narrow for readability */
 }
-
-.core-button:hover {
-    background-color: #9ca3c0;
-    text-decoration: none;
-    color: #fff;
-}
-
 
 .graph-slideshow-container {
-    padding: 30px;
-    position: relative;
-    display: flex;
+    /*display: flex;*/
     align-items: center;
     justify-content: center;
     transition: opacity 0.5s ease;
+    margin: clamp(1rem, 3vw, 2rem) auto; /* Responsive margin */
 }
 
+.graph {
+    margin-bottom: 50px
+}
+
+
 .prev, .next {
+    font-size: clamp(0.8rem, 2.0vw, 1.0rem); /* Dynamic arrow size */
     padding: 15px;
     font-family: inherit;
     color: #666666;
-    font-size: 18px;
     transition: 0.6s ease;
     text-decoration: none;
     cursor: pointer;
@@ -312,7 +301,6 @@ code {
 }
 
 .contact-header {
-    font-size: 36px;
     margin-bottom: 20px;
     color: #444;
     font-weight: 400;
@@ -391,147 +379,3 @@ footer {
     text-align: center;
     color: #e3e2e2;
 }
-
-
-/*@media(max-width: 900px){*/
-/*    h1 {*/
-/*        font-size: 30px;*/
-/*    }*/
-/*    .navElement {*/
-/*        font-size: 12px;*/
-/*        padding: 8px 15px;*/
-/*    }*/
-/*    .api-text, p {*/
-/*        font-size: 12px;*/
-/*    }*/
-/*}*/
-
-/*@media(max-width: 600px){*/
-/*    h1 {*/
-/*        font-size: 20px;*/
-/*    }*/
-/*    .navElement {*/
-/*        font-size: 12px;*/
-/*        padding: 6px 13px;*/
-/*    }*/
-/*    .hero-title {*/
-/*        font-size: 45px;*/
-/*    }*/
-/*    .hero-headings{*/
-/*        font-size: 15px;*/
-/*    }*/
-/*    h2{*/
-/*        font-size: 30px;*/
-/*    }*/
-/*    .core-text, p, code{*/
-/*        font-size: 13px;*/
-/*    }*/
-/*    .api-text, p {*/
-/*        font-size: 10px;*/
-/*    }*/
-/*}*/
-
-/*@media(max-width: 400px){*/
-/*    h1 {*/
-/*        font-size: 17px;*/
-/*    }*/
-/*    .navElement {*/
-/*        font-size: 10px;*/
-/*        padding: 5px 10px;*/
-/*    }*/
-/*    .hero-title {*/
-/*        font-size: 35px;*/
-/*    }*/
-/*    .hero-headings{*/
-/*        font-size: 10px;*/
-/*    }*/
-/*    h2{*/
-/*        font-size: 25px;*/
-/*    }*/
-/*    .core-text, p, code{*/
-/*        font-size: 10px;*/
-/*    }*/
-/*    .api-text, p {*/
-/*        font-size: 8px;*/
-/*    }*/
-/*}*/
-
-/*@media (max-width: 768px) {*/
-/*    .api-logo {*/
-/*        width: 100px;*/
-/*        height: 100px;*/
-/*    }*/
-/*    .medicaid-logo {*/
-/*        height: 80px;*/
-/*        width: 200px;*/
-/*    }*/
-/*    .rxNorm-logo {*/
-/*        height: 90px;*/
-/*        width: 75px;*/
-/*    }*/
-/*    .api-header {*/
-/*        font-size: 20px;*/
-/*    }*/
-/*    .api-entity {*/
-/*        flex-direction: column;*/
-/*        text-align: center;*/
-/*    }*/
-/*}*/
-
-/*@media (max-width: 768px) {*/
-/*    .tutorial iframe {*/
-/*        height: 300px;*/
-/*    }*/
-/*}*/
-
-/* Navigation Links */
-/*.navElement {*/
-/*    font-size: clamp(0.75rem, 2vw, 1rem);*/
-/*    padding: clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);*/
-/*}*/
-
-/* Media Queries for Layout Adjustments */
-/*@media (max-width: 768px) {*/
-/*    .navContainer {*/
-/*        display: flex;*/
-/*        flex-direction: column;*/
-/*        align-items: center;*/
-/*    }*/
-
-/*    .hero-headings {*/
-/*        text-align: center;*/
-/*        padding: 20vh 20px;*/
-/*    }*/
-
-/*    .api-container {*/
-/*        flex-direction: column;*/
-/*        align-items: center;*/
-/*    }*/
-
-/*    .api-logo {*/
-/*        width: 80px;*/
-/*        height: 80px;*/
-/*    }*/
-
-/*    .hero-button {*/
-/*        font-size: clamp(0.8rem, 1.5vw, 1rem);*/
-/*        padding: clamp(10px, 2vw, 15px) clamp(20px, 5vw, 30px);*/
-/*    }*/
-/*}*/
-
-/*@media (max-width: 480px) {*/
-/*    .hero-headings {*/
-/*        padding: 15vh 10px;*/
-/*    }*/
-
-/*    .hero-title {*/
-/*        font-size: clamp(1.5rem, 4vw, 2rem);*/
-/*    }*/
-
-/*    .navElement {*/
-/*        margin-bottom: 8px;*/
-/*    }*/
-/*}*/
-
-
-
