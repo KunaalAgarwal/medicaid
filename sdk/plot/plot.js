@@ -16,7 +16,10 @@ function plot(data, layout, type = "line", divElement = null){
     const adjustedData = Array.isArray(data) ? data : [data];
     const div = divElement || document.createElement('div');
     adjustedData.forEach(trace => {trace.type = type})
-    Plotly.newPlot(div, adjustedData, layout);
+    let config = {
+        responsive: true
+    }
+    Plotly.newPlot(div, adjustedData, layout, config);
     return div;
 }
 

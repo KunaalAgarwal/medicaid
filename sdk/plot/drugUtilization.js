@@ -138,8 +138,6 @@ async function plotUtilMap(item, dataParams, div) {
             showlakes: true,
             lakecolor: 'rgb(255,255,255)'
         },
-        width: 800,
-        height: 600
     };
     return plot(await getUtilMapData(item, dataParams), layout, "choropleth", div);
 }
